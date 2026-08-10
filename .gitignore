@@ -421,6 +421,14 @@ FodyWeavers.xsd
 # Built Visual Studio Code Extensions
 *.vsix
 
+# Local environment & tools
+.dotnet/
+venv/
+repomind/backend/Library/
+Library/
+
+
+
 # Windows Installer files from build outputs
 *.cab
 *.msi
