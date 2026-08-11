@@ -46,9 +46,9 @@ export const DatabaseExplorer: React.FC<DatabaseExplorerProps> = ({ databases })
                   <Database size={18} color="var(--accent-amber)" />
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                  <Table size={18} color="white" />
-                  <span style={{ fontSize: '1.05rem', fontWeight: '700', color: 'white' }}>{db.tableName}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', flexWrap: 'wrap', minWidth: 0 }}>
+                  <Table size={18} color="white" style={{ flexShrink: 0 }} />
+                  <span style={{ fontSize: '1.05rem', fontWeight: '700', color: 'white', wordBreak: 'break-all' }}>{db.tableName}</span>
                 </div>
 
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
@@ -59,12 +59,12 @@ export const DatabaseExplorer: React.FC<DatabaseExplorerProps> = ({ databases })
                 </div>
               </div>
 
-              <div style={{ borderTop: '1px solid var(--border-card)', paddingTop: '0.75rem', marginTop: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-dim)' }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  <FileCode size={13} />
+              <div style={{ borderTop: '1px solid var(--border-card)', paddingTop: '0.75rem', marginTop: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-dim)', gap: '0.5rem' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', wordBreak: 'break-all', minWidth: 0 }}>
+                  <FileCode size={13} style={{ flexShrink: 0 }} />
                   {db.filePath}:{db.lineNumber}
                 </span>
-                <ArrowRight size={13} color="var(--text-muted)" />
+                <ArrowRight size={13} color="var(--text-muted)" style={{ flexShrink: 0 }} />
               </div>
             </div>
           ))

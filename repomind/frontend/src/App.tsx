@@ -164,7 +164,7 @@ export const App: React.FC = () => {
               { id: 'databases', label: 'Database & ORM', icon: Database, count: analysis.databases.length },
               { id: 'events', label: 'Messaging Events', icon: Radio, count: analysis.events.length },
               { id: 'packages', label: 'Packages & Libraries', icon: Package, count: analysis.packages.length },
-              { id: 'architecture', label: 'Architecture & Rules', icon: Shield, count: architecture?.violations.length || 0 },
+              { id: 'architecture', label: 'Architecture & Rules', icon: Shield, count: architecture ? (architecture.violations.length > 0 ? `${architecture.violations.length} Alerts` : 'Clean') : '4 Rules' },
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;

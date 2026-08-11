@@ -81,21 +81,21 @@ export const PackageExplorer: React.FC<PackageExplorerProps> = ({ packages }) =>
                     <Package size={18} color={badge.color} />
                   </div>
 
-                  <div style={{ fontSize: '1.05rem', fontWeight: '700', color: 'white', marginBottom: '0.3rem', fontFamily: 'var(--font-code)' }}>
+                  <div style={{ fontSize: '1.05rem', fontWeight: '700', color: 'white', marginBottom: '0.3rem', fontFamily: 'var(--font-code)', wordBreak: 'break-all' }}>
                     {pkg.packageName}
                   </div>
 
                   <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '0.85rem' }}>
-                    Version: <span style={{ fontWeight: '700', color: 'var(--accent-emerald)', fontFamily: 'var(--font-code)' }}>{pkg.version}</span>
+                    Version: <span style={{ fontWeight: '700', color: 'var(--accent-emerald)', fontFamily: 'var(--font-code)', wordBreak: 'break-all' }}>{pkg.version}</span>
                   </div>
                 </div>
 
-                <div style={{ borderTop: '1px solid var(--border-card)', paddingTop: '0.75rem', marginTop: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-dim)' }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                    <FileCode size={13} />
+                <div style={{ borderTop: '1px solid var(--border-card)', paddingTop: '0.75rem', marginTop: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-dim)', gap: '0.5rem' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', wordBreak: 'break-all', minWidth: 0 }}>
+                    <FileCode size={13} style={{ flexShrink: 0 }} />
                     {pkg.filePath}
                   </span>
-                  <CheckCircle size={13} color="var(--accent-emerald)" />
+                  <CheckCircle size={13} color="var(--accent-emerald)" style={{ flexShrink: 0 }} />
                 </div>
               </div>
             );

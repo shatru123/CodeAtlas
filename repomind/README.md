@@ -1,4 +1,4 @@
-# RepoMind Technical Specification & Architecture
+# RepoMind Technical Architecture & Monorepo Guide
 
 This directory contains the core implementation of **RepoMind — Personal Engineering Knowledge Graph**.
 
@@ -17,14 +17,14 @@ This directory contains the core implementation of **RepoMind — Personal Engin
                                │   (http://localhost:5055) │
                                └─────────────┬─────────────┘
                                              │
-               ┌─────────────────────────────┼─────────────────────────────┐
-               │                             │                             │
-    ┌──────────▼──────────┐       ┌──────────▼──────────┐       ┌──────────▼──────────┐
-    │ Roslyn C# Parser    │       │ Python AST Parser   │       │ TypeScript Parser   │
-    │ (Roslyn SyntaxTree) │       │ (Functions, Routes) │       │ (TS/JS Classes/APIs)│
-    └──────────┬──────────┘       └──────────┬──────────┘       └──────────┬──────────┘
-               │                             │                             │
-               └─────────────────────────────┼─────────────────────────────┘
+      ┌──────────────────────────────────────┼──────────────────────────────────────┐
+      │                                      │                                      │
+┌─────▼──────────────┐             ┌─────────▼──────────┐                 ┌─────────▼──────────┐
+│ Roslyn C# Parser   │             │ FlowEngine         │                 │ Package Extractor  │
+│ (AST & Attributes) │             │ (Synthesizes Flows │                 │ (NuGet, NPM, PyPI) │
+└─────┬──────────────┘             │  & Mermaid Markup) │                 └─────────┬──────────┘
+      │                            └─────────┬──────────┘                           │
+      └──────────────────────────────────────┼──────────────────────────────────────┘
                                              │
                                ┌─────────────▼─────────────┐
                                │  Intermediate Representation │
@@ -38,27 +38,15 @@ This directory contains the core implementation of **RepoMind — Personal Engin
 
 ---
 
-## 🛠️ Monorepo Projects
+## 🛠️ Monorepo Projects & Key Services
 
-| Project | Responsibility | Key Classes |
+| Project | Responsibility | Key Components |
 | :--- | :--- | :--- |
-| `RepoMind.Domain` | Core Entities, Relationships, DTOs, Enums | `CodeEntity`, `CodeRelationship`, `ApiDefinition`, `DatabaseReference`, `EventDefinition` |
-| `RepoMind.Application` | Extractor pipeline abstractions & orchestrator | `RepositoryScannerService`, `ILanguageParser`, `ITechStackDetector`, `IGitMetadataExtractor` |
-| `RepoMind.Infrastructure` | Concrete Roslyn/Python/TS parsers, Git CLI & Persistence | `CSharpRoslynParser`, `PythonParser`, `TypeScriptParser`, `GitMetadataExtractor`, `InMemoryKnowledgeStore` |
+| `RepoMind.Domain` | Core IR Entities, Relationships, DTOs, Flow Models | `CodeEntity`, `CodeRelationship`, `ApiDefinition`, `FunctionalFlow`, `PackageDependency` |
+| `RepoMind.Application` | Extractor pipeline abstractions & orchestrator | `RepositoryScannerService`, `FlowEngine`, `ILanguageParser`, `ITechStackDetector` |
+| `RepoMind.Infrastructure` | Concrete Roslyn/Python/TS parsers, Package Extractor, Git CLI | `CSharpRoslynParser`, `PythonParser`, `TypeScriptParser`, `TechStackDetector`, `InMemoryKnowledgeStore` |
 | `RepoMind.Api` | ASP.NET Core REST API & Swagger UI | `RepositoriesController`, `Program.cs` |
-| `repomind/frontend` | Glassmorphic React UI for graph & API exploration | `App.tsx`, `GraphExplorer.tsx`, `ApiExplorer.tsx`, `DatabaseExplorer.tsx` |
-
----
-
-## 🚀 Single-Click Launch Script Mechanics
-
-The `./start.sh` script handles:
-1. Setting `.dotnet` SDK environment variables.
-2. Compiling `RepoMind.Api.csproj` to binary.
-3. Launching backend API process on background port `5055`.
-4. Launching Vite dev server on background port `5173`.
-5. Opening [http://localhost:5173](http://localhost:5173) in browser.
-6. Trapping process kill signals (`INT`, `TERM`, `EXIT`) to shut down both processes cleanly on exit.
+| `repomind/frontend` | Glassmorphic React UI for graph, flows & package exploration | `App.tsx`, `FlowExplorer.tsx`, `FlowDiagram.tsx`, `PackageExplorer.tsx`, `ArchitecturePanel.tsx` |
 
 ---
 

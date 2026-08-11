@@ -77,17 +77,17 @@ export const ApiExplorer: React.FC<ApiExplorerProps> = ({ apis }) => {
                   {api.httpMethod}
                 </span>
 
-                <div>
-                  <div style={{ fontSize: '1.05rem', fontWeight: '700', color: 'white', fontFamily: 'var(--font-code)', marginBottom: '0.2rem' }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: '1.05rem', fontWeight: '700', color: 'white', fontFamily: 'var(--font-code)', marginBottom: '0.2rem', wordBreak: 'break-all' }}>
                     {api.route}
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: 'var(--accent-cyan)' }}>
-                      <Globe size={14} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', fontSize: '0.78rem', color: 'var(--text-muted)', flexWrap: 'wrap' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: 'var(--accent-cyan)', wordBreak: 'break-all' }}>
+                      <Globe size={14} style={{ flexShrink: 0 }} />
                       {api.controllerName}.{api.actionName}()
                     </span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                      <FileCode size={14} />
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', wordBreak: 'break-all' }}>
+                      <FileCode size={14} style={{ flexShrink: 0 }} />
                       {api.filePath}:{api.lineNumber}
                     </span>
                   </div>
