@@ -59,6 +59,50 @@ public class GitMetadataExtractor : IGitMetadataExtractor
         return Task.FromResult((branch, commitHash, author, message, recentCommits));
     }
 
+    public Task<string> CloneOrPullRepoAsync(string gitUrl, string targetDirectory, string? branch = null, string? commit = null, string? accessToken = null)
+    {
+        if (string.IsNullOrWhiteSpace(gitUrl))
+            throw new ArgumentException("Git URL cannot be empty.", nameof(gitUrl));
+
+        var authenticatedUrl = gitUrl;
+        if (!string.IsNullOrWhiteSpace(accessToken) && gitUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            authenticatedUrl = gitUrl.Replace("https://", $"https://x-access-token:{accessToken}@");
+        }
+
+        Directory.CreateDirectory(targetDirectory);
+
+        var gitDir = Path.Combine(targetDirectory, ".git");
+        if (!Directory.Exists(gitDir))
+        {
+            var cloneCmd = string.IsNullOrWhiteSpace(branch)
+                ? $"clone \"{authenticatedUrl}\" \".\""
+                : $"clone -b \"{branch}\" \"{authenticatedUrl}\" \".\"";
+
+            var output = RunGitCommand(targetDirectory, cloneCmd);
+            if (output == null && !Directory.Exists(gitDir))
+            {
+                throw new InvalidOperationException($"Failed to clone repository from '{gitUrl}'. Ensure Git is installed and the repository URL is accessible.");
+            }
+        }
+        else
+        {
+            RunGitCommand(targetDirectory, "fetch --all");
+            if (!string.IsNullOrWhiteSpace(branch))
+            {
+                RunGitCommand(targetDirectory, $"checkout \"{branch}\"");
+            }
+            RunGitCommand(targetDirectory, "pull");
+        }
+
+        if (!string.IsNullOrWhiteSpace(commit))
+        {
+            RunGitCommand(targetDirectory, $"checkout \"{commit}\"");
+        }
+
+        return Task.FromResult(targetDirectory);
+    }
+
     private string? RunGitCommand(string workingDir, string arguments)
     {
         try
@@ -78,7 +122,7 @@ public class GitMetadataExtractor : IGitMetadataExtractor
             if (process == null) return null;
 
             var output = process.StandardOutput.ReadToEnd().Trim();
-            process.WaitForExit(3000);
+            process.WaitForExit(15000);
             return process.ExitCode == 0 ? output : null;
         }
         catch

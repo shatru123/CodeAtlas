@@ -30,6 +30,7 @@ public interface ITechStackDetector
 public interface IGitMetadataExtractor
 {
     Task<(string branch, string commitHash, string author, string message, List<GitCommitInfo> recentCommits)> ExtractGitInfoAsync(string repoRootPath);
+    Task<string> CloneOrPullRepoAsync(string gitUrl, string targetDirectory, string? branch = null, string? commit = null, string? accessToken = null);
 }
 
 public interface IKnowledgeStore
@@ -41,5 +42,7 @@ public interface IKnowledgeStore
 
 public interface IRepositoryScanner
 {
-    Task<AnalysisResult> ScanRepositoryAsync(string localPath);
+    Task<AnalysisResult> ScanLocalRepositoryAsync(string localPath);
+    Task<AnalysisResult> ScanGitHubRepositoryAsync(string gitUrl, string? branch = null, string? commit = null, string? accessToken = null);
+    Task<AnalysisResult> ScanRepositoryAsync(string pathOrUrl);
 }

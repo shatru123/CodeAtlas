@@ -22,23 +22,73 @@ public class RepositoriesController : ControllerBase
         _knowledgeStore = knowledgeStore;
     }
 
-    [HttpPost("scan")]
-    public async Task<IActionResult> ScanLocalRepository([FromBody] ScanRequestDto request)
+    [HttpPost("local")]
+    public async Task<IActionResult> ScanLocalRepository([FromBody] LocalScanRequestDto request)
     {
         if (string.IsNullOrWhiteSpace(request.Path))
         {
-            return BadRequest(new { error = "Repository path is required." });
-        }
-
-        if (!Directory.Exists(request.Path))
-        {
-            return NotFound(new { error = $"Local path does not exist: {request.Path}" });
+            return BadRequest(new { error = "Local repository path is required." });
         }
 
         try
         {
-            var result = await _scanner.ScanRepositoryAsync(request.Path);
+            var result = await _scanner.ScanLocalRepositoryAsync(request.Path);
             return Ok(result);
+        }
+        catch (DirectoryNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = ex.Message });
+        }
+    }
+
+    [HttpPost("github")]
+    public async Task<IActionResult> ScanGitHubRepository([FromBody] GitHubScanRequestDto request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Url))
+        {
+            return BadRequest(new { error = "GitHub repository URL is required." });
+        }
+
+        try
+        {
+            var result = await _scanner.ScanGitHubRepositoryAsync(request.Url, request.Branch, request.Commit, request.AccessToken);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = ex.Message });
+        }
+    }
+
+    [HttpPost("scan")]
+    public async Task<IActionResult> ScanRepository([FromBody] ScanRequestDto request)
+    {
+        var pathOrUrl = !string.IsNullOrWhiteSpace(request.Url) ? request.Url : request.Path;
+        if (string.IsNullOrWhiteSpace(pathOrUrl))
+        {
+            return BadRequest(new { error = "Repository path or Git URL is required." });
+        }
+
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(request.Url) || pathOrUrl.StartsWith("http") || pathOrUrl.StartsWith("git@") || pathOrUrl.Contains("github.com"))
+            {
+                var result = await _scanner.ScanGitHubRepositoryAsync(pathOrUrl, request.Branch, request.Commit, request.AccessToken);
+                return Ok(result);
+            }
+            else
+            {
+                var result = await _scanner.ScanLocalRepositoryAsync(pathOrUrl);
+                return Ok(result);
+            }
+        }
+        catch (DirectoryNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
         }
         catch (Exception ex)
         {

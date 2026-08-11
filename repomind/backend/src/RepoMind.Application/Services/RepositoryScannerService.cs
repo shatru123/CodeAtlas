@@ -17,7 +17,7 @@ public class RepositoryScannerService : IRepositoryScanner
 
     private static readonly HashSet<string> ExcludedDirectories = new(StringComparer.OrdinalIgnoreCase)
     {
-        ".git", ".vs", ".vscode", "bin", "obj", "node_modules", "venv", ".idea", "dist", "build", "coverage", ".dotnet"
+        ".git", ".vs", ".vscode", "bin", "obj", "node_modules", "venv", ".idea", "dist", "build", "coverage", ".dotnet", "clones"
     };
 
     public RepositoryScannerService(
@@ -32,14 +32,44 @@ public class RepositoryScannerService : IRepositoryScanner
         _knowledgeStore = knowledgeStore;
     }
 
-    public async Task<AnalysisResult> ScanRepositoryAsync(string localPath)
+    public Task<AnalysisResult> ScanRepositoryAsync(string pathOrUrl)
     {
-        if (!Directory.Exists(localPath))
+        if (IsGitUrl(pathOrUrl))
         {
-            throw new DirectoryNotFoundException($"Repository path not found: {localPath}");
+            return ScanGitHubRepositoryAsync(pathOrUrl);
+        }
+        return ScanLocalRepositoryAsync(pathOrUrl);
+    }
+
+    public async Task<AnalysisResult> ScanLocalRepositoryAsync(string localPath)
+    {
+        var normalizedPath = NormalizePath(localPath);
+        if (!Directory.Exists(normalizedPath))
+        {
+            throw new DirectoryNotFoundException($"Local repository directory not found: '{localPath}' (Resolved: '{normalizedPath}')");
         }
 
-        var fullPath = Path.GetFullPath(localPath);
+        return await PerformScanAsync(normalizedPath, RepositorySource.Local);
+    }
+
+    public async Task<AnalysisResult> ScanGitHubRepositoryAsync(string gitUrl, string? branch = null, string? commit = null, string? accessToken = null)
+    {
+        if (!IsGitUrl(gitUrl) && !gitUrl.Contains('/'))
+        {
+            // If passed "owner/repo", convert to GitHub URL
+            gitUrl = $"https://github.com/{gitUrl.Trim()}";
+        }
+
+        var repoName = ExtractRepoNameFromUrl(gitUrl);
+        var cacheBaseDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".repomind", "clones");
+        var cloneDir = Path.Combine(cacheBaseDir, repoName);
+
+        var clonedPath = await _gitExtractor.CloneOrPullRepoAsync(gitUrl, cloneDir, branch, commit, accessToken);
+        return await PerformScanAsync(clonedPath, RepositorySource.GitHub);
+    }
+
+    private async Task<AnalysisResult> PerformScanAsync(string fullPath, RepositorySource source)
+    {
         var repoName = Path.GetFileName(fullPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
         if (string.IsNullOrWhiteSpace(repoName)) repoName = "Repository";
 
@@ -53,7 +83,7 @@ public class RepositoryScannerService : IRepositoryScanner
             Id = repoId,
             Name = repoName,
             RootPath = fullPath,
-            Source = RepositorySource.Local,
+            Source = source,
             Branch = branch,
             CommitHash = commitHash,
             LastCommitMessage = message,
@@ -94,9 +124,7 @@ public class RepositoryScannerService : IRepositoryScanner
                 }
             }
 
-            // Infer Architectural Relationships & Violations
             DetectArchitecturalPatternsAndViolations(result);
-
             repoInfo.Status = ExtractionStatus.Completed;
         }
         catch (Exception ex)
@@ -108,6 +136,38 @@ public class RepositoryScannerService : IRepositoryScanner
 
         await _knowledgeStore.SaveAnalysisAsync(result);
         return result;
+    }
+
+    private bool IsGitUrl(string pathOrUrl)
+    {
+        if (string.IsNullOrWhiteSpace(pathOrUrl)) return false;
+        return pathOrUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+               pathOrUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
+               pathOrUrl.StartsWith("git@", StringComparison.OrdinalIgnoreCase) ||
+               pathOrUrl.EndsWith(".git", StringComparison.OrdinalIgnoreCase) ||
+               pathOrUrl.Contains("github.com", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private string NormalizePath(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path)) return path;
+        if (path.StartsWith("~"))
+        {
+            var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            path = Path.Combine(home, path.Substring(1).TrimStart('/', '\\'));
+        }
+        return Path.GetFullPath(path);
+    }
+
+    private string ExtractRepoNameFromUrl(string url)
+    {
+        var cleaned = url.TrimEnd('/', '\\');
+        if (cleaned.EndsWith(".git", StringComparison.OrdinalIgnoreCase))
+        {
+            cleaned = cleaned.Substring(0, cleaned.Length - 4);
+        }
+        var lastSlash = cleaned.LastIndexOfAny(new[] { '/', '\\' });
+        return lastSlash >= 0 ? cleaned.Substring(lastSlash + 1) : cleaned;
     }
 
     private IEnumerable<string> ScanFilesRecursively(string directory)
@@ -138,7 +198,6 @@ public class RepositoryScannerService : IRepositoryScanner
 
     private void DetectArchitecturalPatternsAndViolations(AnalysisResult result)
     {
-        // Detect Controller -> DB bypass violation
         var controllers = result.Entities.Where(e => e.Type == EntityType.Controller).ToList();
         var dbRefs = result.Databases;
 

@@ -424,8 +424,11 @@ FodyWeavers.xsd
 # Local environment & tools
 .dotnet/
 venv/
+.idea/
+repomind/backend/.idea/
 repomind/backend/Library/
 Library/
+
 
 
 

@@ -17,7 +17,13 @@ builder.Services.AddSwaggerGen();
 
 // Register Clean Architecture dependencies
 builder.Services.AddSingleton<IKnowledgeStore, InMemoryKnowledgeStore>();
+
+// Register Multi-Language Parsers
 builder.Services.AddTransient<ILanguageParser, CSharpRoslynParser>();
+builder.Services.AddTransient<ILanguageParser, PythonParser>();
+builder.Services.AddTransient<ILanguageParser, TypeScriptParser>();
+builder.Services.AddTransient<ILanguageParser, GenericCodeParser>();
+
 builder.Services.AddTransient<ITechStackDetector, TechStackDetector>();
 builder.Services.AddTransient<IGitMetadataExtractor, GitMetadataExtractor>();
 builder.Services.AddTransient<IRepositoryScanner, RepositoryScannerService>();
@@ -36,5 +42,4 @@ app.MapControllers();
 
 app.Run();
 
-// Make Program public for Integration Testing
 public partial class Program { }
