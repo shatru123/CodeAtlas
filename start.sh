@@ -10,6 +10,12 @@ echo "===================================================="
 echo "      🚀 Launching RepoMind Knowledge Platform      "
 echo "===================================================="
 
+# Kill any existing processes bound to ports 5055 or 5173
+echo "0. Checking and clearing ports 5055 and 5173..."
+lsof -ti:5055 | xargs kill -9 2>/dev/null || true
+lsof -ti:5173 | xargs kill -9 2>/dev/null || true
+sleep 1
+
 # Determine .NET executable
 DOTNET_BIN="$DIR/.dotnet/dotnet"
 if [ ! -f "$DOTNET_BIN" ]; then
@@ -54,6 +60,6 @@ elif command -v xdg-open > /dev/null; then
 fi
 
 # Cleanup on exit
-trap "echo 'Stopping RepoMind services...'; kill $BACKEND_PID $FRONTEND_PID 2>/dev/null; exit 0" INT TERM EXIT
+trap "echo 'Stopping RepoMind services...'; kill -9 $BACKEND_PID $FRONTEND_PID 2>/dev/null; lsof -ti:5055,5173 | xargs kill -9 2>/dev/null || true; exit 0" INT TERM EXIT
 
 wait
