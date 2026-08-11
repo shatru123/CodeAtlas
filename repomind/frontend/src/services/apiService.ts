@@ -6,6 +6,8 @@ import {
   CodeRelationship,
   DatabaseReference,
   EventDefinition,
+  FunctionalFlow,
+  PackageDependency,
   RepositoryInfo,
   ScanGitHubRequest,
   ScanLocalRequest,
@@ -81,6 +83,18 @@ export const apiService = {
   async getEvents(id: string): Promise<EventDefinition[]> {
     const res = await fetch(`${API_BASE}/${id}/events`);
     if (!res.ok) throw new Error('Failed to fetch events');
+    return res.json();
+  },
+
+  async getPackages(id: string): Promise<PackageDependency[]> {
+    const res = await fetch(`${API_BASE}/${id}/packages`);
+    if (!res.ok) throw new Error('Failed to fetch package dependencies');
+    return res.json();
+  },
+
+  async getFlows(id: string): Promise<FunctionalFlow[]> {
+    const res = await fetch(`${API_BASE}/${id}/flows`);
+    if (!res.ok) throw new Error('Failed to fetch functional flows');
     return res.json();
   },
 

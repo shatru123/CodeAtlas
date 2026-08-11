@@ -124,7 +124,15 @@ public class RepositoryScannerService : IRepositoryScanner
                 }
             }
 
+            // Extract Third-Party Package Dependencies (NuGet, NPM, PyPI)
+            result.Packages = await _techStackDetector.ExtractPackagesAsync(fullPath, repoId);
+
+            // Infer Architectural Relationships & Violations
             DetectArchitecturalPatternsAndViolations(result);
+
+            // Synthesize End-to-End Functional Flows & On-the-Fly Mermaid Diagrams
+            result.Flows = FlowEngine.SynthesizeFlows(result);
+
             repoInfo.Status = ExtractionStatus.Completed;
         }
         catch (Exception ex)

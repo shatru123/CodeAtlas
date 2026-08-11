@@ -25,6 +25,7 @@ public interface ITechStackDetector
 {
     Task<List<string>> DetectTechStackAsync(string repoRootPath);
     Task<List<string>> DetectLanguagesAsync(string repoRootPath);
+    Task<List<PackageDependency>> ExtractPackagesAsync(string repoRootPath, string repoId);
 }
 
 public interface IGitMetadataExtractor

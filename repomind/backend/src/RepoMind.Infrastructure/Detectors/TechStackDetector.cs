@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using RepoMind.Application.Abstractions;
+using RepoMind.Domain.Models;
 
 namespace RepoMind.Infrastructure.Detectors;
 
@@ -27,7 +29,6 @@ public class TechStackDetector : ITechStackDetector
             var fileName = Path.GetFileName(file);
             var ext = Path.GetExtension(file)?.ToLowerInvariant() ?? string.Empty;
 
-            // .NET C# (.csproj / .sln / .cs)
             if (ext == ".csproj" || ext == ".sln" || ext == ".cs")
             {
                 techStack.Add(".NET");
@@ -54,7 +55,6 @@ public class TechStackDetector : ITechStackDetector
                 catch { }
             }
 
-            // JavaScript / TypeScript (package.json)
             if (fileName.Equals("package.json", StringComparison.OrdinalIgnoreCase))
             {
                 techStack.Add("Node.js");
@@ -71,7 +71,6 @@ public class TechStackDetector : ITechStackDetector
                 catch { }
             }
 
-            // Python (requirements.txt / pyproject.toml / .py)
             if (ext == ".py" || fileName.Equals("requirements.txt", StringComparison.OrdinalIgnoreCase) || fileName.Equals("pyproject.toml", StringComparison.OrdinalIgnoreCase))
             {
                 techStack.Add("Python");
@@ -90,7 +89,6 @@ public class TechStackDetector : ITechStackDetector
                 }
             }
 
-            // Docker / Infra
             if (fileName.Equals("Dockerfile", StringComparison.OrdinalIgnoreCase)) techStack.Add("Docker");
             if (fileName.Equals("docker-compose.yml", StringComparison.OrdinalIgnoreCase) || fileName.Equals("docker-compose.yaml", StringComparison.OrdinalIgnoreCase)) techStack.Add("Docker Compose");
             if (ext == ".tf") techStack.Add("Terraform");
@@ -132,5 +130,96 @@ public class TechStackDetector : ITechStackDetector
         }
 
         return Task.FromResult(languages.ToList());
+    }
+
+    public Task<List<PackageDependency>> ExtractPackagesAsync(string repoRootPath, string repoId)
+    {
+        var packages = new List<PackageDependency>();
+        if (!Directory.Exists(repoRootPath)) return Task.FromResult(packages);
+
+        try
+        {
+            var files = Directory.GetFiles(repoRootPath, "*.*", SearchOption.AllDirectories)
+                .Where(f => !f.Contains($"{Path.DirectorySeparatorChar}.git{Path.DirectorySeparatorChar}") &&
+                            !f.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}") &&
+                            !f.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}") &&
+                            !f.Contains($"{Path.DirectorySeparatorChar}node_modules{Path.DirectorySeparatorChar}"))
+                .ToList();
+
+            foreach (var file in files)
+            {
+                var fileName = Path.GetFileName(file);
+                var ext = Path.GetExtension(file)?.ToLowerInvariant();
+                var relativePath = Path.GetRelativePath(repoRootPath, file);
+
+                // .NET NuGet Packages (.csproj)
+                if (ext == ".csproj")
+                {
+                    var content = File.ReadAllText(file);
+                    var matches = Regex.Matches(content, @"<PackageReference\s+Include=[""']([^""']+)[""'](?:\s+Version=[""']([^""']+)[""'])?", RegexOptions.IgnoreCase);
+                    foreach (Match m in matches)
+                    {
+                        packages.Add(new PackageDependency
+                        {
+                            RepositoryId = repoId,
+                            PackageName = m.Groups[1].Value,
+                            Version = m.Groups[2].Success ? m.Groups[2].Value : "Implicit / Unspecified",
+                            Ecosystem = "NuGet",
+                            FilePath = relativePath
+                        });
+                    }
+                }
+
+                // Node.js NPM Packages (package.json)
+                if (fileName.Equals("package.json", StringComparison.OrdinalIgnoreCase))
+                {
+                    var content = File.ReadAllText(file);
+                    var pkgMatches = Regex.Matches(content, @"""([^""]+)""\s*:\s*""([^""]+)""", RegexOptions.IgnoreCase);
+                    foreach (Match m in pkgMatches)
+                    {
+                        var key = m.Groups[1].Value;
+                        var val = m.Groups[2].Value;
+                        if (!key.StartsWith("name") && !key.StartsWith("version") && !key.StartsWith("scripts") && !key.StartsWith("description") && !key.StartsWith("license") && (val.StartsWith("^") || val.StartsWith("~") || char.IsDigit(val.FirstOrDefault())))
+                        {
+                            packages.Add(new PackageDependency
+                            {
+                                RepositoryId = repoId,
+                                PackageName = key,
+                                Version = val,
+                                Ecosystem = "NPM",
+                                FilePath = relativePath
+                            });
+                        }
+                    }
+                }
+
+                // Python Packages (requirements.txt)
+                if (fileName.Equals("requirements.txt", StringComparison.OrdinalIgnoreCase))
+                {
+                    var lines = File.ReadAllLines(file);
+                    foreach (var l in lines)
+                    {
+                        var line = l.Trim();
+                        if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#")) continue;
+
+                        var parts = line.Split(new[] { "==", ">=", "<=", "~=" }, StringSplitOptions.RemoveEmptyEntries);
+                        packages.Add(new PackageDependency
+                        {
+                            RepositoryId = repoId,
+                            PackageName = parts[0].Trim(),
+                            Version = parts.Length > 1 ? parts[1].Trim() : "Latest",
+                            Ecosystem = "PyPI",
+                            FilePath = relativePath
+                        });
+                    }
+                }
+            }
+        }
+        catch
+        {
+            // Fallback gracefully on parsing errors
+        }
+
+        return Task.FromResult(packages);
     }
 }

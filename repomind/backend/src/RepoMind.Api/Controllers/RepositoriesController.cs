@@ -165,6 +165,22 @@ public class RepositoriesController : ControllerBase
         return Ok(analysis.Events);
     }
 
+    [HttpGet("{id}/packages")]
+    public async Task<IActionResult> GetPackages(string id)
+    {
+        var analysis = await _knowledgeStore.GetAnalysisAsync(id);
+        if (analysis == null) return NotFound(new { error = "Repository not found." });
+        return Ok(analysis.Packages);
+    }
+
+    [HttpGet("{id}/flows")]
+    public async Task<IActionResult> GetFlows(string id)
+    {
+        var analysis = await _knowledgeStore.GetAnalysisAsync(id);
+        if (analysis == null) return NotFound(new { error = "Repository not found." });
+        return Ok(analysis.Flows);
+    }
+
     [HttpGet("{id}/architecture")]
     public async Task<IActionResult> GetArchitecture(string id)
     {

@@ -130,6 +130,34 @@ export interface EventDefinition {
   lineNumber: number;
 }
 
+export interface PackageDependency {
+  id: string;
+  repositoryId: string;
+  packageName: string;
+  version: string;
+  ecosystem: string;
+  filePath: string;
+}
+
+export interface FunctionalFlowStep {
+  stepNumber: number;
+  nodeName: string;
+  nodeType: string;
+  description: string;
+  filePath?: string;
+  lineNumber?: number;
+}
+
+export interface FunctionalFlow {
+  id: string;
+  repositoryId: string;
+  title: string;
+  description: string;
+  triggerApi: string;
+  steps: FunctionalFlowStep[];
+  mermaidMarkup: string;
+}
+
 export interface GitCommitInfo {
   commitHash: string;
   author: string;
@@ -154,6 +182,8 @@ export interface AnalysisResult {
   apis: ApiDefinition[];
   databases: DatabaseReference[];
   events: EventDefinition[];
+  packages: PackageDependency[];
+  flows: FunctionalFlow[];
   recentCommits: GitCommitInfo[];
   parsingErrors: string[];
 }

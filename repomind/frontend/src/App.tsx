@@ -5,37 +5,35 @@ import { GraphExplorer } from './components/GraphExplorer';
 import { ApiExplorer } from './components/ApiExplorer';
 import { DatabaseExplorer } from './components/DatabaseExplorer';
 import { EventExplorer } from './components/EventExplorer';
+import { PackageExplorer } from './components/PackageExplorer';
+import { FlowExplorer } from './components/FlowExplorer';
 import { ArchitecturePanel } from './components/ArchitecturePanel';
 import { EntityDetailModal } from './components/EntityDetailModal';
 import { apiService } from './services/apiService';
 import { AnalysisResult, ArchitectureSummary, CodeEntity, RepositoryInfo } from './types/api';
-import { Network, Layers, Globe, Database, Radio, Shield, GitCommit, Code2, Sparkles, FolderGit2, AlertCircle } from 'lucide-react';
+import { Network, Layers, Globe, Database, Radio, Shield, GitCommit, Package, Zap, Sparkles, FolderGit2 } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [repositories, setRepositories] = useState<RepositoryInfo[]>([]);
   const [activeRepo, setActiveRepo] = useState<RepositoryInfo | null>(null);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [architecture, setArchitecture] = useState<ArchitectureSummary | null>(null);
-  const [activeTab, setActiveTab] = useState<'graph' | 'apis' | 'databases' | 'events' | 'architecture'>('graph');
+  const [activeTab, setActiveTab] = useState<'graph' | 'flows' | 'apis' | 'databases' | 'events' | 'packages' | 'architecture'>('graph');
   const [selectedEntity, setSelectedEntity] = useState<CodeEntity | null>(null);
   const [isScanModalOpen, setIsScanModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const fetchRepositories = async () => {
     setIsLoading(true);
-    setError(null);
     try {
       const list = await apiService.listRepositories();
       setRepositories(list);
       if (list.length > 0 && !activeRepo) {
         loadRepoAnalysis(list[0]);
       } else if (list.length === 0) {
-        // Automatically scan local repo if empty on first launch
         autoScanLocal();
       }
-    } catch (err: any) {
-      // Auto scan local if API is ready
+    } catch {
       autoScanLocal();
     } finally {
       setIsLoading(false);
@@ -51,7 +49,7 @@ export const App: React.FC = () => {
       const arch = await apiService.getArchitecture(res.repository.id);
       setArchitecture(arch);
     } catch {
-      // Fall back gracefully
+      // Fallback
     }
   };
 
@@ -63,8 +61,8 @@ export const App: React.FC = () => {
       setAnalysis(result);
       const arch = await apiService.getArchitecture(repo.id);
       setArchitecture(arch);
-    } catch (err: any) {
-      setError(`Failed to load repository ${repo.name}: ${err.message}`);
+    } catch {
+      // Ignore
     } finally {
       setIsLoading(false);
     }
@@ -134,36 +132,21 @@ export const App: React.FC = () => {
               </div>
 
               <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.65rem 1rem', borderRadius: '10px', border: '1px solid var(--border-card)', textAlign: 'center' }}>
-                <div style={{ fontSize: '1.15rem', fontWeight: '800', color: 'var(--accent-amber)' }}>{analysis.databases.length}</div>
-                <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>DB Queries</div>
+                <div style={{ fontSize: '1.15rem', fontWeight: '800', color: 'var(--accent-amber)' }}>{analysis.packages.length}</div>
+                <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Packages</div>
               </div>
 
               <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.65rem 1rem', borderRadius: '10px', border: '1px solid var(--border-card)', textAlign: 'center' }}>
-                <div style={{ fontSize: '1.15rem', fontWeight: '800', color: 'var(--accent-purple)' }}>{analysis.events.length}</div>
-                <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Broker Events</div>
+                <div style={{ fontSize: '1.15rem', fontWeight: '800', color: 'var(--accent-purple)' }}>{analysis.flows.length}</div>
+                <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Flows</div>
               </div>
             </div>
           </div>
-
-          {/* Tech Stack Badges */}
-          {analysis.repository.techStack.length > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '1rem', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-dim)' }}>Detected Stack:</span>
-              {analysis.repository.techStack.map((tech, idx) => (
-                <span key={idx} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border-card)', color: 'white', padding: '0.2rem 0.6rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '600' }}>
-                  {tech}
-                </span>
-              ))}
-            </div>
-          )}
         </div>
       ) : (
         <div className="glass-panel" style={{ padding: '3.5rem', textAlign: 'center', marginBottom: '1.5rem' }}>
           <Sparkles size={42} color="var(--accent-purple)" style={{ marginBottom: '1rem' }} />
           <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '0.5rem' }}>No Repositories Connected Yet</h2>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
-            Connect a local software repository path or GitHub repository URL to extract technical architecture and knowledge.
-          </p>
           <button onClick={() => setIsScanModalOpen(true)} className="btn-primary" style={{ padding: '0.8rem 1.75rem', fontSize: '0.95rem' }}>
             Connect Your First Repository
           </button>
@@ -173,12 +156,14 @@ export const App: React.FC = () => {
       {/* Workspace Tabs */}
       {analysis && (
         <>
-          <div style={{ display: 'flex', borderBottom: '1px solid var(--border-card)', marginBottom: '1.5rem', gap: '1.5rem' }}>
+          <div style={{ display: 'flex', borderBottom: '1px solid var(--border-card)', marginBottom: '1.5rem', gap: '1.5rem', flexWrap: 'wrap' }}>
             {[
               { id: 'graph', label: 'Knowledge Graph', icon: Network, count: analysis.entities.length },
+              { id: 'flows', label: 'Functional Flows', icon: Zap, count: analysis.flows.length },
               { id: 'apis', label: 'REST APIs', icon: Globe, count: analysis.apis.length },
               { id: 'databases', label: 'Database & ORM', icon: Database, count: analysis.databases.length },
               { id: 'events', label: 'Messaging Events', icon: Radio, count: analysis.events.length },
+              { id: 'packages', label: 'Packages & Libraries', icon: Package, count: analysis.packages.length },
               { id: 'architecture', label: 'Architecture & Rules', icon: Shield, count: architecture?.violations.length || 0 },
             ].map((tab) => {
               const Icon = tab.icon;
@@ -214,9 +199,11 @@ export const App: React.FC = () => {
 
           {/* Active View Content */}
           {activeTab === 'graph' && <GraphExplorer analysis={analysis} onSelectEntity={setSelectedEntity} />}
+          {activeTab === 'flows' && <FlowExplorer flows={analysis.flows} />}
           {activeTab === 'apis' && <ApiExplorer apis={analysis.apis} />}
           {activeTab === 'databases' && <DatabaseExplorer databases={analysis.databases} />}
           {activeTab === 'events' && <EventExplorer events={analysis.events} />}
+          {activeTab === 'packages' && <PackageExplorer packages={analysis.packages} />}
           {activeTab === 'architecture' && <ArchitecturePanel architecture={architecture} />}
         </>
       )}
