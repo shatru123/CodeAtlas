@@ -11,7 +11,9 @@ services:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
       - key: DOTNET_USE_POLLING_FILE_WATCHER
-        value: "false"
+        value: "true"
+      - key: DOTNET_SYSTEM_IO_DISABLEFILEWATCHING
+        value: "true"
 
   # React Web UI (Free Static Site on Render)
   - type: web

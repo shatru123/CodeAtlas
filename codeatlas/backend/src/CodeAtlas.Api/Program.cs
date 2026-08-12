@@ -1,3 +1,4 @@
+using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -10,9 +11,15 @@ using CodeAtlas.Infrastructure.Git;
 using CodeAtlas.Infrastructure.Parsers;
 using CodeAtlas.Infrastructure.Persistence;
 
-var builder = WebApplication.CreateBuilder(args);
+var options = new WebApplicationOptions
+{
+    Args = args,
+    ContentRootPath = Directory.GetCurrentDirectory()
+};
 
-// Disable reloadOnChange on file configuration providers to prevent inotify limit crashes in cloud container environments (Render/K8s)
+var builder = WebApplication.CreateBuilder(options);
+
+// Disable reloadOnChange on all file configuration providers to prevent inotify limit crashes in cloud container environments
 foreach (var source in builder.Configuration.Sources.OfType<FileConfigurationSource>())
 {
     source.ReloadOnChange = false;
