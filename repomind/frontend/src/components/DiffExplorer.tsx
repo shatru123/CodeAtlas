@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BranchDiffResult } from '../types/api';
 import { apiService } from '../services/apiService';
-import { GitBranch, AlertTriangle, PlusCircle, MinusCircle, ShieldAlert, GitCompare } from 'lucide-react';
+import { GitBranch, AlertTriangle, PlusCircle, MinusCircle, ShieldAlert, GitCompare, CheckCircle2 } from 'lucide-react';
 
 interface DiffExplorerProps {
   repoId: string;
@@ -53,50 +53,82 @@ export const DiffExplorer: React.FC<DiffExplorerProps> = ({ repoId }) => {
         </div>
       </div>
 
-      {/* Delta Metrics */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
+      {/* Delta Metrics Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem', minWidth: 0 }}>
         {/* Added APIs */}
-        <div className="glass-panel" style={{ padding: '1.25rem', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
-          <h3 style={{ fontSize: '1rem', fontWeight: '800', color: 'var(--accent-emerald)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+        <div className="glass-panel" style={{ padding: '1.25rem', border: '1px solid rgba(16, 185, 129, 0.3)', display: 'flex', flexDirection: 'column', gap: '0.75rem', minWidth: 0 }}>
+          <h3 style={{ fontSize: '1rem', fontWeight: '800', color: 'var(--accent-emerald)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
             <PlusCircle size={18} /> Added REST APIs ({addedApis.length})
           </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-            {addedApis.map((api) => (
-              <div key={api.id} style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '0.65rem 0.85rem', borderRadius: '8px', fontSize: '0.82rem' }}>
-                <div style={{ fontWeight: '700', color: 'white' }}>{api.httpMethod} {api.route}</div>
-                <div style={{ fontSize: '0.73rem', color: 'var(--text-muted)' }}>{api.controllerName}.{api.actionName}</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', minWidth: 0 }}>
+            {addedApis.length === 0 ? (
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontStyle: 'italic', padding: '0.5rem 0' }}>
+                No new REST APIs added in this branch.
               </div>
-            ))}
+            ) : (
+              addedApis.map((api) => (
+                <div key={api.id} style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '0.75rem 0.9rem', borderRadius: '8px', fontSize: '0.82rem', display: 'flex', flexDirection: 'column', gap: '0.35rem', minWidth: 0 }}>
+                  <div style={{ fontWeight: '700', color: 'white', wordBreak: 'break-word', overflowWrap: 'anywhere', lineHeight: '1.4' }}>
+                    <span className="badge badge-get" style={{ marginRight: '0.4rem', fontSize: '0.68rem' }}>{api.httpMethod}</span>
+                    {api.route}
+                  </div>
+                  <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', wordBreak: 'break-word', fontFamily: 'var(--font-code)' }}>
+                    Action: {api.controllerName}.{api.actionName}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
         {/* Added AST Entities */}
-        <div className="glass-panel" style={{ padding: '1.25rem', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
-          <h3 style={{ fontSize: '1rem', fontWeight: '800', color: 'var(--accent-cyan)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+        <div className="glass-panel" style={{ padding: '1.25rem', border: '1px solid rgba(56, 189, 248, 0.3)', display: 'flex', flexDirection: 'column', gap: '0.75rem', minWidth: 0 }}>
+          <h3 style={{ fontSize: '1rem', fontWeight: '800', color: 'var(--accent-cyan)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
             <PlusCircle size={18} /> New AST Components ({addedEntities.length})
           </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-            {addedEntities.map((e) => (
-              <div key={e.id} style={{ background: 'rgba(56, 189, 248, 0.1)', padding: '0.65rem 0.85rem', borderRadius: '8px', fontSize: '0.82rem' }}>
-                <div style={{ fontWeight: '700', color: 'white' }}>{e.type}: {e.name}</div>
-                <div style={{ fontSize: '0.73rem', color: 'var(--text-muted)' }}>{e.filePath}</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', minWidth: 0 }}>
+            {addedEntities.length === 0 ? (
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontStyle: 'italic', padding: '0.5rem 0' }}>
+                No new AST components added.
               </div>
-            ))}
+            ) : (
+              addedEntities.map((e) => (
+                <div key={e.id} style={{ background: 'rgba(56, 189, 248, 0.1)', padding: '0.75rem 0.9rem', borderRadius: '8px', fontSize: '0.82rem', display: 'flex', flexDirection: 'column', gap: '0.35rem', minWidth: 0 }}>
+                  <div style={{ fontWeight: '700', color: 'white', wordBreak: 'break-word', overflowWrap: 'anywhere', lineHeight: '1.4' }}>
+                    <span style={{ color: 'var(--accent-cyan)', fontWeight: '800', marginRight: '0.3rem' }}>[{e.type}]</span>
+                    {e.name}
+                  </div>
+                  <div style={{ fontSize: '0.73rem', color: 'var(--text-muted)', wordBreak: 'break-all', fontFamily: 'var(--font-code)', lineHeight: '1.3' }}>
+                    {e.filePath}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
         {/* Violations Introduced */}
-        <div className="glass-panel" style={{ padding: '1.25rem', border: '1px solid rgba(244, 63, 94, 0.3)' }}>
-          <h3 style={{ fontSize: '1rem', fontWeight: '800', color: 'var(--accent-rose)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+        <div className="glass-panel" style={{ padding: '1.25rem', border: '1px solid rgba(244, 63, 94, 0.3)', display: 'flex', flexDirection: 'column', gap: '0.75rem', minWidth: 0 }}>
+          <h3 style={{ fontSize: '1rem', fontWeight: '800', color: 'var(--accent-rose)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
             <ShieldAlert size={18} /> Architectural Drift Alerts ({newViolationsIntroduced.length})
           </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-            {newViolationsIntroduced.map((v) => (
-              <div key={v.id} style={{ background: 'rgba(244, 63, 94, 0.1)', padding: '0.65rem 0.85rem', borderRadius: '8px', fontSize: '0.82rem' }}>
-                <div style={{ fontWeight: '700', color: '#fecdd3' }}>{v.context}</div>
-                <div style={{ fontSize: '0.73rem', color: 'var(--text-muted)' }}>Source: {v.sourceFullName} ➔ Target DB: {v.targetFullName}</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', minWidth: 0 }}>
+            {newViolationsIntroduced.length === 0 ? (
+              <div style={{ fontSize: '0.8rem', color: 'var(--accent-emerald)', display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 0' }}>
+                <CheckCircle2 size={16} /> Zero architectural drift or rule violations introduced!
               </div>
-            ))}
+            ) : (
+              newViolationsIntroduced.map((v) => (
+                <div key={v.id} style={{ background: 'rgba(244, 63, 94, 0.1)', padding: '0.75rem 0.9rem', borderRadius: '8px', fontSize: '0.82rem', display: 'flex', flexDirection: 'column', gap: '0.35rem', minWidth: 0 }}>
+                  <div style={{ fontWeight: '700', color: '#fecdd3', wordBreak: 'break-word', overflowWrap: 'anywhere', lineHeight: '1.4' }}>
+                    {v.context}
+                  </div>
+                  <div style={{ fontSize: '0.73rem', color: 'var(--text-muted)', wordBreak: 'break-all', fontFamily: 'var(--font-code)', lineHeight: '1.3' }}>
+                    Source: {v.sourceFullName} ➔ Target: {v.targetFullName}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
