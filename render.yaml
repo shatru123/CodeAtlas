@@ -1,10 +1,10 @@
 services:
   # .NET 8 Web API Backend (Free Docker Web Service on Render)
   - type: web
-    name: repomind-backend
+    name: codeatlas-backend
     env: docker
-    dockerfilePath: ./repomind/backend/Dockerfile
-    dockerContext: ./repomind/backend
+    dockerfilePath: ./codeatlas/backend/Dockerfile
+    dockerContext: ./codeatlas/backend
     plan: free
     region: oregon
     envVars:
@@ -13,10 +13,10 @@ services:
 
   # React Web UI (Free Static Site on Render)
   - type: web
-    name: repomind-frontend
+    name: codeatlas-frontend
     env: static
-    buildCommand: cd repomind/frontend && npm install && npm run build
-    staticPublishPath: ./repomind/frontend/dist
+    buildCommand: cd codeatlas/frontend && npm install && npm run build
+    staticPublishPath: ./codeatlas/frontend/dist
     routes:
       - type: rewrite
         source: /*

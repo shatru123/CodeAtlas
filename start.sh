@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-# RepoMind — Single-Click Launch Script
+# CodeAtlas — Single-Click Launch Script
 # Builds & launches both .NET 8 Backend API (http://localhost:5055) and React Web UI (http://localhost:5173)
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "$DIR"
 
 echo "===================================================="
-echo "      🚀 Launching RepoMind Knowledge Platform      "
+echo "      🚀 Launching CodeAtlas Knowledge Platform     "
 echo "===================================================="
 
 # Kill any existing processes bound to ports 5055, 5173, or 5195
@@ -27,7 +27,7 @@ export DOTNET_CLI_TELEMETRY_OPTOUT=1
 export DOTNET_NOLOGO=1
 
 echo "1. Building .NET Backend API..."
-"$DOTNET_BIN" build repomind/backend/src/RepoMind.Api/RepoMind.Api.csproj --verbosity quiet
+"$DOTNET_BIN" build codeatlas/backend/src/CodeAtlas.Api/CodeAtlas.Api.csproj --verbosity quiet
 
 if [ $? -ne 0 ]; then
     echo "❌ Error building .NET backend API. Exiting."
@@ -35,11 +35,11 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "2. Starting Backend API at http://localhost:5055..."
-"$DOTNET_BIN" repomind/backend/src/RepoMind.Api/bin/Debug/net8.0/RepoMind.Api.dll --urls http://localhost:5055 &
+"$DOTNET_BIN" codeatlas/backend/src/CodeAtlas.Api/bin/Debug/net8.0/CodeAtlas.Api.dll --urls http://localhost:5055 &
 BACKEND_PID=$!
 
 echo "3. Starting React Web UI at http://localhost:5173..."
-cd "$DIR/repomind/frontend"
+cd "$DIR/codeatlas/frontend"
 npx vite --port 5173 --host 0.0.0.0 &
 FRONTEND_PID=$!
 
@@ -59,7 +59,7 @@ elif command -v xdg-open > /dev/null; then
 fi
 
 cleanup() {
-    echo "Stopping RepoMind services..."
+    echo "Stopping CodeAtlas services..."
     kill -9 $BACKEND_PID $FRONTEND_PID 2>/dev/null || true
     lsof -ti:5055,5173,5195 | xargs kill -9 2>/dev/null || true
     exit 0
