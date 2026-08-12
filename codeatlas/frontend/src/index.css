@@ -94,7 +94,7 @@ body {
   display: none;
 }
 
-/* Typography */
+/* Typography & Word Break Rules */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
   letter-spacing: -0.02em;
@@ -102,10 +102,21 @@ h1, h2, h3, h4, h5, h6 {
   overflow-wrap: anywhere;
 }
 
+p, span, div, label, strong, select, input {
+  overflow-wrap: anywhere;
+}
+
 code, pre {
   font-family: var(--font-code);
   word-break: break-all;
   white-space: pre-wrap;
+}
+
+/* Universal Select Dropdown Styling */
+select {
+  max-width: 100%;
+  text-overflow: ellipsis;
+  word-break: break-word;
 }
 
 /* Buttons */
@@ -183,7 +194,7 @@ code, pre {
   animation: pulseGlow 2s infinite ease-in-out;
 }
 
-/* Responsive Metric Card Grid */
+/* Responsive Layout Grids */
 .metrics-responsive-grid {
   display: flex;
   align-items: center;
@@ -191,14 +202,26 @@ code, pre {
   flex-wrap: wrap;
 }
 
+.sidebar-main-grid {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 1.25rem;
+}
+
 /* Mobile & Small Screen Breakpoints */
+@media (max-width: 768px) {
+  .sidebar-main-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 @media (max-width: 640px) {
   body {
-    padding: 0.35rem !important;
+    padding: 0.25rem !important;
   }
 
   .glass-panel {
-    padding: 0.85rem 1rem !important;
+    padding: 0.85rem 0.9rem !important;
     border-radius: 10px !important;
   }
 
@@ -228,6 +251,7 @@ code, pre {
     padding: 0.5rem 0.85rem !important;
     font-size: 0.8rem !important;
     justify-content: center;
+    width: 100%;
   }
 
   .mobile-hide-subtitle {

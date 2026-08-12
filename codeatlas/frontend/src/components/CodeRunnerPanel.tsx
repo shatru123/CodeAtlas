@@ -122,17 +122,18 @@ export const CodeRunnerPanel: React.FC<CodeRunnerPanelProps> = ({ repoId }) => {
       </div>
 
       {/* Execution Command Input Toolbar */}
-      <div className="glass-panel" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flex: 1, minWidth: '320px' }}>
-            <Terminal size={20} color="var(--accent-cyan)" />
+      <div className="glass-panel" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem', minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flex: 1, minWidth: 0, width: '100%', flexWrap: 'wrap' }}>
+            <Terminal size={20} color="var(--accent-cyan)" style={{ flexShrink: 0 }} />
             <input
               type="text"
               value={customCommand}
               onChange={(e) => setCustomCommand(e.target.value)}
-              placeholder="Enter execution command (e.g. dotnet run, npm start, python3 main.py)..."
+              placeholder="Enter execution command (e.g. dotnet run, npm start)..."
               style={{
                 flex: 1,
+                minWidth: '160px',
                 background: 'rgba(0, 0, 0, 0.4)',
                 border: '1px solid var(--border-card)',
                 color: '#38bdf8',
@@ -145,18 +146,18 @@ export const CodeRunnerPanel: React.FC<CodeRunnerPanelProps> = ({ repoId }) => {
             />
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
             {isRunning ? (
               <button
                 onClick={handleStop}
-                style={{ background: 'var(--accent-rose)', color: 'white', border: 'none', padding: '0.6rem 1.3rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                style={{ background: 'var(--accent-rose)', color: 'white', border: 'none', padding: '0.6rem 1.3rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '0.4rem', whiteSpace: 'nowrap' }}
               >
                 <Square size={16} /> Stop Process
               </button>
             ) : (
               <button
                 onClick={() => handleRun()}
-                style={{ background: 'var(--accent-emerald)', color: 'white', border: 'none', padding: '0.6rem 1.4rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '0.4rem', boxShadow: '0 4px 14px rgba(16, 185, 129, 0.3)' }}
+                style={{ background: 'var(--accent-emerald)', color: 'white', border: 'none', padding: '0.6rem 1.4rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '0.4rem', boxShadow: '0 4px 14px rgba(16, 185, 129, 0.3)', whiteSpace: 'nowrap' }}
               >
                 <Play size={16} /> Run Application
               </button>
@@ -187,10 +188,10 @@ export const CodeRunnerPanel: React.FC<CodeRunnerPanelProps> = ({ repoId }) => {
       {/* IDE Terminal Output View */}
       <div className="glass-panel" style={{ padding: '0', background: '#0b0f17', borderRadius: '12px', border: '1px solid var(--border-card)', display: 'flex', flexDirection: 'column', minHeight: '420px', minWidth: 0 }}>
         {/* Terminal Header */}
-        <div style={{ background: '#111827', padding: '0.75rem 1.25rem', borderBottom: '1px solid var(--border-card)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderRadius: '12px 12px 0 0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <Terminal size={16} color="var(--accent-emerald)" />
-            <span style={{ fontSize: '0.85rem', fontWeight: '800', color: 'white' }}>Terminal Console Output</span>
+        <div style={{ background: '#111827', padding: '0.75rem 1.25rem', borderBottom: '1px solid var(--border-card)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', borderRadius: '12px 12px 0 0', minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap', minWidth: 0 }}>
+            <Terminal size={16} color="var(--accent-emerald)" style={{ flexShrink: 0 }} />
+            <span style={{ fontSize: '0.85rem', fontWeight: '800', color: 'white', whiteSpace: 'nowrap' }}>Terminal Console Output</span>
 
             {execution && (
               <span style={{
@@ -200,13 +201,14 @@ export const CodeRunnerPanel: React.FC<CodeRunnerPanelProps> = ({ repoId }) => {
                 borderRadius: '4px',
                 fontSize: '0.72rem',
                 fontWeight: '800',
+                whiteSpace: 'nowrap'
               }}>
                 {execution.status.toUpperCase()}
               </span>
             )}
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
             {execution && (
               <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.3rem', marginRight: '0.5rem' }}>
                 <Clock size={13} /> {execution.executionDurationMs} ms
