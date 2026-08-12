@@ -15,17 +15,18 @@ import { DiffExplorer } from './components/DiffExplorer';
 import { ErdExplorer } from './components/ErdExplorer';
 import { InfrastructureExplorer } from './components/InfrastructureExplorer';
 import { HandbookExporterView } from './components/HandbookExporterView';
+import { CodeRunnerPanel } from './components/CodeRunnerPanel';
 import { EntityDetailModal } from './components/EntityDetailModal';
 import { apiService } from './services/apiService';
 import { AnalysisResult, ArchitectureSummary, CodeEntity, RepositoryInfo } from './types/api';
-import { Network, Globe, Database, Radio, Shield, GitCommit, Package, Zap, Sparkles, FolderGit2, ShieldAlert, Share2, GitCompare, Box, BookOpen, Table } from 'lucide-react';
+import { Network, Globe, Database, Radio, Shield, GitCommit, Package, Zap, Sparkles, FolderGit2, ShieldAlert, Share2, GitCompare, Box, BookOpen, Table, PlayCircle } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [repositories, setRepositories] = useState<RepositoryInfo[]>([]);
   const [activeRepo, setActiveRepo] = useState<RepositoryInfo | null>(null);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [architecture, setArchitecture] = useState<ArchitectureSummary | null>(null);
-  const [activeTab, setActiveTab] = useState<'graph' | 'flows' | 'apis' | 'databases' | 'events' | 'packages' | 'architecture' | 'security' | 'mesh' | 'impact' | 'diff' | 'erd' | 'infra' | 'handbook'>('graph');
+  const [activeTab, setActiveTab] = useState<'graph' | 'flows' | 'apis' | 'databases' | 'events' | 'packages' | 'architecture' | 'security' | 'mesh' | 'impact' | 'diff' | 'erd' | 'infra' | 'handbook' | 'runner'>('graph');
   const [selectedEntity, setSelectedEntity] = useState<CodeEntity | null>(null);
   const [isScanModalOpen, setIsScanModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -166,6 +167,7 @@ export const App: React.FC = () => {
           <div style={{ display: 'flex', borderBottom: '1px solid var(--border-card)', marginBottom: '1.5rem', gap: '1.15rem', flexWrap: 'wrap' }}>
             {[
               { id: 'graph', label: 'Knowledge Graph', icon: Network, count: analysis.entities.length },
+              { id: 'runner', label: 'Code Runner', icon: PlayCircle, count: '▶ Run' },
               { id: 'flows', label: 'Functional Flows', icon: Zap, count: analysis.flows.length },
               { id: 'apis', label: 'REST APIs', icon: Globe, count: analysis.apis.length },
               { id: 'databases', label: 'Database & ORM', icon: Database, count: analysis.databases.length },
@@ -213,6 +215,7 @@ export const App: React.FC = () => {
 
           {/* Active View Content */}
           {activeTab === 'graph' && <GraphExplorer analysis={analysis} onSelectEntity={setSelectedEntity} />}
+          {activeTab === 'runner' && <CodeRunnerPanel repoId={analysis.repository.id} />}
           {activeTab === 'flows' && <FlowExplorer flows={analysis.flows} />}
           {activeTab === 'apis' && <ApiExplorer apis={analysis.apis} />}
           {activeTab === 'databases' && <DatabaseExplorer databases={analysis.databases} />}

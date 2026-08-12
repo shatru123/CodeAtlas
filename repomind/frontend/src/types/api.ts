@@ -323,3 +323,28 @@ export interface ScanGitHubRequest {
   commit?: string;
   accessToken?: string;
 }
+
+export interface CodeRunnerDetectionResult {
+  language: string;
+  framework: string;
+  entryPointFile: string;
+  recommendedCommand: string;
+  availableCommands: string[];
+  requiresBuild: boolean;
+}
+
+export interface ExecuteCodeRequest {
+  customCommand?: string;
+  workingDirectory?: string;
+  timeoutSeconds?: number;
+}
+
+export interface CodeRunnerExecutionResult {
+  processId: string;
+  commandExecuted: string;
+  status: string;
+  exitCode: number;
+  executionDurationMs: number;
+  terminalOutput: string;
+  standardError: string;
+}

@@ -293,4 +293,31 @@ public class RepositoriesController : ControllerBase
             TechStack = analysis.Repository.TechStack
         });
     }
+
+    [HttpGet("{id}/runner/detect")]
+    public async Task<IActionResult> DetectRunner(string id)
+    {
+        var analysis = await _knowledgeStore.GetAnalysisAsync(id);
+        if (analysis == null) return NotFound(new { error = "Repository not found." });
+        var detection = RepoRunnerService.DetectRuntime(analysis.Repository.RootPath);
+        return Ok(detection);
+    }
+
+    [HttpPost("{id}/runner/execute")]
+    public async Task<IActionResult> ExecuteCode(string id, [FromBody] ExecuteCodeRequest req)
+    {
+        var analysis = await _knowledgeStore.GetAnalysisAsync(id);
+        if (analysis == null) return NotFound(new { error = "Repository not found." });
+        var detection = RepoRunnerService.DetectRuntime(analysis.Repository.RootPath);
+        var cmd = !string.IsNullOrWhiteSpace(req.CustomCommand) ? req.CustomCommand : detection.RecommendedCommand;
+        var result = await RepoRunnerService.ExecuteCommandAsync(id, analysis.Repository.RootPath, cmd, req.TimeoutSeconds > 0 ? req.TimeoutSeconds : 60);
+        return Ok(result);
+    }
+
+    [HttpPost("{id}/runner/stop")]
+    public IActionResult StopCode(string id)
+    {
+        var stopped = RepoRunnerService.StopProcess(id);
+        return Ok(new { stopped });
+    }
 }

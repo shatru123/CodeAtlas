@@ -7,9 +7,12 @@ import {
   BranchDiffResult,
   CodeEntity,
   CodeRelationship,
+  CodeRunnerDetectionResult,
+  CodeRunnerExecutionResult,
   DatabaseErdResult,
   DatabaseReference,
   EventDefinition,
+  ExecuteCodeRequest,
   FunctionalFlow,
   InfrastructureTopology,
   PackageDependency,
@@ -152,6 +155,33 @@ export const apiService = {
   async getArchitecture(id: string): Promise<ArchitectureSummary> {
     const res = await fetch(`${API_BASE}/${id}/architecture`);
     if (!res.ok) throw new Error('Failed to fetch architecture summary');
+    return res.json();
+  },
+
+  async detectRunner(id: string): Promise<CodeRunnerDetectionResult> {
+    const res = await fetch(`${API_BASE}/${id}/runner/detect`);
+    if (!res.ok) throw new Error('Failed to detect repository code runner');
+    return res.json();
+  },
+
+  async executeCode(id: string, req: ExecuteCodeRequest): Promise<CodeRunnerExecutionResult> {
+    const res = await fetch(`${API_BASE}/${id}/runner/execute`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: 'Execution failed' }));
+      throw new Error(err.error || 'Code execution failed');
+    }
+    return res.json();
+  },
+
+  async stopCode(id: string): Promise<{ stopped: boolean }> {
+    const res = await fetch(`${API_BASE}/${id}/runner/stop`, {
+      method: 'POST',
+    });
+    if (!res.ok) throw new Error('Failed to stop code process');
     return res.json();
   },
 };
