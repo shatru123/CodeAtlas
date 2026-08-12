@@ -1,16 +1,23 @@
 import {
   AnalysisResult,
   ApiDefinition,
+  ArchitectureHandbook,
   ArchitectureSummary,
+  BlastRadiusResult,
+  BranchDiffResult,
   CodeEntity,
   CodeRelationship,
+  DatabaseErdResult,
   DatabaseReference,
   EventDefinition,
   FunctionalFlow,
+  InfrastructureTopology,
   PackageDependency,
   RepositoryInfo,
   ScanGitHubRequest,
   ScanLocalRequest,
+  SecurityAuditResult,
+  WorkspaceMeshSummary,
 } from '../types/api';
 
 const API_BASE = '/api/repositories';
@@ -95,6 +102,50 @@ export const apiService = {
   async getFlows(id: string): Promise<FunctionalFlow[]> {
     const res = await fetch(`${API_BASE}/${id}/flows`);
     if (!res.ok) throw new Error('Failed to fetch functional flows');
+    return res.json();
+  },
+
+  async getSecurity(id: string): Promise<SecurityAuditResult> {
+    const res = await fetch(`${API_BASE}/${id}/security`);
+    if (!res.ok) throw new Error('Failed to fetch security audit');
+    return res.json();
+  },
+
+  async getWorkspaceMesh(): Promise<WorkspaceMeshSummary> {
+    const res = await fetch('/api/workspace/mesh');
+    if (!res.ok) throw new Error('Failed to fetch workspace mesh');
+    return res.json();
+  },
+
+  async getImpact(id: string, entityName?: string): Promise<BlastRadiusResult> {
+    const url = entityName ? `${API_BASE}/${id}/impact?entityName=${encodeURIComponent(entityName)}` : `${API_BASE}/${id}/impact`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to fetch blast radius impact');
+    return res.json();
+  },
+
+  async getDiff(id: string, targetBranch?: string): Promise<BranchDiffResult> {
+    const url = targetBranch ? `${API_BASE}/${id}/diff?targetBranch=${encodeURIComponent(targetBranch)}` : `${API_BASE}/${id}/diff`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to fetch branch diff');
+    return res.json();
+  },
+
+  async getErd(id: string): Promise<DatabaseErdResult> {
+    const res = await fetch(`${API_BASE}/${id}/erd`);
+    if (!res.ok) throw new Error('Failed to fetch ERD synthesis');
+    return res.json();
+  },
+
+  async getInfrastructure(id: string): Promise<InfrastructureTopology> {
+    const res = await fetch(`${API_BASE}/${id}/infrastructure`);
+    if (!res.ok) throw new Error('Failed to fetch infrastructure topology');
+    return res.json();
+  },
+
+  async getHandbook(id: string): Promise<ArchitectureHandbook> {
+    const res = await fetch(`${API_BASE}/${id}/handbook`);
+    if (!res.ok) throw new Error('Failed to fetch architecture handbook');
     return res.json();
   },
 

@@ -1,22 +1,14 @@
 # RepoMind — Personal Engineering Knowledge Graph
 
 <p align="center">
-  <strong>Automatically analyze, extract, and explore technical architecture, dependencies, APIs, DB flows, third-party packages, and messaging events from software repositories with on-the-fly Mermaid flowcharts.</strong>
+  <strong>Automatically analyze, extract, and explore technical architecture, dependencies, APIs, DB flows, third-party packages, security vulnerabilities, cross-repo microservice meshes, blast radius impact, ER diagrams, container topologies, and living handbooks.</strong>
 </p>
 
 ---
 
 ## 💡 What is RepoMind?
 
-**RepoMind** is a developer tool and engineering knowledge platform that automatically analyzes local and GitHub software repositories. It parses AST code structures, maps dependency call graphs, extracts REST API routes, traces database operations, detects messaging events, indexes third-party packages, synthesizes end-to-end execution flows with **on-the-fly Mermaid diagrams**, and flags architectural layer violations—storing everything in a centralized knowledge graph.
-
-Instead of searching through dozens of repositories manually, **RepoMind** extracts structured technical intelligence so you can answer:
-* **Functional Flows**: What is the complete execution path when an API request or event is triggered? *(Rendered as interactive Mermaid sequence flowcharts)*
-* **Architecture & Rules**: What structural pattern is used? Are controllers accessing database tables directly, bypassing the service layer?
-* **APIs**: Which REST endpoints are exposed, and which controllers handle them?
-* **Package Dependencies**: Which third-party NuGet, NPM, or PyPI packages are imported, and what versions are used?
-* **Database Operations**: Which database tables and ORM mappings (EF Core, Dapper, SQLAlchemy) are involved in a flow?
-* **Messaging & Events**: Which services publish or consume events via MassTransit, RabbitMQ, or Kafka?
+**RepoMind** is an enterprise developer tool and engineering knowledge platform that automatically analyzes local and GitHub software repositories. It parses AST code structures, maps dependency call graphs, extracts REST API routes, traces database operations, detects messaging events, indexes third-party packages, synthesizes end-to-end execution flows with **on-the-fly Mermaid diagrams**, provides an **interactive drag-and-drop React Flow canvas**, audits security/CVE vulnerabilities, calculates change blast radius, generates database ER diagrams, visualizes Docker/K8s infrastructure topology, and exports living architecture handbooks—storing everything in a centralized knowledge graph.
 
 ---
 
@@ -39,9 +31,42 @@ npm start
 
 ---
 
-## 🏗️ Architecture & Technology Stack
+## 🚀 Enterprise v2.5 Feature Modules
 
-RepoMind follows **Clean Architecture** principles in a clean monorepo:
+### 1. 🎨 Interactive Drag-and-Drop Canvas (React Flow)
+- **Drag & Drop Canvas**: Pan, zoom, and rearrange AST nodes with physics and MiniMap radar.
+- **Expandable Nodes**: Double-click any component to inspect member methods, return types, attributes, and file line numbers.
+- **Real-Time Path Highlighting**: Select any API route or component to highlight its exact node-to-node call chain in neon cyan while dimming unrelated nodes.
+- **JSON & Canvas Export**: Export complete IR knowledge graph JSON files.
+
+### 2. 🛡️ Security, CVE & Secret Auditing Engine
+- **Package CVE Scanner**: Maps NuGet (`.csproj`), NPM (`package.json`), and PyPI (`requirements.txt`) dependencies against known CVE/NVD advisories.
+- **Secret & Token Leak Detector**: Scans code for hardcoded AWS Access Keys, JWT secrets, DB passwords, RSA private keys, and GitHub PAT tokens.
+- **OWASP API Auditor**: Flags unauthenticated API routes (`[AllowAnonymous]`).
+
+### 3. 💥 Blast Radius & Change Impact Analysis Engine
+- Calculates downstream impact scores (0 to 100) and risk levels (`Critical`, `High`, `Medium`, `Low`).
+- Lists affected Controllers, Services, Repositories, Database operations, and Cross-Repo Mesh Services before making code changes.
+
+### 4. 🌐 Multi-Repository Cross-Service Mesh Engine
+- Connects multiple repositories into a unified workspace mesh graph.
+- Links cross-repo REST HTTP API calls and MassTransit / RabbitMQ / Kafka event streams across services.
+
+### 5. 📊 Git Branch Snapshot Diffing & Architecture Drift Inspector
+- Compares AST entities, REST APIs, and new architectural violations introduced between Git branches (`main` vs `feature`).
+
+### 6. 🗄️ Auto Database ERD (Entity-Relationship Diagram) Synthesizer
+- Synthesizes dynamic Mermaid Entity-Relationship Diagrams (`erDiagram ...`) with focus table filters and scannable schema cards.
+
+### 7. 🐳 Docker & Kubernetes Infrastructure Topology Visualizer
+- Parses `Dockerfile`, `docker-compose.yml`, and K8s manifests (`deployment.yaml`, `service.yaml`) to map container services, exposed ports, and base images.
+
+### 8. 📄 Living Architecture Handbook & Exporter
+- Auto-synthesizes a comprehensive technical specification handbook with 1-click Markdown export and copy.
+
+---
+
+## 🏗️ Monorepo Architecture
 
 ```text
 CodeAtlas/
@@ -53,58 +78,16 @@ CodeAtlas/
     ├── README.md                 # Technical architecture & API reference
     ├── backend/                  # .NET 8 Clean Architecture Backend
     │   ├── RepoMind.sln
-    │   ├── src/
-    │   │   ├── RepoMind.Domain/         # Core IR Entities, Flow Models & Enums
-    │   │   ├── RepoMind.Application/    # Extractor Pipeline & FlowEngine
-    │   │   ├── RepoMind.Infrastructure/ # Roslyn C# Parser, Python & TS Parsers, Package Extractor
-    │   │   └── RepoMind.Api/            # ASP.NET Core REST API & Swagger UI
-    │   └── tests/
-    │       ├── RepoMind.Domain.Tests/
-    │       ├── RepoMind.Infrastructure.Tests/
-    │       └── RepoMind.Api.Tests/
+    │   └── src/
+    │       ├── RepoMind.Domain/         # Core IR Entities, Flow & Security Models
+    │       ├── RepoMind.Application/    # ImpactEngine, ErdEngine, MeshEngine, SecurityScanner
+    │       ├── RepoMind.Infrastructure/ # Roslyn C# Parser, Python & TS Parsers, InfraDetector
+    │       └── RepoMind.Api/            # ASP.NET Core REST API
     └── frontend/                 # React + TypeScript + Vite Web UI
-        ├── index.html
-        ├── package.json
-        ├── vite.config.ts
         └── src/
-            ├── index.css             # Glassmorphic Dark Design System
-            ├── App.tsx               # Main Workspace & Tabs
-            ├── services/apiService.ts
-            └── components/           # Knowledge Graph, Flow Diagrams, API, DB & Package Explorers
+            ├── components/           # Graph, Flow, Security, Mesh, Impact, Diff, ERD, Infra, Handbook
+            └── services/apiService.ts
 ```
-
-### Stack Summary
-* **Backend**: .NET 8 (C#), ASP.NET Core Web API, Microsoft Roslyn AST Parser (`Microsoft.CodeAnalysis.CSharp`), Swagger UI.
-* **Frontend**: React 18, TypeScript, Vite 5, Mermaid.js (SVG sequence flowcharts rendered on the fly), Glassmorphic Vanilla CSS Design System, Lucide Icons.
-* **Multi-Language Support**: C#, Python, TypeScript/JavaScript, Java, Go, SQL.
-
----
-
-## 🔍 Core Capabilities & Features
-
-### 1. Repository Source Integration
-* **Local Repositories**: Scans local directories with full tilde (`~`) expansion support (e.g. `~/Projects/OrderService`).
-* **GitHub Repositories**: Clones & scans public or private GitHub repositories (`https://github.com/owner/repo.git`), supporting branch selection, commit SHA, and OAuth/PAT access tokens.
-
-### 2. Multi-Language AST Code Extraction
-* **Constructs**: `Class`, `Interface`, `Struct`, `Enum`, `Record`, `Method`, `Controller`, `Service`, `Repository`, `DTO`, `Consumer`.
-* **Directed Edges**: `Contains`, `Calls`, `Inherits`, `Implements`, `DependsOn`, `ReadsFrom`, `WritesTo`, `Publishes`, `Consumes`.
-
-### 3. End-to-End Functional Flows & On-the-Fly Mermaid Diagrams
-* Synthesizes execution paths starting from API endpoints down to Controllers, Services, Repositories, Database operations, and Event messaging.
-* Dynamically renders **Mermaid sequence flowchart diagrams** (`graph TD ...`) with zoom controls, fullscreen mode, and 1-click Mermaid code copying.
-
-### 4. Third-Party Package & Library Dependency Indexing
-* Parses and indexes external dependencies across **NuGet** (`.csproj`), **NPM** (`package.json`), and **PyPI** (`requirements.txt`).
-* Displays package names, versions, ecosystems, and file locations.
-
-### 5. Architectural Pattern Detection & Evaluated Rules Checklist
-* Evaluates 4 core architectural compliance rules:
-  1. *Layered Architectural Isolation* (Controllers -> Services -> Repositories)
-  2. *No Direct Controller DB Access* (Flags controllers accessing raw SQL/ORM tables directly)
-  3. *Decoupled Interface Abstractions*
-  4. *Asynchronous Event Broker Decoupling*
-* Displays a detailed collapsible list of violation alerts with file line numbers.
 
 ---
 
@@ -114,36 +97,32 @@ CodeAtlas/
 | :--- | :--- | :--- |
 | `POST` | `/api/repositories/local` | Scans a local directory path (`{"path": "~/Projects/RepoA"}`) |
 | `POST` | `/api/repositories/github` | Clones & scans a GitHub repository (`{"url": "https://github.com/..."}`) |
-| `POST` | `/api/repositories/scan` | Universal scan endpoint (Local or GitHub) |
 | `GET` | `/api/repositories` | Lists all scanned repositories |
 | `GET` | `/api/repositories/{id}` | Gets repository analysis summary |
-| `GET` | `/api/repositories/{id}/entities` | Filterable AST code entities |
-| `GET` | `/api/repositories/{id}/relationships` | Dependency & call graph edges |
 | `GET` | `/api/repositories/{id}/flows` | Synthesized execution flows & Mermaid markup |
 | `GET` | `/api/repositories/{id}/packages` | Third-party package dependencies (NuGet, NPM, PyPI) |
-| `GET` | `/api/repositories/{id}/apis` | Extracted REST API endpoints |
-| `GET` | `/api/repositories/{id}/databases` | Database tables & ORM queries |
-| `GET` | `/api/repositories/{id}/events` | Published and consumed events |
-| `GET` | `/api/repositories/{id}/architecture` | Layer pattern & architectural violation alerts |
-| `GET` | `/api/repositories/{id}/technologies` | Detected tech stack & languages |
+| `GET` | `/api/repositories/{id}/security` | Security CVE, hardcoded secret leaks & OWASP audit |
+| `GET` | `/api/workspace/mesh` | Multi-repo cross-service dependency mesh graph |
+| `GET` | `/api/repositories/{id}/impact` | Blast radius & change impact score |
+| `GET` | `/api/repositories/{id}/diff` | Git branch snapshot diff & architectural drift |
+| `GET` | `/api/repositories/{id}/erd` | Auto database ERD synthesis |
+| `GET` | `/api/repositories/{id}/infrastructure` | Docker & K8s infrastructure topology |
+| `GET` | `/api/repositories/{id}/handbook` | Living architecture handbook documentation |
 
 ---
 
 ## 🧪 Testing & Verification
 
-### Run .NET Automated Test Suite
 ```bash
+# Run .NET Automated Test Suite
 ./.dotnet/dotnet test repomind/backend/RepoMind.sln
-```
 
-### Build Frontend Production Assets
-```bash
-cd repomind/frontend
-npm run build
+# Build Frontend Production Assets
+cd repomind/frontend && npm run build
 ```
 
 ---
 
 ## 📄 License
 
-MIT License. Built for personal engineering repository intelligence, functional flow synthesis, and architectural knowledge exploration.
+MIT License. Built for personal engineering repository intelligence, functional flow synthesis, security auditing, and architectural knowledge exploration.

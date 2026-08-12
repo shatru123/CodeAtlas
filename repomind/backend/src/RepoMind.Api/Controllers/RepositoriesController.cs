@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using RepoMind.Api.Dtos;
 using RepoMind.Application.Abstractions;
+using RepoMind.Application.Services;
 using RepoMind.Domain.Models;
+using RepoMind.Infrastructure.Detectors;
 
 namespace RepoMind.Api.Controllers;
 
@@ -179,6 +181,82 @@ public class RepositoriesController : ControllerBase
         var analysis = await _knowledgeStore.GetAnalysisAsync(id);
         if (analysis == null) return NotFound(new { error = "Repository not found." });
         return Ok(analysis.Flows);
+    }
+
+    [HttpGet("{id}/security")]
+    public async Task<IActionResult> GetSecurity(string id)
+    {
+        var analysis = await _knowledgeStore.GetAnalysisAsync(id);
+        if (analysis == null) return NotFound(new { error = "Repository not found." });
+        return Ok(analysis.SecurityAudit);
+    }
+
+    [HttpGet("/api/workspace/mesh")]
+    public async Task<IActionResult> GetWorkspaceMesh()
+    {
+        var repos = await _knowledgeStore.ListRepositoriesAsync();
+        var analyses = new List<AnalysisResult>();
+        foreach (var repo in repos)
+        {
+            var analysis = await _knowledgeStore.GetAnalysisAsync(repo.Id);
+            if (analysis != null) analyses.Add(analysis);
+        }
+        var mesh = MeshEngine.BuildWorkspaceMesh(analyses);
+        return Ok(mesh);
+    }
+
+    [HttpGet("{id}/impact")]
+    public async Task<IActionResult> GetBlastRadius(string id, [FromQuery] string? entityName)
+    {
+        var analysis = await _knowledgeStore.GetAnalysisAsync(id);
+        if (analysis == null) return NotFound(new { error = "Repository not found." });
+
+        var repos = await _knowledgeStore.ListRepositoriesAsync();
+        var analyses = new List<AnalysisResult>();
+        foreach (var repo in repos)
+        {
+            var a = await _knowledgeStore.GetAnalysisAsync(repo.Id);
+            if (a != null) analyses.Add(a);
+        }
+        var mesh = MeshEngine.BuildWorkspaceMesh(analyses);
+        var blast = ImpactEngine.CalculateBlastRadius(entityName ?? "", analysis, mesh);
+        return Ok(blast);
+    }
+
+    [HttpGet("{id}/diff")]
+    public async Task<IActionResult> GetBranchDiff(string id, [FromQuery] string? targetBranch)
+    {
+        var analysis = await _knowledgeStore.GetAnalysisAsync(id);
+        if (analysis == null) return NotFound(new { error = "Repository not found." });
+        var diff = BranchDiffEngine.CompareBranches(analysis, targetBranch ?? "main");
+        return Ok(diff);
+    }
+
+    [HttpGet("{id}/erd")]
+    public async Task<IActionResult> GetDatabaseErd(string id)
+    {
+        var analysis = await _knowledgeStore.GetAnalysisAsync(id);
+        if (analysis == null) return NotFound(new { error = "Repository not found." });
+        var erd = ErdEngine.SynthesizeErd(analysis);
+        return Ok(erd);
+    }
+
+    [HttpGet("{id}/infrastructure")]
+    public async Task<IActionResult> GetInfrastructure(string id)
+    {
+        var analysis = await _knowledgeStore.GetAnalysisAsync(id);
+        if (analysis == null) return NotFound(new { error = "Repository not found." });
+        var infra = InfrastructureDetector.ExtractInfrastructure(analysis.Repository.RootPath);
+        return Ok(infra);
+    }
+
+    [HttpGet("{id}/handbook")]
+    public async Task<IActionResult> GetHandbook(string id)
+    {
+        var analysis = await _knowledgeStore.GetAnalysisAsync(id);
+        if (analysis == null) return NotFound(new { error = "Repository not found." });
+        var handbook = HandbookExporter.GenerateHandbook(analysis);
+        return Ok(handbook);
     }
 
     [HttpGet("{id}/architecture")]

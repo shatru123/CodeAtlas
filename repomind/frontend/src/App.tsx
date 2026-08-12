@@ -8,17 +8,24 @@ import { EventExplorer } from './components/EventExplorer';
 import { PackageExplorer } from './components/PackageExplorer';
 import { FlowExplorer } from './components/FlowExplorer';
 import { ArchitecturePanel } from './components/ArchitecturePanel';
+import { SecurityExplorer } from './components/SecurityExplorer';
+import { MeshExplorer } from './components/MeshExplorer';
+import { ImpactExplorer } from './components/ImpactExplorer';
+import { DiffExplorer } from './components/DiffExplorer';
+import { ErdExplorer } from './components/ErdExplorer';
+import { InfrastructureExplorer } from './components/InfrastructureExplorer';
+import { HandbookExporterView } from './components/HandbookExporterView';
 import { EntityDetailModal } from './components/EntityDetailModal';
 import { apiService } from './services/apiService';
 import { AnalysisResult, ArchitectureSummary, CodeEntity, RepositoryInfo } from './types/api';
-import { Network, Layers, Globe, Database, Radio, Shield, GitCommit, Package, Zap, Sparkles, FolderGit2 } from 'lucide-react';
+import { Network, Globe, Database, Radio, Shield, GitCommit, Package, Zap, Sparkles, FolderGit2, ShieldAlert, Share2, GitCompare, Box, BookOpen, Table } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [repositories, setRepositories] = useState<RepositoryInfo[]>([]);
   const [activeRepo, setActiveRepo] = useState<RepositoryInfo | null>(null);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [architecture, setArchitecture] = useState<ArchitectureSummary | null>(null);
-  const [activeTab, setActiveTab] = useState<'graph' | 'flows' | 'apis' | 'databases' | 'events' | 'packages' | 'architecture'>('graph');
+  const [activeTab, setActiveTab] = useState<'graph' | 'flows' | 'apis' | 'databases' | 'events' | 'packages' | 'architecture' | 'security' | 'mesh' | 'impact' | 'diff' | 'erd' | 'infra' | 'handbook'>('graph');
   const [selectedEntity, setSelectedEntity] = useState<CodeEntity | null>(null);
   const [isScanModalOpen, setIsScanModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -156,7 +163,7 @@ export const App: React.FC = () => {
       {/* Workspace Tabs */}
       {analysis && (
         <>
-          <div style={{ display: 'flex', borderBottom: '1px solid var(--border-card)', marginBottom: '1.5rem', gap: '1.5rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', borderBottom: '1px solid var(--border-card)', marginBottom: '1.5rem', gap: '1.15rem', flexWrap: 'wrap' }}>
             {[
               { id: 'graph', label: 'Knowledge Graph', icon: Network, count: analysis.entities.length },
               { id: 'flows', label: 'Functional Flows', icon: Zap, count: analysis.flows.length },
@@ -165,6 +172,13 @@ export const App: React.FC = () => {
               { id: 'events', label: 'Messaging Events', icon: Radio, count: analysis.events.length },
               { id: 'packages', label: 'Packages & Libraries', icon: Package, count: analysis.packages.length },
               { id: 'architecture', label: 'Architecture & Rules', icon: Shield, count: architecture ? (architecture.violations.length > 0 ? `${architecture.violations.length} Alerts` : 'Clean') : '4 Rules' },
+              { id: 'security', label: 'Security & CVE Audit', icon: ShieldAlert, count: analysis.securityAudit ? `${analysis.securityAudit.securityScore}/100` : 'Audit' },
+              { id: 'mesh', label: 'Workspace Mesh', icon: Share2, count: `${repositories.length} Repos` },
+              { id: 'impact', label: 'Blast Radius', icon: Zap, count: 'Impact' },
+              { id: 'diff', label: 'Branch Diff', icon: GitCompare, count: 'Delta' },
+              { id: 'erd', label: 'Database ERD', icon: Table, count: 'ERD' },
+              { id: 'infra', label: 'Infra Topology', icon: Box, count: 'Docker/K8s' },
+              { id: 'handbook', label: 'Handbook Exporter', icon: BookOpen, count: 'Docs' },
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -179,17 +193,17 @@ export const App: React.FC = () => {
                     padding: '0.75rem 0.25rem',
                     color: isActive ? 'white' : 'var(--text-muted)',
                     fontWeight: isActive ? '700' : '500',
-                    fontSize: '0.9rem',
+                    fontSize: '0.88rem',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.5rem',
+                    gap: '0.45rem',
                     transition: 'all 0.2s ease',
                   }}
                 >
-                  <Icon size={18} color={isActive ? 'var(--accent-indigo)' : 'var(--text-muted)'} />
+                  <Icon size={17} color={isActive ? 'var(--accent-indigo)' : 'var(--text-muted)'} />
                   <span>{tab.label}</span>
-                  <span style={{ background: isActive ? 'var(--accent-indigo)' : 'rgba(255,255,255,0.08)', color: 'white', padding: '0.1rem 0.45rem', borderRadius: '1rem', fontSize: '0.7rem', fontWeight: '700' }}>
+                  <span style={{ background: isActive ? 'var(--accent-indigo)' : 'rgba(255,255,255,0.08)', color: 'white', padding: '0.1rem 0.45rem', borderRadius: '1rem', fontSize: '0.68rem', fontWeight: '700' }}>
                     {tab.count}
                   </span>
                 </button>
@@ -205,6 +219,13 @@ export const App: React.FC = () => {
           {activeTab === 'events' && <EventExplorer events={analysis.events} />}
           {activeTab === 'packages' && <PackageExplorer packages={analysis.packages} />}
           {activeTab === 'architecture' && <ArchitecturePanel architecture={architecture} />}
+          {activeTab === 'security' && <SecurityExplorer audit={analysis.securityAudit} />}
+          {activeTab === 'mesh' && <MeshExplorer />}
+          {activeTab === 'impact' && <ImpactExplorer repoId={analysis.repository.id} />}
+          {activeTab === 'diff' && <DiffExplorer repoId={analysis.repository.id} />}
+          {activeTab === 'erd' && <ErdExplorer repoId={analysis.repository.id} />}
+          {activeTab === 'infra' && <InfrastructureExplorer repoId={analysis.repository.id} />}
+          {activeTab === 'handbook' && <HandbookExporterView repoId={analysis.repository.id} />}
         </>
       )}
 
