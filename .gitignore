@@ -425,12 +425,9 @@ FodyWeavers.xsd
 .dotnet/
 venv/
 .idea/
-repomind/backend/.idea/
-repomind/backend/Library/
+codeatlas/backend/.idea/
+codeatlas/backend/Library/
 Library/
-
-
-
 
 # Windows Installer files from build outputs
 *.cab
@@ -443,5 +440,6 @@ Library/
 *.jpg
 *.jpeg
 *.png
+codeatlas_*.jpg
 repomind_*.jpg
 assets/

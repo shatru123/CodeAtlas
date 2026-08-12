@@ -1,6 +1,6 @@
-# RepoMind Technical Architecture & Monorepo Guide
+# CodeAtlas Technical Architecture & Monorepo Guide
 
-This directory contains the core implementation of **RepoMind — Personal Engineering Knowledge Graph**.
+This directory contains the core implementation of **CodeAtlas — Personal Engineering Knowledge Graph**.
 
 ---
 
@@ -42,11 +42,11 @@ This directory contains the core implementation of **RepoMind — Personal Engin
 
 | Project | Responsibility | Key Components |
 | :--- | :--- | :--- |
-| `RepoMind.Domain` | Core IR Entities, Relationships, DTOs, Flow Models | `CodeEntity`, `CodeRelationship`, `ApiDefinition`, `FunctionalFlow`, `PackageDependency` |
-| `RepoMind.Application` | Extractor pipeline abstractions & orchestrator | `RepositoryScannerService`, `FlowEngine`, `ILanguageParser`, `ITechStackDetector` |
-| `RepoMind.Infrastructure` | Concrete Roslyn/Python/TS parsers, Package Extractor, Git CLI | `CSharpRoslynParser`, `PythonParser`, `TypeScriptParser`, `TechStackDetector`, `InMemoryKnowledgeStore` |
-| `RepoMind.Api` | ASP.NET Core REST API & Swagger UI | `RepositoriesController`, `Program.cs` |
-| `repomind/frontend` | Glassmorphic React UI for graph, flows & package exploration | `App.tsx`, `FlowExplorer.tsx`, `FlowDiagram.tsx`, `PackageExplorer.tsx`, `ArchitecturePanel.tsx` |
+| `CodeAtlas.Domain` | Core IR Entities, Relationships, DTOs, Flow Models | `CodeEntity`, `CodeRelationship`, `ApiDefinition`, `FunctionalFlow`, `PackageDependency` |
+| `CodeAtlas.Application` | Extractor pipeline abstractions & orchestrator | `RepositoryScannerService`, `FlowEngine`, `ILanguageParser`, `ITechStackDetector` |
+| `CodeAtlas.Infrastructure` | Concrete Roslyn/Python/TS parsers, Package Extractor, Git CLI | `CSharpRoslynParser`, `PythonParser`, `TypeScriptParser`, `TechStackDetector`, `InMemoryKnowledgeStore` |
+| `CodeAtlas.Api` | ASP.NET Core REST API & Swagger UI | `RepositoriesController`, `Program.cs` |
+| `codeatlas/frontend` | Glassmorphic React UI for graph, flows & package exploration | `App.tsx`, `FlowExplorer.tsx`, `FlowDiagram.tsx`, `PackageExplorer.tsx`, `ArchitecturePanel.tsx` |
 
 ---
 
@@ -54,7 +54,7 @@ This directory contains the core implementation of **RepoMind — Personal Engin
 
 Run test suites:
 ```bash
-./.dotnet/dotnet test repomind/backend/RepoMind.sln
+./.dotnet/dotnet test codeatlas/backend/CodeAtlas.sln
 ```
 
 All domain, infrastructure, and API test suites pass cleanly.

@@ -1,6 +1,0 @@
-@RepoMind.Api_HostAddress = http://localhost:5195
-
-GET {{RepoMind.Api_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

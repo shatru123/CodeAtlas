@@ -1,11 +1,11 @@
 {
-  "name": "codeatlas-repomind",
+  "name": "codeatlas",
   "version": "1.0.0",
   "private": true,
-  "description": "RepoMind — Personal Engineering Knowledge Graph",
+  "description": "CodeAtlas — Personal Engineering Knowledge Graph",
   "scripts": {
     "start": "./start.sh",
-    "build": "./.dotnet/dotnet build repomind/backend/RepoMind.sln && npm run build --prefix repomind/frontend",
-    "test": "./.dotnet/dotnet test repomind/backend/RepoMind.sln"
+    "build": "./.dotnet/dotnet build codeatlas/backend/CodeAtlas.sln && npm run build --prefix codeatlas/frontend",
+    "test": "./.dotnet/dotnet test codeatlas/backend/CodeAtlas.sln"
   }
 }

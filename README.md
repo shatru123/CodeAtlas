@@ -1,4 +1,4 @@
-# RepoMind — Personal Engineering Knowledge Graph
+# CodeAtlas — Personal Engineering Knowledge Graph
 
 <p align="center">
   <strong>Automatically analyze, extract, and explore technical architecture, dependencies, APIs, DB flows, third-party packages, security vulnerabilities, cross-repo microservice meshes, blast radius impact, ER diagrams, container topologies, and living handbooks.</strong>
@@ -6,9 +6,9 @@
 
 ---
 
-## 💡 What is RepoMind?
+## 💡 What is CodeAtlas?
 
-**RepoMind** is an enterprise developer tool and engineering knowledge platform that automatically analyzes local and GitHub software repositories. It parses AST code structures, maps dependency call graphs, extracts REST API routes, traces database operations, detects messaging events, indexes third-party packages, synthesizes end-to-end execution flows with **on-the-fly Mermaid diagrams**, provides an **interactive drag-and-drop React Flow canvas**, audits security/CVE vulnerabilities, calculates change blast radius, generates database ER diagrams, visualizes Docker/K8s infrastructure topology, and exports living architecture handbooks—storing everything in a centralized knowledge graph.
+**CodeAtlas** is an enterprise developer tool and engineering knowledge platform that automatically analyzes local and GitHub software repositories. It parses AST code structures, maps dependency call graphs, extracts REST API routes, traces database operations, detects messaging events, indexes third-party packages, synthesizes end-to-end execution flows with **on-the-fly Mermaid diagrams**, provides an **interactive drag-and-drop React Flow canvas**, audits security/CVE vulnerabilities, calculates change blast radius, generates database ER diagrams, visualizes Docker/K8s infrastructure topology, and exports living architecture handbooks—storing everything in a centralized knowledge graph.
 
 ---
 
@@ -78,15 +78,15 @@ CodeAtlas/
 ├── start.command                 # macOS Finder double-clickable launcher
 ├── package.json                  # Root npm package runner
 ├── README.md                     # Root documentation
-└── repomind/
+└── codeatlas/
     ├── README.md                 # Technical architecture & API reference
     ├── backend/                  # .NET 8 Clean Architecture Backend
-    │   ├── RepoMind.sln
+    │   ├── CodeAtlas.sln
     │   └── src/
-    │       ├── RepoMind.Domain/         # Core IR Entities, Flow, Security & Runner Models
-    │       ├── RepoMind.Application/    # ImpactEngine, ErdEngine, MeshEngine, SecurityScanner, RepoRunnerService
-    │       ├── RepoMind.Infrastructure/ # Roslyn C# Parser, Python & TS Parsers, InfraDetector
-    │       └── RepoMind.Api/            # ASP.NET Core REST API
+    │       ├── CodeAtlas.Domain/         # Core IR Entities, Flow, Security & Runner Models
+    │       ├── CodeAtlas.Application/    # ImpactEngine, ErdEngine, MeshEngine, SecurityScanner, RepoRunnerService
+    │       ├── CodeAtlas.Infrastructure/ # Roslyn C# Parser, Python & TS Parsers, InfraDetector
+    │       └── CodeAtlas.Api/            # ASP.NET Core REST API
     └── frontend/                 # React + TypeScript + Vite Web UI
         └── src/
             ├── components/           # Graph, Flow, Security, Mesh, Impact, Diff, ERD, Infra, Handbook, CodeRunner
@@ -122,14 +122,14 @@ CodeAtlas/
 
 ```bash
 # Run .NET Automated Test Suite
-./.dotnet/dotnet test repomind/backend/RepoMind.sln
+./.dotnet/dotnet test codeatlas/backend/CodeAtlas.sln
 
 # Build Frontend Production Assets
-cd repomind/frontend && npm run build
+cd codeatlas/frontend && npm run build
 ```
 
 ---
 
 ## 📄 License
 
-MIT License. Built for personal engineering repository intelligence, functional flow synthesis, security auditing, and architectural knowledge exploration.
+MIT License. Built by Shatrughna Ambhore for personal engineering repository intelligence, functional flow synthesis, security auditing, and architectural knowledge exploration.
