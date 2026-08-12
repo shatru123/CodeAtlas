@@ -141,26 +141,26 @@ export const App: React.FC = () => {
       <div style={{ flex: 1 }}>
         {/* Main Repository Banner */}
         {analysis ? (
-          <div className="glass-panel" style={{ padding: '1.5rem 1.75rem', marginBottom: '1.5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.3rem' }}>
-                  <h2 style={{ fontSize: '1.45rem', fontWeight: '800', color: 'white' }}>{analysis.repository.name}</h2>
-                  <span className="badge badge-get" style={{ background: 'rgba(99,102,241,0.15)', color: 'var(--accent-indigo)' }}>
+          <div className="glass-panel" style={{ padding: '1.5rem 1.75rem', marginBottom: '1.5rem', minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', minWidth: 0 }}>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.35rem', flexWrap: 'wrap', minWidth: 0 }}>
+                  <h2 style={{ fontSize: '1.4rem', fontWeight: '800', color: 'white', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{analysis.repository.name}</h2>
+                  <span className="badge badge-get" style={{ background: 'rgba(99,102,241,0.15)', color: 'var(--accent-indigo)', flexShrink: 0 }}>
                     {analysis.repository.source === 0 ? 'Local Repository' : 'GitHub Repository'}
                   </span>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontFamily: 'var(--font-code)' }}>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontFamily: 'var(--font-code)', flexShrink: 0 }}>
                     Branch: <strong style={{ color: 'white' }}>{analysis.repository.branch || 'main'}</strong>
                   </span>
                 </div>
 
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                    <FolderGit2 size={14} color="var(--accent-cyan)" />
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', minWidth: 0 }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', wordBreak: 'break-all', overflowWrap: 'anywhere', lineHeight: '1.3' }}>
+                    <FolderGit2 size={14} color="var(--accent-cyan)" style={{ flexShrink: 0 }} />
                     {analysis.repository.rootPath}
                   </span>
                   {analysis.repository.commitHash && (
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexShrink: 0 }}>
                       <GitCommit size={14} color="var(--accent-purple)" />
                       SHA: {analysis.repository.commitHash.substring(0, 8)}
                     </span>
@@ -169,23 +169,23 @@ export const App: React.FC = () => {
               </div>
 
               {/* Metrics */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flexWrap: 'wrap' }}>
-                <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.65rem 1rem', borderRadius: '10px', border: '1px solid var(--border-card)', textAlign: 'center' }}>
+              <div className="metrics-responsive-grid">
+                <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.65rem 1rem', borderRadius: '10px', border: '1px solid var(--border-card)', textAlign: 'center', minWidth: 0 }}>
                   <div style={{ fontSize: '1.15rem', fontWeight: '800', color: 'var(--accent-cyan)' }}>{analysis.entities.length}</div>
                   <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>AST Entities</div>
                 </div>
 
-                <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.65rem 1rem', borderRadius: '10px', border: '1px solid var(--border-card)', textAlign: 'center' }}>
+                <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.65rem 1rem', borderRadius: '10px', border: '1px solid var(--border-card)', textAlign: 'center', minWidth: 0 }}>
                   <div style={{ fontSize: '1.15rem', fontWeight: '800', color: 'var(--accent-emerald)' }}>{analysis.apis.length}</div>
                   <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>REST APIs</div>
                 </div>
 
-                <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.65rem 1rem', borderRadius: '10px', border: '1px solid var(--border-card)', textAlign: 'center' }}>
+                <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.65rem 1rem', borderRadius: '10px', border: '1px solid var(--border-card)', textAlign: 'center', minWidth: 0 }}>
                   <div style={{ fontSize: '1.15rem', fontWeight: '800', color: 'var(--accent-amber)' }}>{analysis.packages.length}</div>
                   <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Packages</div>
                 </div>
 
-                <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.65rem 1rem', borderRadius: '10px', border: '1px solid var(--border-card)', textAlign: 'center' }}>
+                <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.65rem 1rem', borderRadius: '10px', border: '1px solid var(--border-card)', textAlign: 'center', minWidth: 0 }}>
                   <div style={{ fontSize: '1.15rem', fontWeight: '800', color: 'var(--accent-purple)' }}>{analysis.flows.length}</div>
                   <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Flows</div>
                 </div>
