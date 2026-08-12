@@ -27,7 +27,7 @@ const getBackendBaseUrl = () => {
   const metaEnv = (import.meta as any).env;
   if (metaEnv?.VITE_API_URL) return metaEnv.VITE_API_URL;
   if (typeof window !== 'undefined' && window.location.hostname.includes('onrender.com')) {
-    return 'https://codeatlas-backend-fp61.onrender.com';
+    return 'https://codeatlas-backend-p24q.onrender.com';
   }
   return '';
 };

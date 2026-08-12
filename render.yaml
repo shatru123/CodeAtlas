@@ -23,7 +23,7 @@ services:
     staticPublishPath: ./codeatlas/frontend/dist
     envVars:
       - key: VITE_API_URL
-        value: https://codeatlas-backend-fp61.onrender.com
+        value: https://codeatlas-backend-p24q.onrender.com
     routes:
       - type: rewrite
         source: /*

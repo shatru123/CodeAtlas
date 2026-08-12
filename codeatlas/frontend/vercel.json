@@ -5,7 +5,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://codeatlas-backend-fp61.onrender.com/api/$1"
+      "destination": "https://codeatlas-backend-p24q.onrender.com/api/$1"
     },
     {
       "source": "/(.*)",
