@@ -49,6 +49,13 @@ export enum ExtractionStatus {
   Failed = 3,
 }
 
+export enum SeverityLevel {
+  Low = 0,
+  Medium = 1,
+  High = 2,
+  Critical = 3,
+}
+
 export interface RepositoryInfo {
   id: string;
   name: string;
@@ -158,12 +165,129 @@ export interface FunctionalFlow {
   mermaidMarkup: string;
 }
 
-export interface GitCommitInfo {
-  commitHash: string;
-  author: string;
-  message: string;
-  committedAt: string;
-  modifiedFiles: string[];
+export interface SecurityVulnerability {
+  id: string;
+  packageName: string;
+  version: string;
+  cveId: string;
+  severity: SeverityLevel;
+  summary: string;
+  recommendation: string;
+  filePath: string;
+}
+
+export interface SecretLeak {
+  id: string;
+  secretType: string;
+  maskedValue: string;
+  filePath: string;
+  lineNumber: number;
+  severity: SeverityLevel;
+}
+
+export interface OwaspApiViolation {
+  id: string;
+  route: string;
+  httpMethod: string;
+  ruleId: string;
+  description: string;
+  filePath: string;
+  lineNumber: number;
+}
+
+export interface SecurityAuditResult {
+  repositoryId: string;
+  securityScore: number;
+  vulnerabilities: SecurityVulnerability[];
+  secretLeaks: SecretLeak[];
+  owaspViolations: OwaspApiViolation[];
+}
+
+export interface CrossRepoDependency {
+  id: string;
+  sourceRepoId: string;
+  sourceRepoName: string;
+  sourceComponent: string;
+  targetRepoId: string;
+  targetRepoName: string;
+  targetComponent: string;
+  dependencyType: string;
+  protocol: string;
+  context: string;
+}
+
+export interface WorkspaceMeshSummary {
+  totalRepositories: number;
+  totalCrossRepoDependencies: number;
+  dependencies: CrossRepoDependency[];
+  repositories: RepositoryInfo[];
+}
+
+export interface AffectedComponentInfo {
+  name: string;
+  type: string;
+  filePath: string;
+  context: string;
+}
+
+export interface BlastRadiusResult {
+  targetEntityName: string;
+  impactScore: number;
+  riskLevel: string;
+  affectedControllers: AffectedComponentInfo[];
+  affectedServices: AffectedComponentInfo[];
+  affectedRepositories: AffectedComponentInfo[];
+  affectedDatabases: AffectedComponentInfo[];
+  affectedCrossRepoServices: AffectedComponentInfo[];
+}
+
+export interface BranchDiffResult {
+  sourceBranch: string;
+  targetBranch: string;
+  addedApis: ApiDefinition[];
+  removedApis: ApiDefinition[];
+  addedEntities: CodeEntity[];
+  removedEntities: CodeEntity[];
+  newViolationsIntroduced: CodeRelationship[];
+}
+
+export interface DatabaseTableColumn {
+  columnName: string;
+  dataType: string;
+  isPrimaryKey: boolean;
+  isForeignKey: boolean;
+}
+
+export interface DatabaseTableSchema {
+  tableName: string;
+  ormProvider: string;
+  columns: DatabaseTableColumn[];
+}
+
+export interface DatabaseErdResult {
+  totalTables: number;
+  mermaidErdMarkup: string;
+  tables: DatabaseTableSchema[];
+}
+
+export interface ContainerServiceInfo {
+  serviceName: string;
+  image: string;
+  ports: string[];
+  environmentVariables: string[];
+  sourceFile: string;
+}
+
+export interface InfrastructureTopology {
+  dockerfilesCount: number;
+  k8sManifestsCount: number;
+  containerServices: ContainerServiceInfo[];
+}
+
+export interface ArchitectureHandbook {
+  repositoryName: string;
+  generatedAt: string;
+  markdownContent: string;
 }
 
 export interface ArchitectureSummary {
@@ -184,7 +308,8 @@ export interface AnalysisResult {
   events: EventDefinition[];
   packages: PackageDependency[];
   flows: FunctionalFlow[];
-  recentCommits: GitCommitInfo[];
+  securityAudit: SecurityAuditResult;
+  recentCommits: any[];
   parsingErrors: string[];
 }
 

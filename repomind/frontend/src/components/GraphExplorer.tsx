@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { Layers, Database, Radio, Globe, Shield, Code, Search, Filter } from 'lucide-react';
+import { Layers, Database, Radio, Globe, Shield, Code, Search, Filter, Sparkles, LayoutGrid } from 'lucide-react';
 import { AnalysisResult, CodeEntity, EntityType } from '../types/api';
+import { InteractiveCanvas } from './InteractiveCanvas';
 
 interface GraphExplorerProps {
   analysis: AnalysisResult;
@@ -8,6 +9,7 @@ interface GraphExplorerProps {
 }
 
 export const GraphExplorer: React.FC<GraphExplorerProps> = ({ analysis, onSelectEntity }) => {
+  const [viewMode, setViewMode] = useState<'canvas' | 'grid'>('canvas');
   const [filterType, setFilterType] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
@@ -32,15 +34,6 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({ analysis, onSelect
     };
   }, [analysis, searchQuery]);
 
-  const filteredEntities = useMemo(() => {
-    if (filterType === 'ALL') return analysis.entities;
-    if (filterType === 'Controller') return controllers;
-    if (filterType === 'Service') return services;
-    if (filterType === 'Repository') return repos;
-    if (filterType === 'API') return analysis.entities.filter((e) => e.type === 'Controller');
-    return analysis.entities;
-  }, [analysis, filterType, controllers, services, repos]);
-
   const getNodeColor = (type: EntityType | string) => {
     switch (type) {
       case 'Controller': return { bg: 'rgba(56, 189, 248, 0.15)', border: '#38bdf8', text: '#7dd3fc', icon: Globe };
@@ -54,59 +47,81 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({ analysis, onSelect
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', minWidth: 0 }}>
-      {/* Controls & Filter Bar */}
-      <div className="glass-panel" style={{ padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, minWidth: '220px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-card)', padding: '0.5rem 0.85rem', borderRadius: '8px' }}>
-          <Search size={16} color="var(--text-muted)" style={{ flexShrink: 0 }} />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Filter entities, methods, classes..."
-            style={{ background: 'transparent', border: 'none', color: 'white', fontSize: '0.85rem', outline: 'none', width: '100%' }}
-          />
+      {/* Top Header Mode Toggle */}
+      <div className="glass-panel" style={{ padding: '0.85rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <button
+            onClick={() => setViewMode('canvas')}
+            style={{
+              background: viewMode === 'canvas' ? 'rgba(56, 189, 248, 0.2)' : 'transparent',
+              color: viewMode === 'canvas' ? 'white' : 'var(--text-muted)',
+              border: viewMode === 'canvas' ? '1px solid var(--accent-cyan)' : '1px solid transparent',
+              padding: '0.45rem 1rem',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: '700',
+              fontSize: '0.85rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+            }}
+          >
+            <Sparkles size={16} color="var(--accent-cyan)" />
+            Interactive Drag & Drop Canvas (React Flow)
+          </button>
+
+          <button
+            onClick={() => setViewMode('grid')}
+            style={{
+              background: viewMode === 'grid' ? 'rgba(99, 102, 241, 0.2)' : 'transparent',
+              color: viewMode === 'grid' ? 'white' : 'var(--text-muted)',
+              border: viewMode === 'grid' ? '1px solid var(--accent-indigo)' : '1px solid transparent',
+              padding: '0.45rem 1rem',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: '700',
+              fontSize: '0.85rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+            }}
+          >
+            <LayoutGrid size={16} color="var(--accent-indigo)" />
+            Layer Grid View
+          </button>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <Filter size={15} color="var(--text-muted)" style={{ flexShrink: 0 }} />
-          {['ALL', 'Controller', 'Service', 'Repository', 'Interface'].map((type) => (
-            <button
-              key={type}
-              onClick={() => setFilterType(type)}
-              style={{
-                background: filterType === type ? 'var(--accent-indigo)' : 'rgba(255,255,255,0.05)',
-                color: filterType === type ? 'white' : 'var(--text-muted)',
-                border: '1px solid var(--border-card)',
-                padding: '0.35rem 0.75rem',
-                borderRadius: '6px',
-                fontSize: '0.78rem',
-                fontWeight: '600',
-                cursor: 'pointer',
-              }}
-            >
-              {type}
-            </button>
-          ))}
-        </div>
+        {viewMode === 'grid' && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, maxWidth: '350px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-card)', padding: '0.4rem 0.85rem', borderRadius: '8px' }}>
+            <Search size={16} color="var(--text-muted)" style={{ flexShrink: 0 }} />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Filter entities..."
+              style={{ background: 'transparent', border: 'none', color: 'white', fontSize: '0.85rem', outline: 'none', width: '100%' }}
+            />
+          </div>
+        )}
       </div>
 
-      {/* Knowledge Graph Layer Diagram */}
-      <div className="glass-panel" style={{ padding: '1.75rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', minHeight: '480px', minWidth: 0 }}>
-        {/* Layer 1: API / Controllers */}
-        <div style={{ minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-            <Globe size={16} color="var(--accent-cyan)" style={{ flexShrink: 0 }} />
-            <h3 style={{ fontSize: '0.9rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--accent-cyan)' }}>
-              API Layer / Controllers ({controllers.length})
-            </h3>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '0.85rem' }}>
-            {controllers.length > 0 ? (
-              controllers.map((entity) => {
+      {/* Render View Mode */}
+      {viewMode === 'canvas' ? (
+        <InteractiveCanvas analysis={analysis} onSelectEntity={onSelectEntity} />
+      ) : (
+        <div className="glass-panel" style={{ padding: '1.75rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', minHeight: '480px', minWidth: 0 }}>
+          {/* Layer 1: API / Controllers */}
+          <div style={{ minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+              <Globe size={16} color="var(--accent-cyan)" style={{ flexShrink: 0 }} />
+              <h3 style={{ fontSize: '0.9rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--accent-cyan)' }}>
+                API Layer / Controllers ({controllers.length})
+              </h3>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '0.85rem' }}>
+              {controllers.map((entity) => {
                 const colors = getNodeColor(entity.type);
                 const Icon = colors.icon;
-                const isSelected = selectedNodeId === entity.id;
-
                 return (
                   <div
                     key={entity.id}
@@ -116,12 +131,10 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({ analysis, onSelect
                     }}
                     style={{
                       background: colors.bg,
-                      border: `1.5px solid ${isSelected ? 'var(--accent-cyan)' : colors.border}`,
-                      boxShadow: isSelected ? 'var(--shadow-cyan-glow)' : 'none',
+                      border: `1.5px solid ${selectedNodeId === entity.id ? 'var(--accent-cyan)' : colors.border}`,
                       borderRadius: '10px',
                       padding: '0.85rem 1rem',
                       cursor: 'pointer',
-                      transition: 'all 0.2s ease',
                       display: 'flex',
                       flexDirection: 'column',
                       gap: '0.35rem',
@@ -138,30 +151,24 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({ analysis, onSelect
                     <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-code)', wordBreak: 'break-all' }}>{entity.filePath}</div>
                   </div>
                 );
-              })
-            ) : (
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', fontStyle: 'italic' }}>No controllers detected in this view.</div>
-            )}
+              })}
+            </div>
           </div>
-        </div>
 
-        <div style={{ height: '1px', background: 'var(--border-card)' }} />
+          <div style={{ height: '1px', background: 'var(--border-card)' }} />
 
-        {/* Layer 2: Application / Services */}
-        <div style={{ minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-            <Layers size={16} color="var(--accent-indigo)" style={{ flexShrink: 0 }} />
-            <h3 style={{ fontSize: '0.9rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--accent-indigo)' }}>
-              Application & Service Layer ({services.length})
-            </h3>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '0.85rem' }}>
-            {services.length > 0 ? (
-              services.map((entity) => {
+          {/* Layer 2: Application / Services */}
+          <div style={{ minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+              <Layers size={16} color="var(--accent-indigo)" style={{ flexShrink: 0 }} />
+              <h3 style={{ fontSize: '0.9rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--accent-indigo)' }}>
+                Application & Service Layer ({services.length})
+              </h3>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '0.85rem' }}>
+              {services.map((entity) => {
                 const colors = getNodeColor(entity.type);
                 const Icon = colors.icon;
-                const isSelected = selectedNodeId === entity.id;
-
                 return (
                   <div
                     key={entity.id}
@@ -171,12 +178,10 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({ analysis, onSelect
                     }}
                     style={{
                       background: colors.bg,
-                      border: `1.5px solid ${isSelected ? 'var(--accent-indigo)' : colors.border}`,
-                      boxShadow: isSelected ? 'var(--shadow-glow)' : 'none',
+                      border: `1.5px solid ${selectedNodeId === entity.id ? 'var(--accent-indigo)' : colors.border}`,
                       borderRadius: '10px',
                       padding: '0.85rem 1rem',
                       cursor: 'pointer',
-                      transition: 'all 0.2s ease',
                       display: 'flex',
                       flexDirection: 'column',
                       gap: '0.35rem',
@@ -193,73 +198,11 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({ analysis, onSelect
                     <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-code)', wordBreak: 'break-all' }}>{entity.filePath}</div>
                   </div>
                 );
-              })
-            ) : (
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', fontStyle: 'italic' }}>No service layer components detected.</div>
-            )}
+              })}
+            </div>
           </div>
         </div>
-
-        <div style={{ height: '1px', background: 'var(--border-card)' }} />
-
-        {/* Layer 3: Infrastructure / Repositories & Database */}
-        <div style={{ minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-            <Database size={16} color="var(--accent-purple)" style={{ flexShrink: 0 }} />
-            <h3 style={{ fontSize: '0.9rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--accent-purple)' }}>
-              Infrastructure, Repositories & Messaging ({repos.length + events.length})
-            </h3>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '0.85rem' }}>
-            {repos.map((entity) => {
-              const colors = getNodeColor(entity.type);
-              const Icon = colors.icon;
-              return (
-                <div
-                  key={entity.id}
-                  onClick={() => {
-                    setSelectedNodeId(entity.id);
-                    onSelectEntity(entity);
-                  }}
-                  style={{
-                    background: colors.bg,
-                    border: `1.5px solid ${colors.border}`,
-                    borderRadius: '10px',
-                    padding: '0.85rem 1rem',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.35rem',
-                    minWidth: 0,
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
-                    <span style={{ fontSize: '0.7rem', fontWeight: '700', color: colors.text, background: 'rgba(0,0,0,0.3)', padding: '0.15rem 0.45rem', borderRadius: '4px', flexShrink: 0 }}>
-                      {entity.type}
-                    </span>
-                    <Icon size={15} color={colors.text} style={{ flexShrink: 0 }} />
-                  </div>
-                  <div style={{ fontSize: '0.92rem', fontWeight: '700', color: 'white', wordBreak: 'break-all' }}>{entity.name}</div>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-code)', wordBreak: 'break-all' }}>{entity.filePath}</div>
-                </div>
-              );
-            })}
-
-            {dbs.map((db, idx) => (
-              <div key={idx} style={{ background: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: '10px', padding: '0.85rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.35rem', minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
-                  <span style={{ fontSize: '0.7rem', fontWeight: '700', color: 'var(--accent-amber)', background: 'rgba(0,0,0,0.3)', padding: '0.15rem 0.45rem', borderRadius: '4px', flexShrink: 0 }}>
-                    {db.ormProvider}
-                  </span>
-                  <Database size={15} color="var(--accent-amber)" style={{ flexShrink: 0 }} />
-                </div>
-                <div style={{ fontSize: '0.92rem', fontWeight: '700', color: 'white', wordBreak: 'break-all' }}>{db.tableName}</div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Op: {db.operation}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   );
 };

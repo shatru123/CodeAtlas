@@ -52,13 +52,16 @@ export const FlowDiagram: React.FC<FlowDiagramProps> = ({ id, markup }) => {
           if (svgEl) {
             svgEl.style.width = '100%';
             svgEl.style.height = 'auto';
-            svgEl.style.maxHeight = '650px';
+            svgEl.style.maxHeight = '800px';
 
             const styleNode = document.createElement('style');
             styleNode.textContent = `
               .mermaid .node foreignObject { overflow: visible !important; }
               .mermaid .node label { word-break: break-word !important; white-space: normal !important; font-family: Inter, sans-serif !important; font-size: 13px !important; }
               .mermaid .edgeLabel { background-color: #0b0f17 !important; border-radius: 4px; padding: 2px 6px; font-size: 11px !important; color: #38bdf8 !important; }
+              .mermaid text { font-size: 14px !important; fill: #ffffff !important; font-weight: 600 !important; font-family: Inter, sans-serif !important; }
+              .mermaid .er .entityBox { rx: 6px; ry: 6px; fill: #1e1b4b !important; stroke: #6366f1 !important; stroke-width: 2px !important; }
+              .mermaid .er .entityLabel { font-size: 15px !important; font-weight: 800 !important; fill: #38bdf8 !important; }
             `;
             svgEl.appendChild(styleNode);
           }

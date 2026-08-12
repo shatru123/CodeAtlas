@@ -133,6 +133,9 @@ public class RepositoryScannerService : IRepositoryScanner
             // Synthesize End-to-End Functional Flows & On-the-Fly Mermaid Diagrams
             result.Flows = FlowEngine.SynthesizeFlows(result);
 
+            // Audit Security CVE Vulnerabilities, Secret Leaks, and OWASP Rules
+            result.SecurityAudit = await SecurityScannerService.AuditRepositoryAsync(fullPath, result);
+
             repoInfo.Status = ExtractionStatus.Completed;
         }
         catch (Exception ex)
