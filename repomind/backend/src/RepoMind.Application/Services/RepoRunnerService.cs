@@ -25,32 +25,76 @@ public class RepoRunnerService
         }
 
         var files = Directory.GetFiles(rootPath, "*", SearchOption.AllDirectories)
-                             .Take(1000)
+                             .Where(f => !f.Contains("/bin/") && !f.Contains("/obj/") && !f.Contains("/node_modules/") && !f.Contains("/.git/"))
+                             .Take(2000)
                              .ToList();
 
         // 1. C# / .NET
-        var csproj = files.FirstOrDefault(f => f.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase));
+        var csprojFiles = files.Where(f => f.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase)).ToList();
         var sln = files.FirstOrDefault(f => f.EndsWith(".sln", StringComparison.OrdinalIgnoreCase));
-        if (csproj != null || sln != null)
+
+        if (csprojFiles.Any() || sln != null)
         {
             result.Language = "C#";
             result.Framework = ".NET 8 / Core";
-            result.EntryPointFile = Path.GetFileName(csproj ?? sln ?? "");
-            result.RecommendedCommand = "dotnet run";
-            result.AvailableCommands = new List<string> { "dotnet run", "dotnet build", "dotnet test" };
+            result.EntryPointFile = Path.GetFileName(sln ?? csprojFiles.FirstOrDefault() ?? "");
             result.RequiresBuild = true;
+
+            var available = new List<string>();
+
+            // Filter executable projects (excluding Test/Domain/Infrastructure projects if APIs/Web exist)
+            var executableProjects = csprojFiles
+                .Where(f => !Path.GetFileName(f).Contains("Test", StringComparison.OrdinalIgnoreCase))
+                .Select(f => Path.GetRelativePath(rootPath, f))
+                .ToList();
+
+            if (executableProjects.Any())
+            {
+                // Prefer Web, API, Host, App, or Server project
+                var primary = executableProjects.FirstOrDefault(p =>
+                    p.Contains("Web", StringComparison.OrdinalIgnoreCase) ||
+                    p.Contains("Api", StringComparison.OrdinalIgnoreCase) ||
+                    p.Contains("Host", StringComparison.OrdinalIgnoreCase) ||
+                    p.Contains("Server", StringComparison.OrdinalIgnoreCase)) ?? executableProjects.First();
+
+                result.RecommendedCommand = $"dotnet run --project \"{primary}\"";
+
+                foreach (var proj in executableProjects.Take(5))
+                {
+                    available.Add($"dotnet run --project \"{proj}\"");
+                }
+            }
+            else
+            {
+                result.RecommendedCommand = "dotnet run";
+            }
+
+            available.Add("dotnet build");
+            available.Add("dotnet test");
+            result.AvailableCommands = available.Distinct().ToList();
             return result;
         }
 
         // 2. Node.js / TypeScript / React / Next.js
-        var packageJson = files.FirstOrDefault(f => Path.GetFileName(f).Equals("package.json", StringComparison.OrdinalIgnoreCase));
-        if (packageJson != null)
+        var packageJsonFiles = files.Where(f => Path.GetFileName(f).Equals("package.json", StringComparison.OrdinalIgnoreCase)).ToList();
+        if (packageJsonFiles.Any())
         {
             result.Language = "TypeScript / JavaScript";
             result.Framework = "Node.js";
-            result.EntryPointFile = "package.json";
-            result.RecommendedCommand = "npm start";
-            result.AvailableCommands = new List<string> { "npm start", "npm run dev", "npm test", "node index.js" };
+            var rootPkg = packageJsonFiles.FirstOrDefault(f => Path.GetDirectoryName(f) == rootPath) ?? packageJsonFiles.First();
+            result.EntryPointFile = Path.GetRelativePath(rootPath, rootPkg);
+
+            var relDir = Path.GetDirectoryName(result.EntryPointFile);
+            var prefix = string.IsNullOrWhiteSpace(relDir) || relDir == "." ? "" : $"--prefix \"{relDir}\" ";
+
+            result.RecommendedCommand = $"npm {prefix}start";
+            result.AvailableCommands = new List<string>
+            {
+                $"npm {prefix}start",
+                $"npm {prefix}run dev",
+                $"npm {prefix}test",
+                $"node {Path.Combine(relDir ?? "", "index.js")}"
+            };
             return result;
         }
 
@@ -65,8 +109,8 @@ public class RepoRunnerService
                                                      Path.GetFileName(f).Equals("manage.py", StringComparison.OrdinalIgnoreCase))
                          ?? pyFiles.First();
             result.EntryPointFile = Path.GetRelativePath(rootPath, mainPy);
-            result.RecommendedCommand = $"python3 {result.EntryPointFile}";
-            result.AvailableCommands = new List<string> { $"python3 {result.EntryPointFile}", "pytest", "python3 -m unittest" };
+            result.RecommendedCommand = $"python3 \"{result.EntryPointFile}\"";
+            result.AvailableCommands = new List<string> { $"python3 \"{result.EntryPointFile}\"", "pytest", "python3 -m unittest" };
             return result;
         }
 
@@ -93,8 +137,8 @@ public class RepoRunnerService
             result.Framework = "Go Modules";
             var mainGo = goFiles.FirstOrDefault(f => Path.GetFileName(f).Equals("main.go", StringComparison.OrdinalIgnoreCase)) ?? goFiles.FirstOrDefault();
             result.EntryPointFile = mainGo != null ? Path.GetRelativePath(rootPath, mainGo) : ".";
-            result.RecommendedCommand = $"go run {result.EntryPointFile}";
-            result.AvailableCommands = new List<string> { $"go run {result.EntryPointFile}", "go build .", "go test ./..." };
+            result.RecommendedCommand = $"go run \"{result.EntryPointFile}\"";
+            result.AvailableCommands = new List<string> { $"go run \"{result.EntryPointFile}\"", "go build .", "go test ./..." };
             return result;
         }
 
