@@ -205,7 +205,7 @@ export const App: React.FC = () => {
         {/* Workspace Tabs */}
         {analysis && (
           <>
-            <div style={{ display: 'flex', borderBottom: '1px solid var(--border-card)', marginBottom: '1.5rem', gap: '1.15rem', flexWrap: 'wrap' }}>
+            <div className="tabs-scroll-container">
               {[
                 { id: 'graph', label: 'Knowledge Graph', icon: Network, count: analysis.entities.length },
                 { id: 'runner', label: 'Code Runner', icon: PlayCircle, count: '▶ Run' },
@@ -242,6 +242,8 @@ export const App: React.FC = () => {
                       alignItems: 'center',
                       gap: '0.45rem',
                       transition: 'all 0.2s ease',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
                     }}
                   >
                     <Icon size={17} color={isActive ? 'var(--accent-indigo)' : 'var(--text-muted)'} />
