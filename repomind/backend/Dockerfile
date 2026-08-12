@@ -2,16 +2,16 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
-# Copy solution and csproj files
-COPY RepoMind.sln ./
+# Copy csproj files for layer caching
 COPY src/RepoMind.Domain/RepoMind.Domain.csproj src/RepoMind.Domain/
 COPY src/RepoMind.Application/RepoMind.Application.csproj src/RepoMind.Application/
 COPY src/RepoMind.Infrastructure/RepoMind.Infrastructure.csproj src/RepoMind.Infrastructure/
 COPY src/RepoMind.Api/RepoMind.Api.csproj src/RepoMind.Api/
 
-RUN dotnet restore
+# Restore dependencies directly for API project
+RUN dotnet restore src/RepoMind.Api/RepoMind.Api.csproj
 
-# Copy all source files and publish
+# Copy all source code and publish
 COPY src/ src/
 RUN dotnet publish src/RepoMind.Api/RepoMind.Api.csproj -c Release -o /app/publish
 
