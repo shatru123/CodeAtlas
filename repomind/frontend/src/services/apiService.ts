@@ -23,7 +23,17 @@ import {
   WorkspaceMeshSummary,
 } from '../types/api';
 
-const API_BASE = '/api/repositories';
+const getBackendBaseUrl = () => {
+  const metaEnv = (import.meta as any).env;
+  if (metaEnv?.VITE_API_URL) return metaEnv.VITE_API_URL;
+  if (typeof window !== 'undefined' && window.location.hostname.includes('onrender.com')) {
+    return 'https://repomind-backend-fp61.onrender.com';
+  }
+  return '';
+};
+
+const BASE_URL = getBackendBaseUrl();
+const API_BASE = `${BASE_URL}/api/repositories`;
 
 export const apiService = {
   async listRepositories(): Promise<RepositoryInfo[]> {
@@ -115,7 +125,7 @@ export const apiService = {
   },
 
   async getWorkspaceMesh(): Promise<WorkspaceMeshSummary> {
-    const res = await fetch('/api/workspace/mesh');
+    const res = await fetch(`${BASE_URL}/api/workspace/mesh`);
     if (!res.ok) throw new Error('Failed to fetch workspace mesh');
     return res.json();
   },

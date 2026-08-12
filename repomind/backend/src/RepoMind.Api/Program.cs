@@ -15,6 +15,17 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Enable CORS for frontend deployment
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 // Register Clean Architecture dependencies
 builder.Services.AddSingleton<IKnowledgeStore, InMemoryKnowledgeStore>();
 
@@ -30,12 +41,23 @@ builder.Services.AddTransient<IRepositoryScanner, RepositoryScannerService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
+app.UseCors("AllowAll");
+
+// Enable Swagger UI on all environments (including production root /)
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "RepoMind API v2.5");
+    c.RoutePrefix = "swagger";
+});
+
+app.MapGet("/", () => Results.Ok(new
+{
+    status = "Live",
+    service = "RepoMind Backend API v2.5",
+    swagger = "/swagger",
+    documentation = "https://github.com/shatru123/CodeAtlas"
+}));
 
 app.UseAuthorization();
 app.MapControllers();
