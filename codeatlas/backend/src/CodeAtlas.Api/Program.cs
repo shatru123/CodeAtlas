@@ -1,4 +1,6 @@
+using System.Linq;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using CodeAtlas.Application.Abstractions;
@@ -9,6 +11,12 @@ using CodeAtlas.Infrastructure.Parsers;
 using CodeAtlas.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Disable reloadOnChange on file configuration providers to prevent inotify limit crashes in cloud container environments (Render/K8s)
+foreach (var source in builder.Configuration.Sources.OfType<FileConfigurationSource>())
+{
+    source.ReloadOnChange = false;
+}
 
 // Add services to DI container
 builder.Services.AddControllers();
