@@ -19,6 +19,9 @@ services:
     env: static
     buildCommand: cd codeatlas/frontend && npm install && npm run build
     staticPublishPath: ./codeatlas/frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://codeatlas-backend-fp61.onrender.com
     routes:
       - type: rewrite
         source: /*
