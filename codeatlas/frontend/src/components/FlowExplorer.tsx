@@ -59,7 +59,7 @@ export const FlowExplorer: React.FC<FlowExplorerProps> = ({ flows }) => {
   };
 
   return (
-    <div className="sidebar-main-grid">
+    <div style={{ display: 'grid', gridTemplateColumns: '340px minmax(0, 1fr)', gap: '1.25rem' }}>
       {/* Left Sidebar: Flow List & Filters */}
       <div className="glass-panel" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem', height: 'fit-content' }}>
         {/* Search */}

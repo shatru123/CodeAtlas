@@ -60,32 +60,32 @@ export const ImpactExplorer: React.FC<ImpactExplorerProps> = ({ repoId }) => {
           </p>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', width: '100%', maxWidth: '100%' }}>
-          <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.5rem', background: 'rgba(0,0,0,0.3)', padding: '0.35rem 0.6rem', borderRadius: '8px', border: '1px solid var(--border-card)', flex: 1, minWidth: '240px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
+          <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.5rem', background: 'rgba(0,0,0,0.3)', padding: '0.35rem 0.6rem', borderRadius: '8px', border: '1px solid var(--border-card)' }}>
             <input
               type="text"
               value={searchEntity}
               onChange={(e) => setSearchEntity(e.target.value)}
               placeholder="Enter entity / method (e.g. OrderService)..."
-              style={{ background: 'transparent', border: 'none', color: 'white', fontSize: '0.82rem', outline: 'none', flex: 1, minWidth: '140px' }}
+              style={{ background: 'transparent', border: 'none', color: 'white', fontSize: '0.82rem', outline: 'none', width: '220px' }}
             />
-            <button type="submit" style={{ background: 'var(--accent-indigo)', color: 'white', border: 'none', padding: '0.35rem 0.75rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '700', whiteSpace: 'nowrap' }}>
+            <button type="submit" style={{ background: 'var(--accent-indigo)', color: 'white', border: 'none', padding: '0.35rem 0.75rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '700' }}>
               Calculate Impact
             </button>
           </form>
 
-          <div style={{ background: 'rgba(0,0,0,0.35)', padding: '0.75rem 1.25rem', borderRadius: '12px', border: `1px solid ${getRiskColor(riskLevel)}`, textAlign: 'center', flexShrink: 0 }}>
-            <div style={{ fontSize: '1.25rem', fontWeight: '900', color: getRiskColor(riskLevel), wordBreak: 'break-word' }}>{impactScore}/100 ({riskLevel} Risk)</div>
+          <div style={{ background: 'rgba(0,0,0,0.35)', padding: '0.75rem 1.25rem', borderRadius: '12px', border: `1px solid ${getRiskColor(riskLevel)}`, textAlign: 'center' }}>
+            <div style={{ fontSize: '1.4rem', fontWeight: '900', color: getRiskColor(riskLevel) }}>{impactScore}/100 ({riskLevel} Risk)</div>
             <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '700' }}>Blast Radius Score</div>
           </div>
         </div>
       </div>
 
       {/* Target Component */}
-      <div className="glass-panel" style={{ padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', minWidth: 0 }}>
-        <Cpu size={20} color="var(--accent-cyan)" style={{ flexShrink: 0 }} />
+      <div className="glass-panel" style={{ padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <Cpu size={20} color="var(--accent-cyan)" />
         <span style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>Analyzing Impact for Component:</span>
-        <strong style={{ color: 'white', fontSize: '0.95rem', fontFamily: 'var(--font-code)', wordBreak: 'break-all', overflowWrap: 'anywhere' }}>{targetEntityName}</strong>
+        <strong style={{ color: 'white', fontSize: '1rem', fontFamily: 'var(--font-code)' }}>{targetEntityName}</strong>
       </div>
 
       {/* Impacted Components Grid */}
