@@ -438,3 +438,10 @@ Library/
 *.msix
 *.msm
 *.msp
+
+# Banner images & media assets
+*.jpg
+*.jpeg
+*.png
+repomind_*.jpg
+assets/
