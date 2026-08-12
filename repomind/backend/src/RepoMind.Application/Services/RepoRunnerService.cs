@@ -57,16 +57,16 @@ public class RepoRunnerService
                     p.Contains("Host", StringComparison.OrdinalIgnoreCase) ||
                     p.Contains("Server", StringComparison.OrdinalIgnoreCase)) ?? executableProjects.First();
 
-                result.RecommendedCommand = $"dotnet run --project \"{primary}\"";
+                result.RecommendedCommand = $"dotnet run --no-launch-profile --project \"{primary}\"";
 
                 foreach (var proj in executableProjects.Take(5))
                 {
-                    available.Add($"dotnet run --project \"{proj}\"");
+                    available.Add($"dotnet run --no-launch-profile --project \"{proj}\"");
                 }
             }
             else
             {
-                result.RecommendedCommand = "dotnet run";
+                result.RecommendedCommand = "dotnet run --no-launch-profile";
             }
 
             available.Add("dotnet build");

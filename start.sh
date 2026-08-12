@@ -10,10 +10,9 @@ echo "===================================================="
 echo "      🚀 Launching RepoMind Knowledge Platform      "
 echo "===================================================="
 
-# Kill any existing processes bound to ports 5055 or 5173
-echo "0. Checking and clearing ports 5055 and 5173..."
-lsof -ti:5055 | xargs kill -9 2>/dev/null || true
-lsof -ti:5173 | xargs kill -9 2>/dev/null || true
+# Kill any existing processes bound to ports 5055, 5173, or 5195
+echo "0. Checking and clearing ports 5055, 5173, and 5195..."
+lsof -ti:5055,5173,5195 | xargs kill -9 2>/dev/null || true
 sleep 1
 
 # Determine .NET executable
@@ -59,7 +58,13 @@ elif command -v xdg-open > /dev/null; then
     xdg-open "http://localhost:5173"
 fi
 
-# Cleanup on exit
-trap "echo 'Stopping RepoMind services...'; kill -9 $BACKEND_PID $FRONTEND_PID 2>/dev/null; lsof -ti:5055,5173 | xargs kill -9 2>/dev/null || true; exit 0" INT TERM EXIT
+cleanup() {
+    echo "Stopping RepoMind services..."
+    kill -9 $BACKEND_PID $FRONTEND_PID 2>/dev/null || true
+    lsof -ti:5055,5173,5195 | xargs kill -9 2>/dev/null || true
+    exit 0
+}
+
+trap cleanup INT TERM EXIT
 
 wait

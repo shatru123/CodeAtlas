@@ -17,7 +17,7 @@
 Launch both the **.NET 8 Backend API** (`http://localhost:5055`) and **React Web UI** (`http://localhost:5173`) simultaneously with a single click:
 
 ### Option 1: macOS Finder (Double-Click)
-Double-click [`start.command`](file:///Users/shatrughnaambhore/Shatru/Learning/Projects/CodeAtlas/start.command) in Finder. It automatically frees bound ports (`5055` & `5173`), builds the backend, launches both servers, and opens [http://localhost:5173](http://localhost:5173) in your browser.
+Double-click [`start.command`](file:///Users/shatrughnaambhore/Shatru/Learning/Projects/CodeAtlas/start.command) in Finder. It automatically frees bound ports (`5055`, `5173`, & `5195`), builds the backend, launches both servers, and opens [http://localhost:5173](http://localhost:5173) in your browser.
 
 ### Option 2: Terminal Script
 ```bash
@@ -31,7 +31,7 @@ npm start
 
 ---
 
-## 🚀 Enterprise v2.5 Feature Modules
+## 🚀 Enterprise Feature Modules
 
 ### 1. 🎨 Interactive Drag-and-Drop Canvas (React Flow)
 - **Drag & Drop Canvas**: Pan, zoom, and rearrange AST nodes with physics and MiniMap radar.
@@ -56,13 +56,17 @@ npm start
 - Compares AST entities, REST APIs, and new architectural violations introduced between Git branches (`main` vs `feature`).
 
 ### 6. 🗄️ Auto Database ERD (Entity-Relationship Diagram) Synthesizer
-- Synthesizes dynamic Mermaid Entity-Relationship Diagrams (`erDiagram ...`) with focus table filters and scannable schema cards.
+- Synthesizes dynamic Mermaid Entity-Relationship Diagrams (`erDiagram ...`) with focus table filters, sanitized entity definitions, and scannable schema cards.
 
 ### 7. 🐳 Docker & Kubernetes Infrastructure Topology Visualizer
 - Parses `Dockerfile`, `docker-compose.yml`, and K8s manifests (`deployment.yaml`, `service.yaml`) to map container services, exposed ports, and base images.
 
 ### 8. 📄 Living Architecture Handbook & Exporter
 - Auto-synthesizes a comprehensive technical specification handbook with 1-click Markdown export and copy.
+
+### 9. 🚀 Code Runner & Terminal Execution Engine
+- Auto-detects project entry points across C# .NET (`--project`), Node.js (`package.json`), Python, Java (`mvn`/`gradle`), Go, Rust, and Docker.
+- Provides a live IDE terminal execution panel for running and monitoring repository execution.
 
 ---
 
@@ -79,13 +83,13 @@ CodeAtlas/
     ├── backend/                  # .NET 8 Clean Architecture Backend
     │   ├── RepoMind.sln
     │   └── src/
-    │       ├── RepoMind.Domain/         # Core IR Entities, Flow & Security Models
-    │       ├── RepoMind.Application/    # ImpactEngine, ErdEngine, MeshEngine, SecurityScanner
+    │       ├── RepoMind.Domain/         # Core IR Entities, Flow, Security & Runner Models
+    │       ├── RepoMind.Application/    # ImpactEngine, ErdEngine, MeshEngine, SecurityScanner, RepoRunnerService
     │       ├── RepoMind.Infrastructure/ # Roslyn C# Parser, Python & TS Parsers, InfraDetector
     │       └── RepoMind.Api/            # ASP.NET Core REST API
     └── frontend/                 # React + TypeScript + Vite Web UI
         └── src/
-            ├── components/           # Graph, Flow, Security, Mesh, Impact, Diff, ERD, Infra, Handbook
+            ├── components/           # Graph, Flow, Security, Mesh, Impact, Diff, ERD, Infra, Handbook, CodeRunner
             └── services/apiService.ts
 ```
 
@@ -108,6 +112,9 @@ CodeAtlas/
 | `GET` | `/api/repositories/{id}/erd` | Auto database ERD synthesis |
 | `GET` | `/api/repositories/{id}/infrastructure` | Docker & K8s infrastructure topology |
 | `GET` | `/api/repositories/{id}/handbook` | Living architecture handbook documentation |
+| `GET` | `/api/repositories/{id}/runner/detect` | Detects language runtime & entry points |
+| `POST` | `/api/repositories/{id}/runner/execute` | Executes code with terminal log output |
+| `POST` | `/api/repositories/{id}/runner/stop` | Stops active process execution |
 
 ---
 
