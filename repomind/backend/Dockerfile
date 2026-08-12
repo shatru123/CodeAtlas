@@ -15,9 +15,13 @@ RUN dotnet restore src/RepoMind.Api/RepoMind.Api.csproj
 COPY src/ src/
 RUN dotnet publish src/RepoMind.Api/RepoMind.Api.csproj -c Release -o /app/publish
 
-# Runtime Image
+# Runtime Image with Git CLI installed
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
+
+# Install git CLI
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
 COPY --from=build /app/publish .
 
 ENV ASPNETCORE_URLS=http://+:8080

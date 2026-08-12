@@ -61,7 +61,10 @@ public class RepositoryScannerService : IRepositoryScanner
         }
 
         var repoName = ExtractRepoNameFromUrl(gitUrl);
-        var cacheBaseDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".repomind", "clones");
+        var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var cacheBaseDir = (!string.IsNullOrWhiteSpace(userProfile) && Directory.Exists(userProfile))
+            ? Path.Combine(userProfile, ".repomind", "clones")
+            : Path.Combine(Path.GetTempPath(), ".repomind", "clones");
         var cloneDir = Path.Combine(cacheBaseDir, repoName);
 
         var clonedPath = await _gitExtractor.CloneOrPullRepoAsync(gitUrl, cloneDir, branch, commit, accessToken);
