@@ -1,0 +1,24 @@
+services:
+  # .NET 8 Web API Backend (Free Docker Tier on Render)
+  - type: web
+    name: repomind-backend
+    env: docker
+    dockerfilePath: ./repomind/backend/Dockerfile
+    dockerContext: ./repomind/backend
+    plan: free
+    region: oregon
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+
+  # React Web UI Static Site (Free Static Site Tier on Render)
+  - type: web
+    name: repomind-frontend
+    env: static
+    buildCommand: cd repomind/frontend && npm install && npm run build
+    staticPublishPath: ./repomind/frontend/dist
+    plan: free
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
