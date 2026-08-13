@@ -9,6 +9,9 @@ namespace CodeAtlas.Domain.Models
         public string Country { get; set; } = "Unknown";
         public string City { get; set; } = "Unknown";
         public string CountryCode { get; set; } = "UN";
+        public string ExactLocation { get; set; } = "Unknown";
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
         public string Isp { get; set; } = "Unknown";
         public string UserAgent { get; set; } = string.Empty;
         public string DeviceType { get; set; } = "Desktop";

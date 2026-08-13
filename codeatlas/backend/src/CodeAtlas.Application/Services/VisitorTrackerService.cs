@@ -25,10 +25,10 @@ namespace CodeAtlas.Application.Services
             LoadLogsFromDisk();
         }
 
-        public async Task<VisitorLog> RecordVisitAsync(string rawIp, string userAgent, string referrer = null, string email = null)
+        public async Task<VisitorLog> RecordVisitAsync(string rawIp, string userAgent, string referrer = null, string email = null, double? lat = null, double? lng = null)
         {
             var ip = CleanIpAddress(rawIp);
-            var geo = await ResolveGeolocationAsync(ip);
+            var geo = await ResolveGeolocationAsync(ip, lat, lng);
 
             var deviceType = "Desktop";
             if (!string.IsNullOrEmpty(userAgent))
@@ -48,6 +48,15 @@ namespace CodeAtlas.Application.Services
                     existing.Timestamp = DateTime.UtcNow;
                     if (!string.IsNullOrEmpty(email)) existing.Email = email;
                     if (!string.IsNullOrEmpty(referrer)) existing.Referrer = referrer;
+                    if (lat.HasValue && lng.HasValue)
+                    {
+                        existing.Latitude = lat;
+                        existing.Longitude = lng;
+                        existing.ExactLocation = geo.ExactLocation;
+                        existing.City = geo.City;
+                        existing.Country = geo.Country;
+                        existing.CountryCode = geo.CountryCode;
+                    }
                     log = existing;
                 }
                 else
@@ -58,6 +67,9 @@ namespace CodeAtlas.Application.Services
                         Country = geo.Country,
                         City = geo.City,
                         CountryCode = geo.CountryCode,
+                        ExactLocation = geo.ExactLocation,
+                        Latitude = lat,
+                        Longitude = lng,
                         Isp = geo.Isp,
                         UserAgent = userAgent ?? string.Empty,
                         DeviceType = deviceType,
@@ -130,11 +142,51 @@ namespace CodeAtlas.Application.Services
             return firstIp;
         }
 
-        private async Task<(string Country, string City, string CountryCode, string Isp)> ResolveGeolocationAsync(string ip)
+        private async Task<(string Country, string City, string CountryCode, string Isp, string ExactLocation)> ResolveGeolocationAsync(string ip, double? lat = null, double? lng = null)
         {
+            string exactLoc = "Unknown";
+            string country = "Unknown";
+            string city = "Unknown";
+            string countryCode = "UN";
+            string isp = "Unknown Provider";
+
+            if (lat.HasValue && lng.HasValue)
+            {
+                try
+                {
+                    var reverseGeoUrl = $"https://api.bigdatacloud.net/data/reverse-geocode-client?latitude={lat.Value}&longitude={lng.Value}&localityLanguage=en";
+                    var geoRes = await HttpClient.GetStringAsync(reverseGeoUrl);
+                    using var geoDoc = JsonDocument.Parse(geoRes);
+                    var geoRoot = geoDoc.RootElement;
+
+                    var locality = geoRoot.TryGetProperty("locality", out var loc) ? loc.GetString() : "";
+                    var cty = geoRoot.TryGetProperty("city", out var ct) && !string.IsNullOrWhiteSpace(ct.GetString())
+                        ? ct.GetString()
+                        : locality;
+
+                    city = !string.IsNullOrWhiteSpace(cty) ? cty : "Unknown";
+                    var state = geoRoot.TryGetProperty("principalSubdivision", out var st) ? st.GetString() : "";
+                    country = geoRoot.TryGetProperty("countryName", out var cn) ? cn.GetString() : "Unknown";
+                    countryCode = geoRoot.TryGetProperty("countryCode", out var cc) ? cc.GetString() : "UN";
+
+                    exactLoc = string.IsNullOrWhiteSpace(locality)
+                        ? $"{city}, {state}, {country}".Trim(',', ' ')
+                        : $"{locality}, {city}, {state}, {country}".Trim(',', ' ');
+                }
+                catch
+                {
+                    // Fallback to IP geo if reverse geocoding fails
+                }
+            }
+
             if (ip == "127.0.0.1" || ip == "localhost")
             {
-                return ("India", "Pune", "IN", "Local Host Loopback");
+                if (country == "Unknown") country = "India";
+                if (city == "Unknown") city = "Pune";
+                if (countryCode == "UN") countryCode = "IN";
+                isp = "Local Host Loopback";
+                if (exactLoc == "Unknown") exactLoc = $"{city}, Maharashtra, {country}";
+                return (country, city, countryCode, isp, exactLoc);
             }
 
             try
@@ -146,11 +198,11 @@ namespace CodeAtlas.Application.Services
 
                 if (root.TryGetProperty("status", out var status) && status.GetString() == "success")
                 {
-                    var country = root.TryGetProperty("country", out var c) ? c.GetString() : "Unknown";
-                    var city = root.TryGetProperty("city", out var ct) ? ct.GetString() : "Unknown";
-                    var code = root.TryGetProperty("countryCode", out var cc) ? cc.GetString() : "UN";
-                    var isp = root.TryGetProperty("isp", out var i) ? i.GetString() : "Unknown";
-                    return (country ?? "Unknown", city ?? "Unknown", code ?? "UN", isp ?? "Unknown");
+                    if (country == "Unknown") country = root.TryGetProperty("country", out var c) ? c.GetString() ?? "Unknown" : "Unknown";
+                    if (city == "Unknown") city = root.TryGetProperty("city", out var ct2) ? ct2.GetString() ?? "Unknown" : "Unknown";
+                    if (countryCode == "UN") countryCode = root.TryGetProperty("countryCode", out var cc2) ? cc2.GetString() ?? "UN" : "UN";
+                    isp = root.TryGetProperty("isp", out var i) ? i.GetString() ?? "Unknown" : "Unknown Provider";
+                    if (exactLoc == "Unknown") exactLoc = $"{city}, {country}";
                 }
             }
             catch
@@ -158,7 +210,7 @@ namespace CodeAtlas.Application.Services
                 // Fallback on geo API error
             }
 
-            return ("Unknown", "Unknown", "UN", "Unknown Provider");
+            return (country, city, countryCode, isp, exactLoc);
         }
 
         private void LoadLogsFromDisk()

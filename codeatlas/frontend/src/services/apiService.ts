@@ -208,12 +208,17 @@ export const apiService = {
     return res.json();
   },
 
-  async recordVisit(referrer?: string, email?: string): Promise<any> {
+  async recordVisit(referrer?: string, email?: string, lat?: number, lng?: number): Promise<any> {
     try {
       const res = await fetch(`${BASE_URL}/api/analytics/visit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ referrer: referrer || document.referrer || '', email: email || '' }),
+        body: JSON.stringify({
+          referrer: referrer || document.referrer || '',
+          email: email || '',
+          latitude: lat ?? null,
+          longitude: lng ?? null,
+        }),
       });
       return await res.json();
     } catch {

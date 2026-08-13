@@ -20,6 +20,8 @@ namespace CodeAtlas.Api.Controllers
         {
             public string Referrer { get; set; }
             public string Email { get; set; }
+            public double? Latitude { get; set; }
+            public double? Longitude { get; set; }
         }
 
         [HttpPost("visit")]
@@ -36,7 +38,13 @@ namespace CodeAtlas.Api.Controllers
             }
 
             var userAgent = HttpContext.Request.Headers["User-Agent"].ToString();
-            var log = await _visitorService.RecordVisitAsync(ip, userAgent, request?.Referrer, request?.Email);
+            var log = await _visitorService.RecordVisitAsync(
+                ip,
+                userAgent,
+                request?.Referrer,
+                request?.Email,
+                request?.Latitude,
+                request?.Longitude);
 
             return Ok(new
             {

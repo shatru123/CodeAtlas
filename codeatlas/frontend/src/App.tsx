@@ -158,7 +158,19 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     fetchRepositories();
-    apiService.recordVisit();
+    if (typeof navigator !== 'undefined' && 'geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          apiService.recordVisit(undefined, undefined, pos.coords.latitude, pos.coords.longitude);
+        },
+        () => {
+          apiService.recordVisit();
+        },
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+      );
+    } else {
+      apiService.recordVisit();
+    }
   }, []);
 
   const handleScanComplete = (result: AnalysisResult) => {

@@ -231,7 +231,17 @@ export const AdminAnalyticsModal: React.FC<AdminAnalyticsModalProps> = ({ isOpen
                             {log.ipAddress}
                           </td>
                           <td style={{ padding: '0.6rem 0.8rem', color: 'white', fontWeight: '600' }}>
-                            📍 {log.city}, {log.country}
+                            <div>📍 {log.exactLocation && log.exactLocation !== 'Unknown' ? log.exactLocation : `${log.city}, ${log.country}`}</div>
+                            {log.latitude && log.longitude && (
+                              <a
+                                href={`https://maps.google.com/?q=${log.latitude},${log.longitude}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ fontSize: '0.72rem', color: 'var(--accent-cyan)', textDecoration: 'underline', marginTop: '0.15rem', display: 'inline-block' }}
+                              >
+                                🗺️ View Exact GPS Map Pin ({log.latitude.toFixed(4)}, {log.longitude.toFixed(4)})
+                              </a>
+                            )}
                           </td>
                           <td style={{ padding: '0.6rem 0.8rem', color: 'var(--text-main)' }}>
                             {log.deviceType === 'Mobile' ? <Smartphone size={14} color="var(--accent-amber)" style={{ display: 'inline', marginRight: '0.3rem' }} /> : <Monitor size={14} color="var(--accent-indigo)" style={{ display: 'inline', marginRight: '0.3rem' }} />}
