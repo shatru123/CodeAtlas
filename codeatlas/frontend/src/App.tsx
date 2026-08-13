@@ -43,6 +43,8 @@ import {
   Linkedin,
   Heart,
   User,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 
 export const App: React.FC = () => {
@@ -70,6 +72,38 @@ export const App: React.FC = () => {
   const [selectedEntity, setSelectedEntity] = useState<CodeEntity | null>(null);
   const [isScanModalOpen, setIsScanModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const tabsRef = React.useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkTabScroll = () => {
+    if (tabsRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = tabsRef.current;
+      setCanScrollLeft(scrollLeft > 5);
+      setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 5);
+    }
+  };
+
+  useEffect(() => {
+    checkTabScroll();
+    const el = tabsRef.current;
+    if (el) {
+      el.addEventListener('scroll', checkTabScroll);
+      window.addEventListener('resize', checkTabScroll);
+      return () => {
+        el.removeEventListener('scroll', checkTabScroll);
+        window.removeEventListener('resize', checkTabScroll);
+      };
+    }
+  }, [analysis]);
+
+  const scrollTabs = (dir: 'left' | 'right') => {
+    if (tabsRef.current) {
+      const offset = dir === 'left' ? -320 : 320;
+      tabsRef.current.scrollBy({ left: offset, behavior: 'smooth' });
+    }
+  };
 
   const fetchRepositories = async () => {
     setIsLoading(true);
@@ -202,58 +236,185 @@ export const App: React.FC = () => {
           </div>
         )}
 
-        {/* Workspace Tabs */}
+        {/* Workspace Tabs Header & Switcher Toolbar */}
         {analysis && (
-          <>
-            <div className="tabs-scroll-container">
-              {[
-                { id: 'graph', label: 'Knowledge Graph', icon: Network, count: analysis.entities.length },
-                { id: 'runner', label: 'Code Runner', icon: PlayCircle, count: '▶ Run' },
-                { id: 'flows', label: 'Functional Flows', icon: Zap, count: analysis.flows.length },
-                { id: 'apis', label: 'REST APIs', icon: Globe, count: analysis.apis.length },
-                { id: 'databases', label: 'Database & ORM', icon: Database, count: analysis.databases.length },
-                { id: 'events', label: 'Messaging Events', icon: Radio, count: analysis.events.length },
-                { id: 'packages', label: 'Packages & Libraries', icon: Package, count: analysis.packages.length },
-                { id: 'architecture', label: 'Architecture & Rules', icon: Shield, count: architecture ? (architecture.violations.length > 0 ? `${architecture.violations.length} Alerts` : 'Clean') : '4 Rules' },
-                { id: 'security', label: 'Security & CVE Audit', icon: ShieldAlert, count: analysis.securityAudit ? `${analysis.securityAudit.securityScore}/100` : 'Audit' },
-                { id: 'mesh', label: 'Workspace Mesh', icon: Share2, count: `${repositories.length} Repos` },
-                { id: 'impact', label: 'Blast Radius', icon: Zap, count: 'Impact' },
-                { id: 'diff', label: 'Branch Diff', icon: GitCompare, count: 'Delta' },
-                { id: 'erd', label: 'Database ERD', icon: Table, count: 'ERD' },
-                { id: 'infra', label: 'Infra Topology', icon: Box, count: 'Docker/K8s' },
-                { id: 'handbook', label: 'Handbook Exporter', icon: BookOpen, count: 'Docs' },
-              ].map((tab) => {
-                const Icon = tab.icon;
-                const isActive = activeTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id as any)}
-                    style={{
-                      background: 'transparent',
-                      border: 'none',
-                      borderBottom: isActive ? '3px solid var(--accent-indigo)' : '3px solid transparent',
-                      padding: '0.75rem 0.25rem',
-                      color: isActive ? 'white' : 'var(--text-muted)',
-                      fontWeight: isActive ? '700' : '500',
-                      fontSize: '0.88rem',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.45rem',
-                      transition: 'all 0.2s ease',
-                    whiteSpace: 'nowrap',
-                    flexShrink: 0,
+          <div style={{ marginBottom: '1.5rem', position: 'relative' }}>
+            {/* Scroll & Jump Helper Bar */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.65rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ fontWeight: '800', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--accent-cyan)' }}>
+                  Workspace Features (15 Views)
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                {/* Direct View Jump Dropdown */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(0,0,0,0.4)', border: '1px solid var(--border-card)', padding: '0.25rem 0.65rem', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: '600', whiteSpace: 'nowrap' }}>Quick Jump:</span>
+                  <select
+                    value={activeTab}
+                    onChange={(e) => {
+                      const tabId = e.target.value as any;
+                      setActiveTab(tabId);
+                      setTimeout(() => {
+                        const btn = document.getElementById(`tab-btn-${tabId}`);
+                        if (btn) btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                      }, 50);
                     }}
+                    style={{ background: 'transparent', border: 'none', color: 'var(--accent-cyan)', fontSize: '0.8rem', fontWeight: '700', outline: 'none', cursor: 'pointer', maxWidth: '210px' }}
                   >
-                    <Icon size={17} color={isActive ? 'var(--accent-indigo)' : 'var(--text-muted)'} />
-                    <span>{tab.label}</span>
-                    <span style={{ background: isActive ? 'var(--accent-indigo)' : 'rgba(255,255,255,0.08)', color: 'white', padding: '0.1rem 0.45rem', borderRadius: '1rem', fontSize: '0.68rem', fontWeight: '700' }}>
-                      {tab.count}
-                    </span>
-                  </button>
-                );
-              })}
+                    <optgroup label="Architecture & Topology">
+                      <option value="graph" style={{ background: '#161b26', color: '#fff' }}>🔍 Knowledge Graph</option>
+                      <option value="architecture" style={{ background: '#161b26', color: '#fff' }}>🛡️ Architecture & Rules</option>
+                      <option value="mesh" style={{ background: '#161b26', color: '#fff' }}>🌐 Workspace Mesh</option>
+                      <option value="infra" style={{ background: '#161b26', color: '#fff' }}>📦 Infra Topology</option>
+                    </optgroup>
+                    <optgroup label="Execution & APIs">
+                      <option value="runner" style={{ background: '#161b26', color: '#fff' }}>▶️ Code Runner (Terminal)</option>
+                      <option value="flows" style={{ background: '#161b26', color: '#fff' }}>⚡ Functional Flows</option>
+                      <option value="apis" style={{ background: '#161b26', color: '#fff' }}>🌐 REST APIs Catalog</option>
+                      <option value="events" style={{ background: '#161b26', color: '#fff' }}>📻 Messaging Events</option>
+                    </optgroup>
+                    <optgroup label="Impact, Diff & Security">
+                      <option value="impact" style={{ background: '#161b26', color: '#fff' }}>💥 Blast Radius Impact</option>
+                      <option value="diff" style={{ background: '#161b26', color: '#fff' }}>🔀 Branch Diff Delta</option>
+                      <option value="security" style={{ background: '#161b26', color: '#fff' }}>🔒 Security & CVE Audit</option>
+                    </optgroup>
+                    <optgroup label="Database & Docs">
+                      <option value="databases" style={{ background: '#161b26', color: '#fff' }}>🗄️ Database & ORM</option>
+                      <option value="erd" style={{ background: '#161b26', color: '#fff' }}>📊 Database ERD</option>
+                      <option value="packages" style={{ background: '#161b26', color: '#fff' }}>📦 Packages & Libraries</option>
+                      <option value="handbook" style={{ background: '#161b26', color: '#fff' }}>📖 Handbook Exporter</option>
+                    </optgroup>
+                  </select>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--accent-indigo)', fontSize: '0.75rem', fontWeight: '600', background: 'rgba(99, 102, 241, 0.12)', padding: '0.2rem 0.65rem', borderRadius: '12px', border: '1px solid rgba(99, 102, 241, 0.3)' }}>
+                  <span>Scroll tabs or use arrows</span>
+                  <ChevronRight size={14} className="pulse-arrow" />
+                </div>
+              </div>
+            </div>
+
+            {/* Tab Container with Left & Right Arrow Buttons */}
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              {/* Left Floating Arrow Button */}
+              {canScrollLeft && (
+                <button
+                  onClick={() => scrollTabs('left')}
+                  style={{
+                    position: 'absolute',
+                    left: 0,
+                    zIndex: 10,
+                    background: 'rgba(15, 23, 42, 0.95)',
+                    border: '1.5px solid var(--accent-indigo)',
+                    color: 'white',
+                    borderRadius: '50%',
+                    width: '34px',
+                    height: '34px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    boxShadow: '0 0 15px rgba(99, 102, 241, 0.5)',
+                  }}
+                  title="Scroll Left"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+              )}
+
+              {/* Scrollable Tabs Container */}
+              <div
+                ref={tabsRef}
+                className="tabs-scroll-container"
+                style={{
+                  paddingLeft: canScrollLeft ? '40px' : '0px',
+                  paddingRight: canScrollRight ? '40px' : '0px',
+                  transition: 'padding 0.2s ease',
+                }}
+              >
+                {[
+                  { id: 'graph', label: 'Knowledge Graph', icon: Network, count: analysis.entities.length },
+                  { id: 'runner', label: 'Code Runner', icon: PlayCircle, count: '▶ Run' },
+                  { id: 'flows', label: 'Functional Flows', icon: Zap, count: analysis.flows.length },
+                  { id: 'apis', label: 'REST APIs', icon: Globe, count: analysis.apis.length },
+                  { id: 'databases', label: 'Database & ORM', icon: Database, count: analysis.databases.length },
+                  { id: 'events', label: 'Messaging Events', icon: Radio, count: analysis.events.length },
+                  { id: 'packages', label: 'Packages & Libraries', icon: Package, count: analysis.packages.length },
+                  { id: 'architecture', label: 'Architecture & Rules', icon: Shield, count: architecture ? (architecture.violations.length > 0 ? `${architecture.violations.length} Alerts` : 'Clean') : '4 Rules' },
+                  { id: 'security', label: 'Security & CVE Audit', icon: ShieldAlert, count: analysis.securityAudit ? `${analysis.securityAudit.securityScore}/100` : 'Audit' },
+                  { id: 'mesh', label: 'Workspace Mesh', icon: Share2, count: `${repositories.length} Repos` },
+                  { id: 'impact', label: 'Blast Radius', icon: Zap, count: 'Impact' },
+                  { id: 'diff', label: 'Branch Diff', icon: GitCompare, count: 'Delta' },
+                  { id: 'erd', label: 'Database ERD', icon: Table, count: 'ERD' },
+                  { id: 'infra', label: 'Infra Topology', icon: Box, count: 'Docker/K8s' },
+                  { id: 'handbook', label: 'Handbook Exporter', icon: BookOpen, count: 'Docs' },
+                ].map((tab) => {
+                  const Icon = tab.icon;
+                  const isActive = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      id={`tab-btn-${tab.id}`}
+                      onClick={() => {
+                        setActiveTab(tab.id as any);
+                        const btn = document.getElementById(`tab-btn-${tab.id}`);
+                        if (btn) btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                      }}
+                      style={{
+                        background: isActive ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
+                        border: 'none',
+                        borderBottom: isActive ? '3px solid var(--accent-indigo)' : '3px solid transparent',
+                        padding: '0.75rem 0.6rem',
+                        borderRadius: '6px 6px 0 0',
+                        color: isActive ? 'white' : 'var(--text-muted)',
+                        fontWeight: isActive ? '700' : '500',
+                        fontSize: '0.88rem',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.45rem',
+                        transition: 'all 0.2s ease',
+                        whiteSpace: 'nowrap',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <Icon size={17} color={isActive ? 'var(--accent-indigo)' : 'var(--text-muted)'} />
+                      <span>{tab.label}</span>
+                      <span style={{ background: isActive ? 'var(--accent-indigo)' : 'rgba(255,255,255,0.08)', color: 'white', padding: '0.1rem 0.45rem', borderRadius: '1rem', fontSize: '0.68rem', fontWeight: '700' }}>
+                        {tab.count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Right Floating Arrow Button */}
+              {canScrollRight && (
+                <button
+                  onClick={() => scrollTabs('right')}
+                  style={{
+                    position: 'absolute',
+                    right: 0,
+                    zIndex: 10,
+                    background: 'rgba(15, 23, 42, 0.92)',
+                    border: '1.5px solid var(--accent-indigo)',
+                    color: 'white',
+                    borderRadius: '50%',
+                    width: '32px',
+                    height: '32px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    boxShadow: '0 0 15px rgba(99, 102, 241, 0.5)',
+                  }}
+                  title="Scroll Right"
+                >
+                  <ChevronRight size={18} />
+                </button>
+              )}
             </div>
 
             {/* Active View Content */}
@@ -272,7 +433,7 @@ export const App: React.FC = () => {
             {activeTab === 'erd' && <ErdExplorer repoId={analysis.repository.id} />}
             {activeTab === 'infra' && <InfrastructureExplorer repoId={analysis.repository.id} />}
             {activeTab === 'handbook' && <HandbookExporterView repoId={analysis.repository.id} />}
-          </>
+          </div>
         )}
       </div>
 
