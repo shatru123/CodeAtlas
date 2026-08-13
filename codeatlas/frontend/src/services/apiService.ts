@@ -194,4 +194,17 @@ export const apiService = {
     if (!res.ok) throw new Error('Failed to stop code process');
     return res.json();
   },
+
+  async sendAiChat(id: string, prompt: string, apiKey?: string): Promise<{ answer: string; timestamp: string }> {
+    const res = await fetch(`${API_BASE}/${id}/ai/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, apiKey }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: 'AI Assistant error' }));
+      throw new Error(err.error || 'Failed to communicate with AI Assistant');
+    }
+    return res.json();
+  },
 };

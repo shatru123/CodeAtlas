@@ -16,6 +16,7 @@ import { ErdExplorer } from './components/ErdExplorer';
 import { InfrastructureExplorer } from './components/InfrastructureExplorer';
 import { HandbookExporterView } from './components/HandbookExporterView';
 import { CodeRunnerPanel } from './components/CodeRunnerPanel';
+import { AiAssistantPanel } from './components/AiAssistantPanel';
 import { EntityDetailModal } from './components/EntityDetailModal';
 import { apiService } from './services/apiService';
 import { AnalysisResult, ArchitectureSummary, CodeEntity, RepositoryInfo } from './types/api';
@@ -45,6 +46,7 @@ import {
   User,
   ChevronLeft,
   ChevronRight,
+  Bot,
 } from 'lucide-react';
 
 export const App: React.FC = () => {
@@ -53,6 +55,7 @@ export const App: React.FC = () => {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [architecture, setArchitecture] = useState<ArchitectureSummary | null>(null);
   const [activeTab, setActiveTab] = useState<
+    | 'ai'
     | 'graph'
     | 'flows'
     | 'apis'
@@ -68,7 +71,7 @@ export const App: React.FC = () => {
     | 'infra'
     | 'handbook'
     | 'runner'
-  >('graph');
+  >('ai');
   const [selectedEntity, setSelectedEntity] = useState<CodeEntity | null>(null);
   const [isScanModalOpen, setIsScanModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -263,17 +266,18 @@ export const App: React.FC = () => {
                     }}
                     style={{ background: 'transparent', border: 'none', color: 'var(--accent-cyan)', fontSize: '0.8rem', fontWeight: '700', outline: 'none', cursor: 'pointer', maxWidth: '210px' }}
                   >
+                    <optgroup label="AI Assistant & Execution">
+                      <option value="ai" style={{ background: '#161b26', color: '#fff' }}>🤖 AI Code Assistant (RAG Chat)</option>
+                      <option value="runner" style={{ background: '#161b26', color: '#fff' }}>▶️ Code Runner (Terminal)</option>
+                      <option value="flows" style={{ background: '#161b26', color: '#fff' }}>⚡ Functional Flows</option>
+                      <option value="apis" style={{ background: '#161b26', color: '#fff' }}>🌐 REST APIs Catalog</option>
+                      <option value="events" style={{ background: '#161b26', color: '#fff' }}>📻 Messaging Events</option>
+                    </optgroup>
                     <optgroup label="Architecture & Topology">
                       <option value="graph" style={{ background: '#161b26', color: '#fff' }}>🔍 Knowledge Graph</option>
                       <option value="architecture" style={{ background: '#161b26', color: '#fff' }}>🛡️ Architecture & Rules</option>
                       <option value="mesh" style={{ background: '#161b26', color: '#fff' }}>🌐 Workspace Mesh</option>
                       <option value="infra" style={{ background: '#161b26', color: '#fff' }}>📦 Infra Topology</option>
-                    </optgroup>
-                    <optgroup label="Execution & APIs">
-                      <option value="runner" style={{ background: '#161b26', color: '#fff' }}>▶️ Code Runner (Terminal)</option>
-                      <option value="flows" style={{ background: '#161b26', color: '#fff' }}>⚡ Functional Flows</option>
-                      <option value="apis" style={{ background: '#161b26', color: '#fff' }}>🌐 REST APIs Catalog</option>
-                      <option value="events" style={{ background: '#161b26', color: '#fff' }}>📻 Messaging Events</option>
                     </optgroup>
                     <optgroup label="Impact, Diff & Security">
                       <option value="impact" style={{ background: '#161b26', color: '#fff' }}>💥 Blast Radius Impact</option>
@@ -335,6 +339,7 @@ export const App: React.FC = () => {
                 }}
               >
                 {[
+                  { id: 'ai', label: 'AI Code Assistant', icon: Bot, count: '🤖 AI' },
                   { id: 'graph', label: 'Knowledge Graph', icon: Network, count: analysis.entities.length },
                   { id: 'runner', label: 'Code Runner', icon: PlayCircle, count: '▶ Run' },
                   { id: 'flows', label: 'Functional Flows', icon: Zap, count: analysis.flows.length },
@@ -418,6 +423,7 @@ export const App: React.FC = () => {
             </div>
 
             {/* Active View Content */}
+            {activeTab === 'ai' && <AiAssistantPanel repoId={analysis.repository.id} />}
             {activeTab === 'graph' && <GraphExplorer analysis={analysis} onSelectEntity={setSelectedEntity} />}
             {activeTab === 'runner' && <CodeRunnerPanel repoId={analysis.repository.id} />}
             {activeTab === 'flows' && <FlowExplorer flows={analysis.flows} />}
