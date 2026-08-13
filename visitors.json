@@ -1,0 +1,17 @@
+[
+  {
+    "Id": "a1c0c507-2236-4071-b5f7-983ac80e1b00",
+    "IpAddress": "127.0.0.1",
+    "Country": "India",
+    "City": "Pune",
+    "CountryCode": "IN",
+    "Isp": "Local Host Loopback",
+    "UserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "DeviceType": "Desktop",
+    "Referrer": "",
+    "Email": "",
+    "Timestamp": "2026-08-13T11:02:11.220658Z",
+    "VisitCount": 2,
+    "IsUnique": true
+  }
+]

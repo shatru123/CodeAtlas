@@ -114,7 +114,7 @@ export const AdminAnalyticsModal: React.FC<AdminAnalyticsModalProps> = ({ isOpen
                   type="password"
                   value={pin}
                   onChange={(e) => setPin(e.target.value)}
-                  placeholder="Enter Secret Admin PIN (shatru2026)"
+                  placeholder="Enter Secret Admin PIN"
                   style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid var(--border-card)', color: '#38bdf8', padding: '0.75rem 1rem', borderRadius: '10px', fontSize: '0.95rem', textAlign: 'center', outline: 'none', fontFamily: 'var(--font-code)' }}
                   autoFocus
                 />
