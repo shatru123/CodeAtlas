@@ -17,6 +17,7 @@ import { InfrastructureExplorer } from './components/InfrastructureExplorer';
 import { HandbookExporterView } from './components/HandbookExporterView';
 import { CodeRunnerPanel } from './components/CodeRunnerPanel';
 import { AiAssistantPanel } from './components/AiAssistantPanel';
+import { AdminAnalyticsModal } from './components/AdminAnalyticsModal';
 import { EntityDetailModal } from './components/EntityDetailModal';
 import { apiService } from './services/apiService';
 import { AnalysisResult, ArchitectureSummary, CodeEntity, RepositoryInfo } from './types/api';
@@ -47,6 +48,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Bot,
+  Lock,
 } from 'lucide-react';
 
 export const App: React.FC = () => {
@@ -74,6 +76,7 @@ export const App: React.FC = () => {
   >('ai');
   const [selectedEntity, setSelectedEntity] = useState<CodeEntity | null>(null);
   const [isScanModalOpen, setIsScanModalOpen] = useState(false);
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const tabsRef = React.useRef<HTMLDivElement>(null);
@@ -155,6 +158,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     fetchRepositories();
+    apiService.recordVisit();
   }, []);
 
   const handleScanComplete = (result: AnalysisResult) => {
@@ -494,6 +498,23 @@ export const App: React.FC = () => {
             <div style={{ fontSize: '1.1rem', fontWeight: '800', color: 'white', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
               Shatrughna Ambhore
               <Heart size={14} color="var(--accent-rose)" fill="var(--accent-rose)" />
+              <button
+                onClick={() => setIsAdminModalOpen(true)}
+                title="Admin Visitor Analytics Dashboard"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  color: 'var(--accent-cyan)',
+                  padding: '0.2rem 0.4rem',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  marginLeft: '0.3rem',
+                }}
+              >
+                <Lock size={13} />
+              </button>
             </div>
           </div>
         </div>
@@ -587,6 +608,12 @@ export const App: React.FC = () => {
           </a>
         </div>
       </footer>
+
+      {/* Secret Admin Visitor Analytics Dashboard Modal */}
+      <AdminAnalyticsModal
+        isOpen={isAdminModalOpen}
+        onClose={() => setIsAdminModalOpen(false)}
+      />
     </div>
   );
 };

@@ -207,4 +207,27 @@ export const apiService = {
     }
     return res.json();
   },
+
+  async recordVisit(referrer?: string, email?: string): Promise<any> {
+    try {
+      const res = await fetch(`${BASE_URL}/api/analytics/visit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ referrer: referrer || document.referrer || '', email: email || '' }),
+      });
+      return await res.json();
+    } catch {
+      // Ignore analytics logging errors silently
+      return null;
+    }
+  },
+
+  async getAdminDashboard(adminPin: string): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/analytics/dashboard?adminPin=${encodeURIComponent(adminPin)}`);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: 'Invalid PIN or unauthorized access.' }));
+      throw new Error(err.error || 'Failed to load Admin Dashboard');
+    }
+    return res.json();
+  },
 };
