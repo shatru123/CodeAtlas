@@ -96,7 +96,7 @@ export const AiAssistantPanel: React.FC<AiAssistantPanelProps> = ({ repoId }) =>
             </div>
             <h2 style={{ fontSize: '1.4rem', fontWeight: '800', color: 'white' }}>CodeAtlas AI Assistant</h2>
             <span style={{ background: 'rgba(56, 189, 248, 0.15)', color: 'var(--accent-cyan)', border: '1px solid rgba(56, 189, 248, 0.3)', padding: '0.15rem 0.6rem', borderRadius: '12px', fontSize: '0.72rem', fontWeight: '800' }}>
-              Google Gemini 2.0 Flash (Free Tier)
+              Google Gemini 1.5 Flash (Free Tier)
             </span>
           </div>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>

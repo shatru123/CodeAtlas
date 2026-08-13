@@ -29,35 +29,46 @@ namespace CodeAtlas.Application.Services
             }
 
             var contextPrompt = BuildCodebaseContextPrompt(analysis, userPrompt);
-            var endpointUrl = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={apiKey.Trim()}";
+            var modelNames = new[] { "gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.5-flash-latest" };
 
-            var requestBody = new
+            HttpResponseMessage response = null;
+            string responseString = string.Empty;
+
+            foreach (var model in modelNames)
             {
-                contents = new[]
+                var endpointUrl = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={apiKey.Trim()}";
+
+                var requestBody = new
                 {
-                    new
+                    contents = new[]
                     {
-                        role = "user",
-                        parts = new[]
+                        new
                         {
-                            new { text = contextPrompt }
+                            role = "user",
+                            parts = new[]
+                            {
+                                new { text = contextPrompt }
+                            }
                         }
+                    },
+                    generationConfig = new
+                    {
+                        temperature = 0.2,
+                        maxOutputTokens = 2048
                     }
-                },
-                generationConfig = new
-                {
-                    temperature = 0.2,
-                    maxOutputTokens = 2048
-                }
-            };
+                };
 
-            var jsonContent = new StringContent(
-                JsonSerializer.Serialize(requestBody),
-                Encoding.UTF8,
-                "application/json");
+                var jsonContent = new StringContent(
+                    JsonSerializer.Serialize(requestBody),
+                    Encoding.UTF8,
+                    "application/json");
 
-            var response = await HttpClient.PostAsync(endpointUrl, jsonContent);
-            var responseString = await response.Content.ReadAsStringAsync();
+                response = await HttpClient.PostAsync(endpointUrl, jsonContent);
+                responseString = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode) break;
+                if ((int)response.StatusCode != 404) break;
+            }
 
             if (!response.IsSuccessStatusCode)
             {
