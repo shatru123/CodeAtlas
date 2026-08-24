@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeAtlas — Autonomous Agentic AI Technical Architecture & Workflow Guide</title>
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --bg-card: #161b26;
+      --bg-card-alt: #1e2638;
+      --border-color: #2d3748;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-purple: #8b5cf6;
+      --accent-cyan: #06b6d4;
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --font-code: 'Fira Code', 'Courier New', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      padding: 3rem 1.5rem;
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(6, 182, 212, 0.15));
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      margin-bottom: 2.5rem;
+    }
+
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(139, 92, 246, 0.2);
+      color: var(--accent-purple);
+      border: 1px solid var(--accent-purple);
+      padding: 0.35rem 0.85rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+      background: linear-gradient(90deg, #ffffff, #93c5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* Section Cards */
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    p { color: var(--text-muted); margin-bottom: 1rem; }
+
+    /* Architecture Diagram (SVG Visual) */
+    .diagram-container {
+      background-color: #0c111c;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      margin: 1.5rem 0;
+      overflow-x: auto;
+    }
+
+    /* UI Screenshot Mockup */
+    .mockup-window {
+      background-color: #121824;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 1.5rem 0;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .mockup-header {
+      background-color: #1a2234;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .mockup-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-red { background-color: #ff5f56; }
+    .dot-yellow { background-color: #ffbd2e; }
+    .dot-green { background-color: #27c93f; }
+
+    .mockup-body {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .mockup-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 900px) {
+      .mockup-grid { grid-template-columns: 1fr; }
+    }
+
+    .mockup-box {
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+
+    .mockup-box-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      margin-bottom: 0.75rem;
+    }
+
+    /* Workflow Grid */
+    .workflow-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin-top: 1.5rem;
+    }
+
+    .step-card {
+      background-color: var(--bg-card-alt);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1.25rem;
+      position: relative;
+    }
+
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+      color: white;
+      font-weight: 800;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .step-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 0.4rem;
+    }
+
+    /* Code Block */
+    pre {
+      background-color: #0d121d;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: var(--font-code);
+      font-size: 0.85rem;
+      color: #e2e8f0;
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+
+    .highlight-purple { color: var(--accent-purple); font-weight: bold; }
+    .highlight-cyan { color: var(--accent-cyan); font-weight: bold; }
+    .highlight-green { color: var(--accent-green); font-weight: bold; }
+
+    /* Feature Badge */
+    .badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-right: 6px;
+    }
+    .badge-purple { background: rgba(139, 92, 246, 0.2); color: var(--accent-purple); }
+    .badge-cyan { background: rgba(6, 182, 212, 0.2); color: var(--accent-cyan); }
+    .badge-green { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border-color);
+      margin-top: 3rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    
+    <!-- HEADER HERO -->
+    <header>
+      <div class="logo-badge">🤖 CodeAtlas Agentic Platform</div>
+      <h1>How Code Assistance & Autonomous AI Agents Work</h1>
+      <p class="subtitle">
+        An end-to-end technical guide explaining how ASP.NET Core 9, Roslyn AST indexing, Multi-Agent Orchestration, SignalR WebSockets, and Monaco Diff Viewers automate software development.
+      </p>
+    </header>
+
+    <!-- SECTION 1: ARCHITECTURE OVERVIEW -->
+    <div class="card">
+      <h2>🏛️ 1. End-to-End System Architecture</h2>
+      <p>
+        CodeAtlas combines a high-performance **ASP.NET Core 9 Agent Engine** on the backend with an interactive **React 18 + SignalR Frontend** on the client side. Given a GitHub Repository URL and a technical prompt, CodeAtlas executes a fully autonomous software engineering workflow.
+      </p>
+
+      <div class="diagram-container">
+        <svg width="1000" height="420" viewBox="0 0 1000 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- React UI Layer -->
+          <rect x="50" y="30" width="900" height="90" rx="10" fill="#161b26" stroke="#06b6d4" stroke-width="2"/>
+          <text x="500" y="60" fill="#06b6d4" font-size="16" font-weight="bold" text-anchor="middle">React 18 + TypeScript Client Dashboard</text>
+          <text x="500" y="85" fill="#94a3b8" font-size="12" text-anchor="middle">Repo Input Form  |  Agent Pipeline DAG  |  Monaco Diff Viewer  |  Xterm Terminal Logs</text>
+
+          <!-- Arrows Down -->
+          <path d="M300 120 V 160" stroke="#8b5cf6" stroke-width="3" marker-end="url(#arrow)" />
+          <path d="M700 120 V 160" stroke="#06b6d4" stroke-width="3" marker-end="url(#arrow)" />
+          <text x="300" y="145" fill="#8b5cf6" font-size="11" text-anchor="end">HTTP REST API  </text>
+          <text x="700" y="145" fill="#06b6d4" font-size="11" text-anchor="start">  SignalR WebSockets</text>
+
+          <!-- Backend Core Layer -->
+          <rect x="50" y="160" width="900" height="230" rx="10" fill="#161b26" stroke="#8b5cf6" stroke-width="2"/>
+          <text x="500" y="190" fill="#8b5cf6" font-size="16" font-weight="bold" text-anchor="middle">ASP.NET Core 9 Multi-Agent Orchestration Server</text>
+
+          <!-- Subcomponents -->
+          <!-- Git Workspace Manager -->
+          <rect x="80" y="215" width="180" height="80" rx="6" fill="#1e2638" stroke="#334155" />
+          <text x="170" y="245" fill="#f8fafc" font-size="13" font-weight="bold" text-anchor="middle">Git Workspace Manager</text>
+          <text x="170" y="265" fill="#94a3b8" font-size="10" text-anchor="middle">Clones repo into /workspaces/{id}</text>
+
+          <!-- Roslyn Code Indexer -->
+          <rect x="290" y="215" width="180" height="80" rx="6" fill="#1e2638" stroke="#334155" />
+          <text x="380" y="245" fill="#f8fafc" font-size="13" font-weight="bold" text-anchor="middle">Roslyn AST Indexer</text>
+          <text x="380" y="265" fill="#94a3b8" font-size="10" text-anchor="middle">Parses C# classes & methods</text>
+
+          <!-- Multi-Agent State Machine -->
+          <rect x="500" y="215" width="200" height="150" rx="6" fill="#1e2638" stroke="#8b5cf6" stroke-width="1.5"/>
+          <text x="600" y="240" fill="#8b5cf6" font-size="13" font-weight="bold" text-anchor="middle">Multi-Agent State Machine</text>
+          <text x="600" y="265" fill="#10b981" font-size="11" text-anchor="middle">1. Planner Agent</text>
+          <text x="600" y="285" fill="#f59e0b" font-size="11" text-anchor="middle">2. Researcher Agent</text>
+          <text x="600" y="305" fill="#06b6d4" font-size="11" text-anchor="middle">3. Coder Agent</text>
+          <text x="600" y="325" fill="#ef4444" font-size="11" text-anchor="middle">4. Validator Agent</text>
+
+          <!-- Process Sandbox -->
+          <rect x="720" y="215" width="200" height="80" rx="6" fill="#1e2638" stroke="#334155" />
+          <text x="820" y="245" fill="#f8fafc" font-size="13" font-weight="bold" text-anchor="middle">Process Sandbox</text>
+          <text x="820" y="265" fill="#94a3b8" font-size="10" text-anchor="middle">Runs dotnet build & test</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- SECTION 2: UI SCREENSHOT MOCKUP -->
+    <div class="card">
+      <h2>🖥️ 2. Visual Platform Dashboard (UI Interface Mockup)</h2>
+      <p>Below is an exact visual layout of the CodeAtlas Agentic AI Platform screen as rendered in the React UI:</p>
+
+      <div class="mockup-window">
+        <div class="mockup-header">
+          <div class="mockup-dots">
+            <div class="dot dot-red"></div>
+            <div class="dot dot-yellow"></div>
+            <div class="dot dot-green"></div>
+          </div>
+          <span style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-code);">http://localhost:5175 — CodeAtlas v2.5</span>
+          <span className="badge badge-purple">Branch: agentic-platform</span>
+        </div>
+
+        <div class="mockup-body">
+          <div class="mockup-grid">
+            
+            <!-- Left: Task Form -->
+            <div class="mockup-box">
+              <div class="mockup-box-title">🚀 Launch Autonomous Agent Task</div>
+              <div style="font-size: 0.8rem; margin-bottom: 0.5rem; color: var(--text-muted);">
+                <strong>Repository:</strong> https://github.com/shatru123/CodeAtlas
+              </div>
+              <div style="font-size: 0.8rem; margin-bottom: 0.75rem; color: var(--text-muted);">
+                <strong>Requirement:</strong> "Add health check endpoint, configure OpenTelemetry metrics, and create unit tests"
+              </div>
+              <div style="background: var(--accent-purple); color: white; text-align: center; padding: 0.4rem; border-radius: 6px; font-weight: bold; font-size: 0.85rem;">
+                ▶ Task Active (Executing)
+              </div>
+            </div>
+
+            <!-- Right: Agent Pipeline -->
+            <div class="mockup-box">
+              <div class="mockup-box-title">⚡ Multi-Agent Pipeline DAG</div>
+              <div style="display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.8rem;">
+                <div style="background: rgba(16,185,129,0.15); border: 1px solid var(--accent-green); padding: 0.35rem 0.6rem; border-radius: 4px; color: var(--accent-green);">
+                  ✓ 1. Planner Agent — Formulated 3-step execution plan
+                </div>
+                <div style="background: rgba(245,158,11,0.15); border: 1px solid var(--accent-amber); padding: 0.35rem 0.6rem; border-radius: 4px; color: var(--accent-amber);">
+                  ✓ 2. Researcher Agent — Found 14 matching C# symbols
+                </div>
+                <div style="background: rgba(6,182,212,0.15); border: 1px solid var(--accent-cyan); padding: 0.35rem 0.6rem; border-radius: 4px; color: var(--accent-cyan);">
+                  ⚡ 3. Coder Agent — Generated code modifications in 2 files
+                </div>
+                <div style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); padding: 0.35rem 0.6rem; border-radius: 4px; color: var(--text-muted);">
+                  ⏳ 4. Validator Agent — Running dotnet build verification
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="mockup-grid">
+            <!-- Left: Monaco Code Diff -->
+            <div class="mockup-box">
+              <div class="mockup-box-title">🔀 Side-by-Side Monaco Code Diff Viewer</div>
+              <div style="background: #090d16; padding: 0.75rem; border-radius: 6px; font-family: var(--font-code); font-size: 0.75rem; color: #cbd5e1; height: 140px; overflow: hidden;">
+                <span style="color: #ef4444;">- app.MapControllers();</span><br>
+                <span style="color: #10b981;">+ app.MapHealthChecks("/health");</span><br>
+                <span style="color: #10b981;">+ app.MapControllers();</span><br>
+                <span style="color: #10b981;">+ app.MapHub&lt;ExecutionHub&gt;("/hubs/execution");</span>
+              </div>
+            </div>
+
+            <!-- Right: Real-time Terminal Logs -->
+            <div class="mockup-box">
+              <div class="mockup-box-title">💻 Live SignalR Execution Console</div>
+              <div style="background: #090d16; padding: 0.75rem; border-radius: 6px; font-family: var(--font-code); font-size: 0.75rem; color: #cbd5e1; height: 140px; overflow: hidden;">
+                <span style="color: #94a3b8;">[18:11:15]</span> <span style="color: var(--accent-cyan);">[GitWorkspace]</span> Successfully cloned repository<br>
+                <span style="color: #94a3b8;">[18:11:17]</span> <span style="color: var(--accent-purple);">[CodeIndexer]</span> Parsed 42 C# symbols via Roslyn<br>
+                <span style="color: #94a3b8;">[18:11:20]</span> <span style="color: #ec4899;">[ValidatorAgent]</span> dotnet build: Build succeeded. 0 Errors.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 3: STEP-BY-STEP WORKFLOW -->
+    <div class="card">
+      <h2>🔄 3. Step-by-Step Autonomous Workflow</h2>
+
+      <div class="workflow-grid">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <div class="step-title">Workspace Cloning & Isolation</div>
+          <p>The Git Workspace Manager clones the target repository into an isolated <code>/workspaces/{taskId}</code> folder on disk, establishing clean git state.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <div class="step-title">Roslyn AST Symbol Parsing</div>
+          <p>The Code Indexer uses <code>Microsoft.CodeAnalysis.CSharp</code> syntax trees to parse classes, interfaces, methods, and line numbers into an in-memory symbol graph.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <div class="step-title">Planner Agent Task Breakdown</div>
+          <p>The Planner Agent analyzes the user prompt and breaks it down into sequential sub-goals (e.g. 1. Locate Program.cs, 2. Add HealthChecks, 3. Validate Build).</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">4</div>
+          <div class="step-title">Researcher Agent Context Lookup</div>
+          <p>The Researcher Agent queries Roslyn symbols to find exact file paths and method signatures needed for code modification.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">5</div>
+          <div class="step-title">Coder Agent & Code Edits</div>
+          <p>The Coder Agent performs precision code replacements and computes side-by-side Git diffs ready for Monaco Editor display.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">6</div>
+          <div class="step-title">Validator & Build Loop</div>
+          <p>The Sandboxed Execution Service runs <code>dotnet build</code>. If build errors occur, the traceback is passed back to the Coder Agent to self-correct until 0 errors remain!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 4: REAL-TIME SIGNALR STREAMING -->
+    <div class="card">
+      <h2>📡 4. Real-Time SignalR WebSockets Protocol</h2>
+      <p>
+        To give developers complete visibility into what the AI agent is thinking and doing, the backend streams event notifications over <strong>SignalR WebSockets</strong> in real time:
+      </p>
+
+      <pre>
+<span class="highlight-purple">public interface IExecutionClient</span>
+{
+    Task <span class="highlight-cyan">ReceiveAgentStep</span>(AgentStepEvent step);
+    Task <span class="highlight-cyan">ReceiveLogOutput</span>(string taskId, string source, string message);
+    Task <span class="highlight-cyan">ReceiveCodeDiff</span>(string taskId, CodeDiffModel diff);
+    Task <span class="highlight-cyan">ReceiveBuildOutput</span>(string taskId, string outputLine, bool isError);
+    Task <span class="highlight-cyan">ReceiveTaskStatus</span>(string taskId, string status, string currentAgent);
+}
+      </pre>
+
+      <p>
+        As soon as the React frontend connects via <code>new signalR.HubConnectionBuilder()</code>, events stream into the UI without page refreshes!
+      </p>
+    </div>
+
+    <!-- FOOTER -->
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border-color);
+      margin-top: 3rem;
+    }
+  </div>
+</body>
+</html>
