@@ -3,6 +3,8 @@
 **/obj/
 workspaces/
 *.user
+[Dd]ebug/
+[Rr]elease/
 
 # Node / React build output
 **/node_modules/
@@ -11,3 +13,9 @@ workspaces/
 .vscode/
 .idea/
 .DS_Store
+
+# Environment & Cache
+*.env
+*.userprefs
+.vs/
+.history/

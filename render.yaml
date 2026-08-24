@@ -1,0 +1,30 @@
+services:
+  # .NET 8 Web API Backend (Free Docker Web Service on Render)
+  - type: web
+    name: codeatlas-backend
+    env: docker
+    dockerfilePath: ./codeatlas/backend/Dockerfile
+    dockerContext: ./codeatlas/backend
+    plan: free
+    region: oregon
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: DOTNET_USE_POLLING_FILE_WATCHER
+        value: "true"
+      - key: DOTNET_SYSTEM_IO_DISABLEFILEWATCHING
+        value: "true"
+
+  # React Web UI (Free Static Site on Render)
+  - type: web
+    name: codeatlas-frontend
+    env: static
+    buildCommand: cd codeatlas/frontend && npm install && npm run build
+    staticPublishPath: ./codeatlas/frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://codeatlas-backend-p24q.onrender.com
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
