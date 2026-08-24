@@ -19,6 +19,7 @@ import { CodeRunnerPanel } from './components/CodeRunnerPanel';
 import { AiAssistantPanel } from './components/AiAssistantPanel';
 import { AdminAnalyticsModal } from './components/AdminAnalyticsModal';
 import { EntityDetailModal } from './components/EntityDetailModal';
+import { AgenticPlatformPanel } from './components/AgenticPlatformPanel';
 import { apiService } from './services/apiService';
 import { AnalysisResult, ArchitectureSummary, CodeEntity, RepositoryInfo } from './types/api';
 import {
@@ -57,6 +58,7 @@ export const App: React.FC = () => {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [architecture, setArchitecture] = useState<ArchitectureSummary | null>(null);
   const [activeTab, setActiveTab] = useState<
+    | 'agentic'
     | 'ai'
     | 'graph'
     | 'flows'
@@ -73,7 +75,7 @@ export const App: React.FC = () => {
     | 'infra'
     | 'handbook'
     | 'runner'
-  >('ai');
+  >('agentic');
   const [selectedEntity, setSelectedEntity] = useState<CodeEntity | null>(null);
   const [isScanModalOpen, setIsScanModalOpen] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
@@ -355,6 +357,7 @@ export const App: React.FC = () => {
                 }}
               >
                 {[
+                  { id: 'agentic', label: 'Agentic AI Platform', icon: Sparkles, count: '✨ Agentic' },
                   { id: 'ai', label: 'AI Code Assistant', icon: Bot, count: '🤖 AI' },
                   { id: 'graph', label: 'Knowledge Graph', icon: Network, count: analysis.entities.length },
                   { id: 'runner', label: 'Code Runner', icon: PlayCircle, count: '▶ Run' },
@@ -439,6 +442,7 @@ export const App: React.FC = () => {
             </div>
 
             {/* Active View Content */}
+            {activeTab === 'agentic' && <AgenticPlatformPanel />}
             {activeTab === 'ai' && <AiAssistantPanel repoId={analysis.repository.id} />}
             {activeTab === 'graph' && <GraphExplorer analysis={analysis} onSelectEntity={setSelectedEntity} />}
             {activeTab === 'runner' && <CodeRunnerPanel repoId={analysis.repository.id} />}
