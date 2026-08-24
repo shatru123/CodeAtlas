@@ -3,10 +3,9 @@ using CodeAtlas.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add Controllers & OpenAPI/Swagger
+// Add Controllers & Native .NET 9 OpenAPI
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddOpenApi();
 
 // Add SignalR for real-time streaming
 builder.Services.AddSignalR();
@@ -33,8 +32,7 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.MapOpenApi();
 }
 
 app.UseCors("AllowAll");

@@ -4,11 +4,13 @@ import { TaskForm } from './components/TaskForm';
 import { AgentPipeline } from './components/AgentPipeline';
 import { MonacoDiffViewer } from './components/MonacoDiffViewer';
 import { TerminalLogs } from './components/TerminalLogs';
+import { CodeExplorer } from './components/CodeExplorer';
 import type { StartTaskRequest, TaskStatusResponse, AgentStepEvent, CodeDiffModel } from './types';
 import { api, createSignalRConnection } from './services/api';
 import * as signalR from '@microsoft/signalr';
 
 export const App: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'explorer' | 'agent'>('agent');
   const [currentTask, setCurrentTask] = useState<TaskStatusResponse | null>(null);
   const [steps, setSteps] = useState<AgentStepEvent[]>([]);
   const [diffs, setDiffs] = useState<CodeDiffModel[]>([]);
@@ -18,6 +20,7 @@ export const App: React.FC = () => {
 
   const handleStartTask = async (request: StartTaskRequest) => {
     setIsLoading(true);
+    setActiveTab('agent'); // Auto-switch to Agent Execution screen
     setLogs([]);
     setSteps([]);
     setDiffs([]);
@@ -88,22 +91,32 @@ export const App: React.FC = () => {
 
   return (
     <div className="app-container">
-      <Header currentTaskStatus={currentTask?.status} />
+      <Header
+        currentTaskStatus={currentTask?.status}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
 
       <main className="main-content">
-        <div className="top-grid">
-          <TaskForm onSubmit={handleStartTask} isLoading={isLoading} />
-          <AgentPipeline
-            currentStatus={currentTask?.status || 'Idle'}
-            currentAgent={currentTask?.currentAgent || 'System'}
-            steps={steps}
-          />
-        </div>
+        {activeTab === 'explorer' ? (
+          <CodeExplorer />
+        ) : (
+          <>
+            <div className="top-grid">
+              <TaskForm onSubmit={handleStartTask} isLoading={isLoading} />
+              <AgentPipeline
+                currentStatus={currentTask?.status || 'Idle'}
+                currentAgent={currentTask?.currentAgent || 'System'}
+                steps={steps}
+              />
+            </div>
 
-        <div className="bottom-grid">
-          <MonacoDiffViewer diffs={diffs} />
-          <TerminalLogs logs={logs} onClear={() => setLogs([])} />
-        </div>
+            <div className="bottom-grid">
+              <MonacoDiffViewer diffs={diffs} />
+              <TerminalLogs logs={logs} onClear={() => setLogs([])} />
+            </div>
+          </>
+        )}
       </main>
     </div>
   );

@@ -1,11 +1,13 @@
 import React from 'react';
-import { Bot, GitBranch, Cpu, Sparkles } from 'lucide-react';
+import { Bot, GitBranch, Cpu, Sparkles, Map, Terminal } from 'lucide-react';
 
 interface HeaderProps {
   currentTaskStatus?: string;
+  activeTab: 'explorer' | 'agent';
+  onTabChange: (tab: 'explorer' | 'agent') => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ currentTaskStatus }) => {
+export const Header: React.FC<HeaderProps> = ({ currentTaskStatus, activeTab, onTabChange }) => {
   return (
     <header className="header">
       <div className="header-brand">
@@ -19,6 +21,23 @@ export const Header: React.FC<HeaderProps> = ({ currentTaskStatus }) => {
           <p className="brand-subtitle">Autonomous .NET & React Software Engineering Platform</p>
         </div>
       </div>
+
+      <nav className="header-tabs">
+        <button
+          className={`tab-btn ${activeTab === 'explorer' ? 'active' : ''}`}
+          onClick={() => onTabChange('explorer')}
+        >
+          <Map size={16} />
+          <span>Codebase Visualizer</span>
+        </button>
+        <button
+          className={`tab-btn ${activeTab === 'agent' ? 'active' : ''}`}
+          onClick={() => onTabChange('agent')}
+        >
+          <Terminal size={16} />
+          <span>Agentic AI Engine</span>
+        </button>
+      </nav>
 
       <div className="header-actions">
         <div className="status-badge">
