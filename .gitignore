@@ -1,0 +1,13 @@
+# .NET build output
+**/bin/
+**/obj/
+workspaces/
+*.user
+
+# Node / React build output
+**/node_modules/
+**/dist/
+**/build/
+.vscode/
+.idea/
+.DS_Store
