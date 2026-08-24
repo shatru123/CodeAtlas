@@ -42,17 +42,69 @@ public class GitWorkspaceService : IGitWorkspaceService
             Directory.Delete(targetDir, true);
         }
 
-        _logger.LogInformation("Cloning {RepoUrl} into {TargetDir}", repoUrl, targetDir);
-
-        var args = $"clone --depth 50 {repoUrl} \"{targetDir}\"";
-        var result = await RunGitCommandAsync(Directory.GetCurrentDirectory(), args);
-
-        if (result.ExitCode != 0)
+        // Expand ~ to user home directory if local path
+        var normalizedRepoUrl = repoUrl.Trim();
+        if (normalizedRepoUrl.StartsWith("~"))
         {
-            throw new Exception($"Failed to clone repository: {result.Error}");
+            var userHome = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            normalizedRepoUrl = Path.Combine(userHome, normalizedRepoUrl.Substring(1).TrimStart('/', '\\'));
+        }
+
+        _logger.LogInformation("Setting up workspace for {RepoUrl} into {TargetDir}", normalizedRepoUrl, targetDir);
+
+        // Check if local directory exists
+        if (Directory.Exists(normalizedRepoUrl))
+        {
+            // Attempt git clone first
+            var cloneArgs = $"clone \"{normalizedRepoUrl}\" \"{targetDir}\"";
+            var cloneResult = await RunGitCommandAsync(Directory.GetCurrentDirectory(), cloneArgs);
+
+            if (cloneResult.ExitCode != 0)
+            {
+                _logger.LogWarning("Git clone of local directory failed, copying files directly: {Error}", cloneResult.Error);
+                CopyDirectoryRecursively(normalizedRepoUrl, targetDir);
+                await RunGitCommandAsync(targetDir, "init");
+            }
+        }
+        else
+        {
+            var cloneArgs = $"clone --depth 50 {normalizedRepoUrl} \"{targetDir}\"";
+            var result = await RunGitCommandAsync(Directory.GetCurrentDirectory(), cloneArgs);
+
+            if (result.ExitCode != 0)
+            {
+                throw new Exception($"Failed to clone repository: {result.Error}");
+            }
         }
 
         return targetDir;
+    }
+
+    private void CopyDirectoryRecursively(string sourceDir, string targetDir)
+    {
+        Directory.CreateDirectory(targetDir);
+
+        foreach (var file in Directory.GetFiles(sourceDir))
+        {
+            var fileName = Path.GetFileName(file);
+            File.Copy(file, Path.Combine(targetDir, fileName), true);
+        }
+
+        foreach (var subDir in Directory.GetDirectories(sourceDir))
+        {
+            var dirName = Path.GetFileName(subDir);
+            if (dirName.Equals("bin", StringComparison.OrdinalIgnoreCase) ||
+                dirName.Equals("obj", StringComparison.OrdinalIgnoreCase) ||
+                dirName.Equals("node_modules", StringComparison.OrdinalIgnoreCase) ||
+                dirName.Equals("dist", StringComparison.OrdinalIgnoreCase) ||
+                dirName.Equals(".git", StringComparison.OrdinalIgnoreCase) ||
+                dirName.Equals("workspaces", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            CopyDirectoryRecursively(subDir, Path.Combine(targetDir, dirName));
+        }
     }
 
     public async Task<FileTreeNode> GetFileTreeAsync(string taskId)
@@ -63,47 +115,63 @@ public class GitWorkspaceService : IGitWorkspaceService
             throw new DirectoryNotFoundException($"Workspace for task {taskId} not found.");
         }
 
-        var rootInfo = new DirectoryInfo(workspacePath);
-        return await Task.Run(() => BuildNode(rootInfo, workspacePath));
+        return await Task.Run(() => BuildFileTree(new DirectoryInfo(workspacePath), workspacePath));
     }
 
-    private FileTreeNode BuildNode(DirectoryInfo dirInfo, string rootPath)
+    private FileTreeNode BuildFileTree(DirectoryInfo dirInfo, string rootPath)
     {
+        var relativePath = Path.GetRelativePath(rootPath, dirInfo.FullName);
+        if (relativePath == ".") relativePath = "";
+
         var children = new List<FileTreeNode>();
 
         foreach (var subDir in dirInfo.GetDirectories())
         {
-            if (subDir.Name.StartsWith(".") || subDir.Name.Equals("bin") || subDir.Name.Equals("obj") || subDir.Name.Equals("node_modules"))
+            if (subDir.Name.StartsWith(".") || subDir.Name == "bin" || subDir.Name == "obj" || subDir.Name == "node_modules")
                 continue;
 
-            children.Add(BuildNode(subDir, rootPath));
+            children.Add(BuildFileTree(subDir, rootPath));
         }
 
         foreach (var file in dirInfo.GetFiles())
         {
             if (file.Name.StartsWith(".")) continue;
-            var relPath = Path.GetRelativePath(rootPath, file.FullName);
-            children.Add(new FileTreeNode(file.Name, relPath, false, null, file.Length));
+
+            children.Add(new FileTreeNode(
+                file.Name,
+                Path.GetRelativePath(rootPath, file.FullName),
+                false,
+                null,
+                file.Length
+            ));
         }
 
-        var relativeDirPath = Path.GetRelativePath(rootPath, dirInfo.FullName);
-        return new FileTreeNode(dirInfo.Name, relativeDirPath == "." ? "" : relativeDirPath, true, children);
+        return new FileTreeNode(
+            dirInfo.Name,
+            relativePath,
+            true,
+            children,
+            null
+        );
     }
 
     public async Task<string> ReadFileAsync(string taskId, string relativePath, int? startLine = null, int? endLine = null)
     {
-        var fullPath = Path.Combine(GetWorkspacePath(taskId), relativePath);
+        var workspacePath = GetWorkspacePath(taskId);
+        var fullPath = Path.Combine(workspacePath, relativePath);
+
         if (!File.Exists(fullPath))
         {
-            throw new FileNotFoundException($"File not found: {relativePath}");
+            throw new FileNotFoundException($"File {relativePath} not found in workspace.");
         }
 
         var lines = await File.ReadAllLinesAsync(fullPath);
-        if (startLine.HasValue || endLine.HasValue)
+
+        if (startLine.HasValue && endLine.HasValue)
         {
-            var start = Math.Max(0, (startLine ?? 1) - 1);
-            var count = Math.Min(lines.Length - start, (endLine ?? lines.Length) - start);
-            return string.Join(Environment.NewLine, lines.Skip(start).Take(Math.Max(0, count)));
+            var start = Math.Max(0, startLine.Value - 1);
+            var count = Math.Min(lines.Length - start, endLine.Value - startLine.Value + 1);
+            return string.Join(Environment.NewLine, lines.Skip(start).Take(count));
         }
 
         return string.Join(Environment.NewLine, lines);
@@ -111,11 +179,13 @@ public class GitWorkspaceService : IGitWorkspaceService
 
     public async Task WriteFileAsync(string taskId, string relativePath, string content)
     {
-        var fullPath = Path.Combine(GetWorkspacePath(taskId), relativePath);
-        var dir = Path.GetDirectoryName(fullPath);
-        if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+        var workspacePath = GetWorkspacePath(taskId);
+        var fullPath = Path.Combine(workspacePath, relativePath);
+
+        var parentDir = Path.GetDirectoryName(fullPath);
+        if (!string.IsNullOrEmpty(parentDir) && !Directory.Exists(parentDir))
         {
-            Directory.CreateDirectory(dir);
+            Directory.CreateDirectory(parentDir);
         }
 
         await File.WriteAllTextAsync(fullPath, content);
@@ -124,28 +194,40 @@ public class GitWorkspaceService : IGitWorkspaceService
     public async Task<List<CodeDiffModel>> GetGitDiffsAsync(string taskId)
     {
         var workspacePath = GetWorkspacePath(taskId);
-        var statusResult = await RunGitCommandAsync(workspacePath, "status --porcelain");
-
         var diffs = new List<CodeDiffModel>();
-        if (string.IsNullOrWhiteSpace(statusResult.Output)) return diffs;
 
-        var diffResult = await RunGitCommandAsync(workspacePath, "diff");
-        var diffText = diffResult.Output;
-
-        var modifiedFiles = statusResult.Output
-            .Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries)
-            .Select(line => line.Substring(3).Trim())
-            .ToList();
-
-        foreach (var file in modifiedFiles)
+        var statusResult = await RunGitCommandAsync(workspacePath, "status --porcelain");
+        if (statusResult.ExitCode != 0 || string.IsNullOrWhiteSpace(statusResult.Output))
         {
-            var fullPath = Path.Combine(workspacePath, file);
-            var modifiedContent = File.Exists(fullPath) ? await File.ReadAllTextAsync(fullPath) : "";
-            
-            var originalResult = await RunGitCommandAsync(workspacePath, $"show HEAD:\"{file}\"");
-            var originalContent = originalResult.ExitCode == 0 ? originalResult.Output : "";
+            return diffs;
+        }
 
-            diffs.Add(new CodeDiffModel(file, originalContent, modifiedContent, diffText));
+        var lines = statusResult.Output.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        foreach (var line in lines)
+        {
+            if (line.Length < 4) continue;
+            var filePath = line.Substring(3).Trim();
+
+            var diffResult = await RunGitCommandAsync(workspacePath, $"diff HEAD -- \"{filePath}\"");
+            var diffText = diffResult.Output;
+
+            var originalContent = "";
+            try
+            {
+                var showResult = await RunGitCommandAsync(workspacePath, $"show HEAD:\"{filePath}\"");
+                if (showResult.ExitCode == 0) originalContent = showResult.Output;
+            }
+            catch { }
+
+            var fullPath = Path.Combine(workspacePath, filePath);
+            var modifiedContent = File.Exists(fullPath) ? await File.ReadAllTextAsync(fullPath) : "";
+
+            diffs.Add(new CodeDiffModel(
+                filePath,
+                originalContent,
+                modifiedContent,
+                diffText
+            ));
         }
 
         return diffs;
@@ -154,20 +236,20 @@ public class GitWorkspaceService : IGitWorkspaceService
     public async Task<bool> CreateBranchAndCommitAsync(string taskId, string branchName, string commitMessage)
     {
         var workspacePath = GetWorkspacePath(taskId);
-        
-        var branchRes = await RunGitCommandAsync(workspacePath, $"checkout -b \"{branchName}\"");
-        var addRes = await RunGitCommandAsync(workspacePath, "add .");
-        var commitRes = await RunGitCommandAsync(workspacePath, $"commit -m \"{commitMessage}\"");
 
-        return commitRes.ExitCode == 0;
+        await RunGitCommandAsync(workspacePath, $"checkout -b \"{branchName}\"");
+        await RunGitCommandAsync(workspacePath, "add .");
+        var commitResult = await RunGitCommandAsync(workspacePath, $"commit -m \"{commitMessage}\"");
+
+        return commitResult.ExitCode == 0;
     }
 
-    private async Task<(int ExitCode, string Output, string Error)> RunGitCommandAsync(string workingDir, string arguments)
+    private async Task<(int ExitCode, string Output, string Error)> RunGitCommandAsync(string workingDir, string args)
     {
         var psi = new ProcessStartInfo
         {
             FileName = "git",
-            Arguments = arguments,
+            Arguments = args,
             WorkingDirectory = workingDir,
             RedirectStandardOutput = true,
             RedirectStandardError = true,

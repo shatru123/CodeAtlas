@@ -19,6 +19,22 @@ export const DatabaseExplorer: React.FC<DatabaseExplorerProps> = ({ databases })
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      {/* View Header Banner */}
+      <div className="view-header-card">
+        <div className="view-header-title">
+          <div className="view-header-icon">
+            <Database size={22} />
+          </div>
+          <div className="view-header-text">
+            <h2>Database & ORM Operations</h2>
+            <p>Indexed database tables, Entity Framework / Dapper queries, and schema interaction points.</p>
+          </div>
+        </div>
+        <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.4rem 0.85rem', borderRadius: '8px', border: '1px solid var(--border-card)', fontSize: '0.8rem', fontWeight: '700', color: 'var(--accent-amber)' }}>
+          {filteredDbs.length} Table Mappings
+        </div>
+      </div>
+
       {/* Search Bar */}
       <div className="glass-panel" style={{ padding: '1rem 1.25rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-card)', padding: '0.5rem 0.85rem', borderRadius: '8px' }}>

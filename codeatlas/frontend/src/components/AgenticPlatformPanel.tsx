@@ -32,14 +32,22 @@ interface TaskStatusResponse {
   completedAt?: string;
 }
 
+interface AgenticPlatformPanelProps {
+  activeRepoUrl?: string;
+  activeBranch?: string;
+}
+
 const getAgentServerUrl = () => {
   return 'http://localhost:5000';
 };
 
-export const AgenticPlatformPanel: React.FC = () => {
-  const [repoUrl, setRepoUrl] = useState('https://github.com/shatru123/CodeAtlas');
+export const AgenticPlatformPanel: React.FC<AgenticPlatformPanelProps> = ({
+  activeRepoUrl,
+  activeBranch,
+}) => {
+  const [repoUrl, setRepoUrl] = useState(activeRepoUrl || 'https://github.com/shatru123/CodeAtlas.git');
   const [taskDescription, setTaskDescription] = useState('Add health check endpoint, configure OpenTelemetry metrics, and create unit tests');
-  const [targetBranch, setTargetBranch] = useState('feature/ai-agent-update');
+  const [targetBranch, setTargetBranch] = useState(activeBranch || 'feature/ai-agent-update');
   
   const [currentTask, setCurrentTask] = useState<TaskStatusResponse | null>(null);
   const [steps, setSteps] = useState<AgentStepEvent[]>([]);
@@ -48,6 +56,18 @@ export const AgenticPlatformPanel: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const terminalBottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (activeRepoUrl) {
+      setRepoUrl(activeRepoUrl);
+    }
+  }, [activeRepoUrl]);
+
+  useEffect(() => {
+    if (activeBranch) {
+      setTargetBranch(activeBranch);
+    }
+  }, [activeBranch]);
 
   const addLog = (source: string, message: string, isError: boolean = false) => {
     setLogs((prev) => [
@@ -65,6 +85,37 @@ export const AgenticPlatformPanel: React.FC = () => {
   useEffect(() => {
     terminalBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [logs]);
+
+  // Polling fallback to check task status
+  useEffect(() => {
+    if (!currentTask || !isLoading) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const baseUrl = getAgentServerUrl();
+        const res = await axios.get<TaskStatusResponse>(`${baseUrl}/api/agenttask/${currentTask.taskId}`);
+        const updatedTask = res.data;
+
+        setCurrentTask(updatedTask);
+        if (updatedTask.steps && updatedTask.steps.length > steps.length) {
+          setSteps(updatedTask.steps);
+        }
+        if (updatedTask.diffs && updatedTask.diffs.length > 0) {
+          setDiffs(updatedTask.diffs);
+        }
+
+        if (updatedTask.status === 'Completed' || updatedTask.status === 'Failed') {
+          setIsLoading(false);
+          addLog('System', `Task finished with status: ${updatedTask.status}`);
+          clearInterval(interval);
+        }
+      } catch (err) {
+        // Polling silent catch
+      }
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [currentTask, isLoading, steps.length]);
 
   const handleStartTask = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,39 +139,46 @@ export const AgenticPlatformPanel: React.FC = () => {
       setCurrentTask(task);
       addLog('System', `Autonomous Agentic Task launched with ID: ${task.taskId}`);
 
-      const connection = new signalR.HubConnectionBuilder()
-        .withUrl(`${baseUrl}/hubs/execution`)
-        .withAutomaticReconnect()
-        .build();
+      try {
+        const connection = new signalR.HubConnectionBuilder()
+          .withUrl(`${baseUrl}/hubs/execution`, {
+            skipNegotiation: false,
+            transport: signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.LongPolling,
+          })
+          .withAutomaticReconnect()
+          .build();
 
-      connection.on('ReceiveAgentStep', (step: AgentStepEvent) => {
-        setSteps((prev) => [...prev, step]);
-        addLog(step.agentName, step.thought);
-      });
+        connection.on('ReceiveAgentStep', (step: AgentStepEvent) => {
+          setSteps((prev) => [...prev, step]);
+          addLog(step.agentName, step.thought);
+        });
 
-      connection.on('ReceiveLogOutput', (_taskId: string, source: string, message: string) => {
-        addLog(source, message);
-      });
+        connection.on('ReceiveLogOutput', (_taskId: string, source: string, message: string) => {
+          addLog(source, message);
+        });
 
-      connection.on('ReceiveBuildOutput', (_taskId: string, outputLine: string, isError: boolean) => {
-        addLog('ValidatorAgent', outputLine, isError);
-      });
+        connection.on('ReceiveBuildOutput', (_taskId: string, outputLine: string, isError: boolean) => {
+          addLog('ValidatorAgent', outputLine, isError);
+        });
 
-      connection.on('ReceiveCodeDiff', (_taskId: string, diff: CodeDiffModel) => {
-        setDiffs((prev) => [...prev.filter((d) => d.filePath !== diff.filePath), diff]);
-      });
+        connection.on('ReceiveCodeDiff', (_taskId: string, diff: CodeDiffModel) => {
+          setDiffs((prev) => [...prev.filter((d) => d.filePath !== diff.filePath), diff]);
+        });
 
-      connection.on('ReceiveTaskStatus', (_taskId: string, status: string, agent: string) => {
-        setCurrentTask((prev) => (prev ? { ...prev, status, currentAgent: agent } : null));
-        addLog('System', `Task state: ${status} (${agent})`);
+        connection.on('ReceiveTaskStatus', (_taskId: string, status: string, agent: string) => {
+          setCurrentTask((prev) => (prev ? { ...prev, status, currentAgent: agent } : null));
+          addLog('System', `Task state: ${status} (${agent})`);
 
-        if (status === 'Completed' || status === 'Failed') {
-          setIsLoading(false);
-        }
-      });
+          if (status === 'Completed' || status === 'Failed') {
+            setIsLoading(false);
+          }
+        });
 
-      await connection.start();
-      await connection.invoke('JoinTaskGroup', task.taskId);
+        await connection.start();
+        await connection.invoke('JoinTaskGroup', task.taskId);
+      } catch (signalrErr: any) {
+        addLog('System', `Connected to Agent Task Engine via REST (Polling Active)`, false);
+      }
     } catch (err: any) {
       addLog('Error', `Failed to launch agent task: ${err.message}`, true);
       setIsLoading(false);
@@ -162,13 +220,13 @@ export const AgenticPlatformPanel: React.FC = () => {
           <form onSubmit={handleStartTask} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
             <div>
               <label style={{ fontSize: '0.82rem', fontWeight: '600', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.35rem' }}>
-                <FolderGit2 size={15} color="var(--accent-cyan)" /> Target GitHub Repository URL
+                <FolderGit2 size={15} color="var(--accent-cyan)" /> Target Repository URL / Path
               </label>
               <input
-                type="url"
+                type="text"
                 value={repoUrl}
                 onChange={(e) => setRepoUrl(e.target.value)}
-                placeholder="https://github.com/shatru123/CodeAtlas"
+                placeholder="https://github.com/shatru123/CodeAtlas.git or local path"
                 required
                 disabled={isLoading}
                 style={{ width: '100%', padding: '0.65rem 0.85rem', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-card)', borderRadius: '6px', color: '#fff', fontSize: '0.875rem' }}

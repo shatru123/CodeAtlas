@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Globe, Search, Code, CheckCircle, FileCode } from 'lucide-react';
+import { Globe, Search, CheckCircle, FileCode } from 'lucide-react';
 import { ApiDefinition } from '../types/api';
 
 interface ApiExplorerProps {
@@ -32,6 +32,22 @@ export const ApiExplorer: React.FC<ApiExplorerProps> = ({ apis }) => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      {/* View Header Banner */}
+      <div className="view-header-card">
+        <div className="view-header-title">
+          <div className="view-header-icon">
+            <Globe size={22} />
+          </div>
+          <div className="view-header-text">
+            <h2>REST APIs Catalog</h2>
+            <p>Discovered HTTP endpoints, controller mappings, and route contracts across the repository.</p>
+          </div>
+        </div>
+        <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.4rem 0.85rem', borderRadius: '8px', border: '1px solid var(--border-card)', fontSize: '0.8rem', fontWeight: '700', color: 'var(--accent-cyan)' }}>
+          {filteredApis.length} of {apis.length} Endpoints
+        </div>
+      </div>
+
       {/* Controls Bar */}
       <div className="glass-panel" style={{ padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, minWidth: '240px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-card)', padding: '0.5rem 0.85rem', borderRadius: '8px' }}>
