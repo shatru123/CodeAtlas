@@ -32,6 +32,10 @@ interface TaskStatusResponse {
   completedAt?: string;
 }
 
+const getAgentServerUrl = () => {
+  return 'http://localhost:5000';
+};
+
 export const AgenticPlatformPanel: React.FC = () => {
   const [repoUrl, setRepoUrl] = useState('https://github.com/shatru123/CodeAtlas');
   const [taskDescription, setTaskDescription] = useState('Add health check endpoint, configure OpenTelemetry metrics, and create unit tests');
@@ -71,8 +75,10 @@ export const AgenticPlatformPanel: React.FC = () => {
     setSteps([]);
     setDiffs([]);
 
+    const baseUrl = getAgentServerUrl();
+
     try {
-      const response = await axios.post<TaskStatusResponse>('http://localhost:5000/api/agenttask/start', {
+      const response = await axios.post<TaskStatusResponse>(`${baseUrl}/api/agenttask/start`, {
         repoUrl: repoUrl.trim(),
         taskDescription: taskDescription.trim(),
         targetBranch: targetBranch.trim(),
@@ -83,7 +89,7 @@ export const AgenticPlatformPanel: React.FC = () => {
       addLog('System', `Autonomous Agentic Task launched with ID: ${task.taskId}`);
 
       const connection = new signalR.HubConnectionBuilder()
-        .withUrl('http://localhost:5000/hubs/execution')
+        .withUrl(`${baseUrl}/hubs/execution`)
         .withAutomaticReconnect()
         .build();
 

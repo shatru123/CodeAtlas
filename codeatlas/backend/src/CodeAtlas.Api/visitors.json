@@ -1,0 +1,20 @@
+[
+  {
+    "Id": "cac4530e-8a8c-437e-91bc-2c3055f3db33",
+    "IpAddress": "127.0.0.1",
+    "Country": "India",
+    "City": "Aurangabad",
+    "CountryCode": "IN",
+    "ExactLocation": "Aurangabad, Aurangabad, Maharashtra, India",
+    "Latitude": 19.915003867640166,
+    "Longitude": 75.34483135683182,
+    "Isp": "Local Host Loopback",
+    "UserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "DeviceType": "Desktop",
+    "Referrer": "",
+    "Email": "",
+    "Timestamp": "2026-08-24T12:39:31.591638Z",
+    "VisitCount": 2,
+    "IsUnique": true
+  }
+]

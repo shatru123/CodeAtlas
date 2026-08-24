@@ -16,12 +16,12 @@ builder.Services.AddSingleton<ICodeIndexerService, CodeIndexerService>();
 builder.Services.AddSingleton<ISandboxedExecutionService, SandboxedExecutionService>();
 builder.Services.AddSingleton<IAgentOrchestratorService, AgentOrchestratorService>();
 
-// Configure CORS for React UI integration
+// Configure CORS for React UI integration (allow any origin on localhost)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://localhost:3000", "http://localhost:5000")
+        policy.SetIsOriginAllowed(_ => true)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
