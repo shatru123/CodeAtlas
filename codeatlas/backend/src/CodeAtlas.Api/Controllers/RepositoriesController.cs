@@ -47,6 +47,21 @@ public class RepositoriesController : ControllerBase
         }
     }
 
+    [HttpGet("github")]
+    public async Task<IActionResult> GetGitHubScanStatus()
+    {
+        var repos = await _knowledgeStore.ListRepositoriesAsync();
+        var githubRepos = repos.Where(r => r.Source == RepositorySource.GitHub).ToList();
+        return Ok(new
+        {
+            status = "Ready",
+            endpoint = "/api/repositories/github",
+            allowedMethods = new[] { "GET", "POST" },
+            scannedRepositoriesCount = githubRepos.Count,
+            githubRepositories = githubRepos
+        });
+    }
+
     [HttpPost("github")]
     public async Task<IActionResult> ScanGitHubRepository([FromBody] GitHubScanRequestDto request)
     {
