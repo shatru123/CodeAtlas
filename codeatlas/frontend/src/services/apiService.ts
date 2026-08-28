@@ -269,4 +269,46 @@ export const apiService = {
     if (!res.ok) throw new Error('Failed to fetch CI/CD workflow template');
     return res.json();
   },
+
+  async understandSystem(id: string, query: string): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/systemexplorer/understand`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ repositoryId: id, query }),
+    });
+    if (!res.ok) throw new Error('Failed to query Universal System Explorer');
+    return res.json();
+  },
+
+  async createAgentTask(id: string, prompt: string, type = 0): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/agent/tasks`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ repositoryId: id, prompt, type }),
+    });
+    if (!res.ok) throw new Error('Failed to launch Autonomous Agent Task');
+    return res.json();
+  },
+
+  async getAgentTasks(id: string): Promise<any[]> {
+    const res = await fetch(`${BASE_URL}/api/agent/tasks?repositoryId=${encodeURIComponent(id)}`);
+    if (!res.ok) throw new Error('Failed to fetch Agent Tasks');
+    return res.json();
+  },
+
+  async getAgentTask(taskId: string): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/agent/tasks/${taskId}`);
+    if (!res.ok) throw new Error('Failed to fetch Agent Task details');
+    return res.json();
+  },
+
+  async approveAgentTask(taskId: string, approved: boolean, userFeedback?: string): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/agent/tasks/${taskId}/approve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ approved, userFeedback: userFeedback || '' }),
+    });
+    if (!res.ok) throw new Error('Failed to process approval gate');
+    return res.json();
+  },
 };
