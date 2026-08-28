@@ -21,6 +21,9 @@ import { AiAssistantPanel } from './components/AiAssistantPanel';
 import { TopPillarNav, PillarId } from './components/TopPillarNav';
 import { SystemExplorerPanel } from './components/SystemExplorerPanel';
 import { AgentTaskCenterPanel } from './components/AgentTaskCenterPanel';
+import { RcaEnginePanel } from './components/RcaEnginePanel';
+import { EngineeringHealthRadarPanel } from './components/EngineeringHealthRadarPanel';
+import { MultiRepoWorkspacePanel } from './components/MultiRepoWorkspacePanel';
 import { TechDebtDoctorPanel } from './components/TechDebtDoctorPanel';
 import { ModernizationPanel } from './components/ModernizationPanel';
 import { CiCdExporterModal } from './components/CiCdExporterModal';
@@ -231,15 +234,15 @@ export const App: React.FC = () => {
             {activeSubTab === 'ai' && <AiAssistantPanel repoId={analysis.repository.id} />}
             {activeSubTab === 'runner' && <CodeRunnerPanel repoId={analysis.repository.id} />}
             {activeSubTab === 'modernize' && <ModernizationPanel repoId={analysis.repository.id} />}
-            {activeSubTab === 'rca' && <SystemExplorerPanel repoId={analysis.repository.id} />}
+            {activeSubTab === 'rca' && <RcaEnginePanel repoId={analysis.repository.id} />}
             {activeSubTab === 'telemetry' && <ApiExplorer apis={analysis.apis} />}
             {activeSubTab === 'impact' && <ImpactExplorer repoId={analysis.repository.id} />}
             {activeSubTab === 'diff' && <DiffExplorer repoId={analysis.repository.id} />}
             {activeSubTab === 'architecture' && <ArchitecturePanel architecture={architecture} />}
-            {activeSubTab === 'mesh' && <MeshExplorer />}
+            {activeSubTab === 'mesh' && <MultiRepoWorkspacePanel repoId={analysis.repository.id} />}
             {activeSubTab === 'erd' && <ErdExplorer repoId={analysis.repository.id} />}
             {activeSubTab === 'handbook' && <HandbookExporterView repoId={analysis.repository.id} />}
-            {activeSubTab === 'doctor' && <TechDebtDoctorPanel repoId={analysis.repository.id} />}
+            {activeSubTab === 'doctor' && <EngineeringHealthRadarPanel repoId={analysis.repository.id} />}
             {activeSubTab === 'security' && <SecurityExplorer audit={analysis.securityAudit} />}
             {activeSubTab === 'packages' && <PackageExplorer packages={analysis.packages} />}
           </div>

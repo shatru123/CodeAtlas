@@ -73,6 +73,11 @@ builder.Services.AddSingleton<IAgentExecutionStore, InMemoryAgentExecutionStore>
 builder.Services.AddSingleton<ISandboxManager, LocalSandboxManager>();
 builder.Services.AddTransient<IAgentOrchestrator, AgentOrchestratorService>();
 
+builder.Services.AddTransient<RcaEngineService>();
+builder.Services.AddTransient<EngineeringHealthService>();
+builder.Services.AddTransient<McpServerService>();
+builder.Services.AddTransient<CrossRepoExplorerService>();
+
 var app = builder.Build();
 
 app.UseCors("AllowAll");

@@ -311,4 +311,26 @@ export const apiService = {
     if (!res.ok) throw new Error('Failed to process approval gate');
     return res.json();
   },
+
+  async analyzeRca(id: string, stackTrace: string): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/investigate/rca`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ repositoryId: id, stackTrace }),
+    });
+    if (!res.ok) throw new Error('Failed to analyze Root Cause (RCA)');
+    return res.json();
+  },
+
+  async getHealthRadar(id: string): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/health/radar/${id}`);
+    if (!res.ok) throw new Error('Failed to fetch Engineering Health Radar');
+    return res.json();
+  },
+
+  async getCrossRepoTopology(): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/health/cross-repo`);
+    if (!res.ok) throw new Error('Failed to fetch Cross-Repository Topology');
+    return res.json();
+  },
 };
