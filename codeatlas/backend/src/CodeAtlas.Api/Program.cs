@@ -55,6 +55,28 @@ builder.Services.AddTransient<IGitMetadataExtractor, GitMetadataExtractor>();
 builder.Services.AddTransient<IRepositoryScanner, RepositoryScannerService>();
 builder.Services.AddTransient<GeminiAiService>();
 builder.Services.AddSingleton<VisitorTrackerService>();
+builder.Services.AddTransient<TechDebtDoctorService>();
+builder.Services.AddTransient<TelemetryMetricsService>();
+builder.Services.AddTransient<CodeModernizationService>();
+
+// Register Agent Tools & Orchestrator Services
+builder.Services.AddTransient<IAgentTool, SearchCodeTool>();
+builder.Services.AddTransient<IAgentTool, ReadFileTool>();
+builder.Services.AddTransient<IAgentTool, CalculateImpactTool>();
+builder.Services.AddTransient<IAgentTool, RunBuildTool>();
+builder.Services.AddTransient<IAgentTool, RunTestsTool>();
+builder.Services.AddTransient<IAgentTool, WriteFileTool>();
+builder.Services.AddTransient<IAgentTool, CreatePullRequestTool>();
+
+builder.Services.AddSingleton<IAgentToolRegistry, AgentToolRegistry>();
+builder.Services.AddSingleton<IAgentExecutionStore, InMemoryAgentExecutionStore>();
+builder.Services.AddSingleton<ISandboxManager, LocalSandboxManager>();
+builder.Services.AddTransient<IAgentOrchestrator, AgentOrchestratorService>();
+
+builder.Services.AddTransient<RcaEngineService>();
+builder.Services.AddTransient<EngineeringHealthService>();
+builder.Services.AddTransient<McpServerService>();
+builder.Services.AddTransient<CrossRepoExplorerService>();
 
 var app = builder.Build();
 

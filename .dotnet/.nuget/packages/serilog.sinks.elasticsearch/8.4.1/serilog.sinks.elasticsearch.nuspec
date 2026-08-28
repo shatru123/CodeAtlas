@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Serilog.Sinks.Elasticsearch</id>
+    <version>8.4.1</version>
+    <authors>Michiel van Oudheusden, Martijn Laarman, Mogens Heller Grabe, Serilog Contributors</authors>
+    <owners>Michiel van Oudheusden, Martijn Laarman, Mogens Heller Grabe, Serilog Contributors</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <projectUrl>https://github.com/serilog/serilog-sinks-elasticsearch</projectUrl>
+    <iconUrl>http://serilog.net/images/serilog-sink-nuget.png</iconUrl>
+    <description>Package Description</description>
+    <releaseNotes>https://github.com/serilog/serilog-sinks-elasticsearch/blob/master/CHANGES.md</releaseNotes>
+    <tags>serilog elasticsearch logging event collector</tags>
+    <repository type="git" url="https://github.com/serilog/serilog-sinks-elasticsearch" />
+    <dependencies>
+      <group targetFramework=".NETFramework4.6.1">
+        <dependency id="Serilog.Formatting.Elasticsearch" version="8.4.1" exclude="Build,Analyzers" />
+        <dependency id="Elasticsearch.Net" version="7.8.1" exclude="Build,Analyzers" />
+        <dependency id="Serilog" version="2.8.0" exclude="Build,Analyzers" />
+        <dependency id="Serilog.Formatting.Compact" version="1.0.0" exclude="Build,Analyzers" />
+        <dependency id="Serilog.Sinks.File" version="4.0.0" exclude="Build,Analyzers" />
+        <dependency id="Serilog.Sinks.PeriodicBatching" version="2.1.1" exclude="Build,Analyzers" />
+        <dependency id="System.Diagnostics.DiagnosticSource" version="4.5.1" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="Serilog.Formatting.Elasticsearch" version="8.4.1" exclude="Build,Analyzers" />
+        <dependency id="Elasticsearch.Net" version="7.8.1" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.CSharp" version="4.6.0" exclude="Build,Analyzers" />
+        <dependency id="Serilog" version="2.8.0" exclude="Build,Analyzers" />
+        <dependency id="Serilog.Formatting.Compact" version="1.0.0" exclude="Build,Analyzers" />
+        <dependency id="Serilog.Sinks.File" version="4.0.0" exclude="Build,Analyzers" />
+        <dependency id="Serilog.Sinks.PeriodicBatching" version="2.1.1" exclude="Build,Analyzers" />
+        <dependency id="System.Diagnostics.DiagnosticSource" version="4.5.1" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>

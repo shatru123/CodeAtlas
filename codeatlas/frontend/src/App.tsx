@@ -1,14 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { apiService } from './services/apiService';
-import {
-  RepositoryInfo,
-  AnalysisResult,
-  CodeEntity,
-  ArchitectureSummary,
-} from './types/api';
-
+import React, { useEffect, useState, useRef } from 'react';
 import { Header } from './components/Header';
-import { Sidebar } from './components/Sidebar';
 import { GraphExplorer } from './components/GraphExplorer';
 import { FlowExplorer } from './components/FlowExplorer';
 import { ApiExplorer } from './components/ApiExplorer';
@@ -24,13 +15,61 @@ import { ImpactExplorer } from './components/ImpactExplorer';
 import { DiffExplorer } from './components/DiffExplorer';
 import { ErdExplorer } from './components/ErdExplorer';
 import { InfrastructureExplorer } from './components/InfrastructureExplorer';
-import { AiAssistantPanel } from './components/AiAssistantPanel';
-import { CodeRunnerPanel } from './components/CodeRunnerPanel';
 import { HandbookExporterView } from './components/HandbookExporterView';
-import { AgenticPlatformPanel } from './components/AgenticPlatformPanel';
+import { CodeRunnerPanel } from './components/CodeRunnerPanel';
+import { AiAssistantPanel } from './components/AiAssistantPanel';
+import { TopPillarNav, PillarId } from './components/TopPillarNav';
+import { SystemExplorerPanel } from './components/SystemExplorerPanel';
+import { AgentTaskCenterPanel } from './components/AgentTaskCenterPanel';
+import { RcaEnginePanel } from './components/RcaEnginePanel';
+import { EngineeringHealthRadarPanel } from './components/EngineeringHealthRadarPanel';
+import { MultiRepoWorkspacePanel } from './components/MultiRepoWorkspacePanel';
+import { OnboardingTourModal } from './components/OnboardingTourModal';
+import { CommandPaletteModal } from './components/CommandPaletteModal';
+import { TechDebtDoctorPanel } from './components/TechDebtDoctorPanel';
+import { ModernizationPanel } from './components/ModernizationPanel';
+import { CiCdExporterModal } from './components/CiCdExporterModal';
 import { AdminAnalyticsModal } from './components/AdminAnalyticsModal';
-
-import { Sparkles, AlertCircle } from 'lucide-react';
+import { apiService } from './services/apiService';
+import {
+  RepositoryInfo,
+  AnalysisResult,
+  CodeEntity,
+  ArchitectureSummary,
+} from './types/api';
+import {
+  Network,
+  Globe,
+  Database,
+  Radio,
+  Shield,
+  GitCommit,
+  Package,
+  Zap,
+  Sparkles,
+  FolderGit2,
+  ShieldAlert,
+  Share2,
+  GitCompare,
+  Box,
+  BookOpen,
+  Table,
+  PlayCircle,
+  Phone,
+  Mail,
+  Github,
+  Linkedin,
+  Heart,
+  User,
+  ChevronLeft,
+  ChevronRight,
+  Bot,
+  Lock,
+  Stethoscope,
+  Rocket,
+  Workflow,
+  AlertCircle,
+} from 'lucide-react';
 
 export const App: React.FC = () => {
   const [repositories, setRepositories] = useState<RepositoryInfo[]>([]);
@@ -42,16 +81,14 @@ export const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const [isScanModalOpen, setIsScanModalOpen] = useState<boolean>(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
-  const [sidebarWidth, setSidebarWidth] = useState<number>(260);
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState<boolean>(false);
+  const [isCiCdModalOpen, setIsCiCdModalOpen] = useState<boolean>(false);
+  const [isTourOpen, setIsTourOpen] = useState<boolean>(false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState<boolean>(false);
 
   const [selectedEntity, setSelectedEntity] = useState<CodeEntity | null>(null);
-  const [activeTab, setActiveTab] = useState<
-    'agentic' | 'ai' | 'graph' | 'runner' | 'flows' | 'apis' | 'databases' | 'events' | 'packages' | 'architecture' | 'security' | 'mesh' | 'impact' | 'diff' | 'erd' | 'infra' | 'handbook'
-  >('agentic');
-
-  // Admin Analytics Modal state & Secret Key trigger (Ctrl+Shift+A)
-  const [isAdminModalOpen, setIsAdminModalOpen] = useState<boolean>(false);
+  const [activePillar, setActivePillar] = useState<PillarId>('understand');
+  const [activeSubTab, setActiveSubTab] = useState<string>('system_explorer');
 
   // Load Repositories on startup
   useEffect(() => {
@@ -59,13 +96,31 @@ export const App: React.FC = () => {
     apiService.recordVisit();
   }, []);
 
-  // Keyboard shortcut listener for Admin Analytics Modal (Ctrl+Shift+A)
+  // Global Keyboard shortcuts listener (⌘K, /, Ctrl+Shift+A, G G, G A, G T)
   useEffect(() => {
+    let lastKey = '';
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
+      // ⌘K or Ctrl+K or / -> Open Command Palette
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsCommandPaletteOpen((prev) => !prev);
+      } else if (e.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        setIsCommandPaletteOpen(true);
+      } else if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
         e.preventDefault();
         setIsAdminModalOpen(true);
+      } else if (e.key.toLowerCase() === 'g' && lastKey === 'g') {
+        setActivePillar('understand');
+        setActiveSubTab('graph');
+      } else if (e.key.toLowerCase() === 'a' && lastKey === 'g') {
+        setActivePillar('architecture');
+        setActiveSubTab('architecture');
+      } else if (e.key.toLowerCase() === 't' && lastKey === 'g') {
+        setActivePillar('build');
+        setActiveSubTab('agent_tasks');
       }
+      lastKey = e.key.toLowerCase();
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -139,103 +194,83 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="app-shell">
-      {/* Left Collapsible & Draggable Resizable Sidebar Navigation */}
-      <Sidebar
-        activeTab={activeTab}
-        setActiveTab={(tab: any) => setActiveTab(tab)}
-        analysis={analysis}
-        repositoriesCount={repositories.length}
-        architecture={architecture}
-        isCollapsed={isSidebarCollapsed}
-        onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-        width={sidebarWidth}
-        onWidthChange={setSidebarWidth}
+    <div style={{ minHeight: '100vh', background: 'var(--bg-dark)', color: 'var(--text-main)', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+      <Header
+        repositories={repositories}
+        activeRepo={activeRepo}
+        onSelectRepo={handleSelectRepo}
+        onOpenScanModal={() => setIsScanModalOpen(true)}
+        onRefresh={fetchRepositories}
+        isLoading={isLoading}
+        activeTabLabel="CodeAtlas Workspace"
+        isSidebarCollapsed={false}
+        onToggleSidebar={() => {}}
+        onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+        onOpenTour={() => setIsTourOpen(true)}
       />
 
-      {/* Main Workspace Area with Dynamic Margin Left */}
-      <div
-        className={`app-main ${isSidebarCollapsed ? 'collapsed' : ''}`}
-        style={{ marginLeft: isSidebarCollapsed ? '72px' : `${sidebarWidth}px` }}
-      >
-        {/* Sticky App Header Bar */}
-        <Header
-          repositories={repositories}
-          activeRepo={activeRepo}
-          onSelectRepo={handleSelectRepo}
-          onOpenScanModal={() => setIsScanModalOpen(true)}
-          onRefresh={fetchRepositories}
-          isLoading={isLoading}
-          activeTabLabel={tabLabels[activeTab] || 'Workspace'}
-          isSidebarCollapsed={isSidebarCollapsed}
-          onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-        />
-
-        {/* Workspace Content Body */}
-        <div className="app-content">
-          {/* Error Alert Message */}
-          {error && (
-            <div
-              className="glass-panel"
-              style={{
-                padding: '1rem 1.25rem',
-                borderLeft: '4px solid var(--accent-rose)',
-                background: 'rgba(244, 63, 94, 0.1)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.75rem',
-                color: 'white',
-              }}
+      <div style={{ flex: 1, marginTop: '1.5rem' }}>
+        {/* Error Alert Message */}
+        {error && (
+          <div
+            className="glass-panel"
+            style={{
+              padding: '1rem 1.25rem',
+              borderLeft: '4px solid var(--accent-rose)',
+              background: 'rgba(244, 63, 94, 0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.75rem',
+              color: 'white',
+              marginBottom: '1rem',
+            }}
+          >
+            <AlertCircle size={20} color="var(--accent-rose)" style={{ flexShrink: 0 }} />
+            <div style={{ flex: 1, fontSize: '0.875rem' }}>{error}</div>
+            <button
+              onClick={() => setError(null)}
+              style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '0.8rem' }}
             >
-              <AlertCircle size={20} color="var(--accent-rose)" style={{ flexShrink: 0 }} />
-              <div style={{ flex: 1, fontSize: '0.875rem' }}>{error}</div>
-              <button
-                onClick={() => setError(null)}
-                style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '0.8rem' }}
-              >
-                Dismiss
-              </button>
-            </div>
-          )}
+              Dismiss
+            </button>
+          </div>
+        )}
 
-          {/* Active View Content */}
-          {activeTab === 'agentic' && (
-            <AgenticPlatformPanel
-              activeRepoUrl={activeRepo?.rootPath || (activeRepo?.name ? `https://github.com/shatru123/${activeRepo.name}` : undefined)}
-              activeBranch={activeRepo?.branch || 'main'}
+        {/* CodeAtlas 3.0 Flagship 5-Pillar Navigation Header & View Switcher */}
+        {analysis && (
+          <div>
+            <TopPillarNav
+              activePillar={activePillar}
+              onSelectPillar={setActivePillar}
+              activeSubTab={activeSubTab}
+              onSelectSubTab={setActiveSubTab}
             />
-          )}
-          {activeTab === 'ai' && (analysis ? <AiAssistantPanel repoId={analysis.repository.id} /> : null)}
-          {activeTab === 'graph' && (analysis ? <GraphExplorer analysis={analysis} onSelectEntity={setSelectedEntity} /> : null)}
-          {activeTab === 'runner' && (analysis ? <CodeRunnerPanel repoId={analysis.repository.id} /> : null)}
-          {activeTab === 'flows' && (analysis ? <FlowExplorer flows={analysis.flows} /> : null)}
-          {activeTab === 'apis' && (analysis ? <ApiExplorer apis={analysis.apis} /> : null)}
-          {activeTab === 'databases' && (analysis ? <DatabaseExplorer databases={analysis.databases} /> : null)}
-          {activeTab === 'events' && (analysis ? <EventExplorer events={analysis.events} /> : null)}
-          {activeTab === 'packages' && (analysis ? <PackageExplorer packages={analysis.packages} /> : null)}
-          {activeTab === 'architecture' && <ArchitecturePanel architecture={architecture} />}
-          {activeTab === 'security' && (analysis ? <SecurityExplorer audit={analysis.securityAudit} /> : null)}
-          {activeTab === 'mesh' && <MeshExplorer />}
-          {activeTab === 'impact' && (analysis ? <ImpactExplorer repoId={analysis.repository.id} /> : null)}
-          {activeTab === 'diff' && (analysis ? <DiffExplorer repoId={analysis.repository.id} /> : null)}
-          {activeTab === 'erd' && (analysis ? <ErdExplorer repoId={analysis.repository.id} /> : null)}
-          {activeTab === 'infra' && (analysis ? <InfrastructureExplorer repoId={analysis.repository.id} /> : null)}
-          {activeTab === 'handbook' && (analysis ? <HandbookExporterView repoId={analysis.repository.id} /> : null)}
 
-          {/* Fallback Onboarding State when no repository knowledge graph is loaded */}
-          {!analysis && activeTab !== 'agentic' && (
-            <div className="glass-panel" style={{ padding: '3.5rem', textAlign: 'center' }}>
-              <Sparkles size={42} color="var(--accent-purple)" style={{ marginBottom: '1rem' }} />
-              <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.5rem' }}>No Repository Knowledge Graph Loaded</h2>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1.25rem', maxWidth: '500px', margin: '0 auto 1.25rem' }}>
-                Connect a repository to extract AST knowledge graphs, REST APIs, DB flows, and architecture maps — or switch to the <strong>Agentic AI Platform</strong> tab to execute autonomous coding tasks.
-              </p>
-              <button onClick={() => setIsScanModalOpen(true)} className="btn-primary" style={{ padding: '0.8rem 1.75rem', fontSize: '0.95rem' }}>
-                Connect Repository Knowledge Graph
-              </button>
-            </div>
-          )}
-        </div>
+            {/* Active View Renderer */}
+            {activeSubTab === 'system_explorer' && <SystemExplorerPanel repoId={analysis.repository.id} />}
+            {activeSubTab === 'agent_tasks' && <AgentTaskCenterPanel repoId={analysis.repository.id} />}
+            {activeSubTab === 'graph' && <GraphExplorer analysis={analysis} onSelectEntity={setSelectedEntity} />}
+            {activeSubTab === 'apis' && <ApiExplorer apis={analysis.apis} />}
+            {activeSubTab === 'databases' && <DatabaseExplorer databases={analysis.databases} />}
+            {activeSubTab === 'events' && <EventExplorer events={analysis.events} />}
+            {activeSubTab === 'flows' && <FlowExplorer flows={analysis.flows} />}
+            {activeSubTab === 'infra' && <InfrastructureExplorer repoId={analysis.repository.id} />}
+            {activeSubTab === 'ai' && <AiAssistantPanel repoId={analysis.repository.id} />}
+            {activeSubTab === 'runner' && <CodeRunnerPanel repoId={analysis.repository.id} />}
+            {activeSubTab === 'modernize' && <ModernizationPanel repoId={analysis.repository.id} />}
+            {activeSubTab === 'rca' && <RcaEnginePanel repoId={analysis.repository.id} />}
+            {activeSubTab === 'telemetry' && <ApiExplorer apis={analysis.apis} />}
+            {activeSubTab === 'impact' && <ImpactExplorer repoId={analysis.repository.id} />}
+            {activeSubTab === 'diff' && <DiffExplorer repoId={analysis.repository.id} />}
+            {activeSubTab === 'architecture' && <ArchitecturePanel architecture={architecture} />}
+            {activeSubTab === 'mesh' && <MultiRepoWorkspacePanel repoId={analysis.repository.id} />}
+            {activeSubTab === 'erd' && <ErdExplorer repoId={analysis.repository.id} />}
+            {activeSubTab === 'handbook' && <HandbookExporterView repoId={analysis.repository.id} />}
+            {activeSubTab === 'doctor' && <EngineeringHealthRadarPanel repoId={analysis.repository.id} />}
+            {activeSubTab === 'security' && <SecurityExplorer audit={analysis.securityAudit} />}
+            {activeSubTab === 'packages' && <PackageExplorer packages={analysis.packages} />}
+          </div>
+        )}
       </div>
 
       {/* Entity Drawer Inspector */}
@@ -257,6 +292,35 @@ export const App: React.FC = () => {
         isOpen={isAdminModalOpen}
         onClose={() => setIsAdminModalOpen(false)}
       />
+
+      {/* Product Guided Onboarding Tour Modal */}
+      <OnboardingTourModal
+        isOpen={isTourOpen}
+        onClose={() => setIsTourOpen(false)}
+        onSelectTab={(pillar, subTab) => {
+          setActivePillar(pillar as any);
+          setActiveSubTab(subTab);
+        }}
+      />
+
+      {/* Global Command Palette Modal (⌘K) */}
+      <CommandPaletteModal
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+        onSelectAction={(pillar, subTab) => {
+          setActivePillar(pillar as any);
+          setActiveSubTab(subTab);
+        }}
+      />
+
+      {/* CI/CD GitHub Action Workflow Exporter Modal */}
+      {analysis && (
+        <CiCdExporterModal
+          isOpen={isCiCdModalOpen}
+          repoId={analysis.repository.id}
+          onClose={() => setIsCiCdModalOpen(false)}
+        />
+      )}
     </div>
   );
 };

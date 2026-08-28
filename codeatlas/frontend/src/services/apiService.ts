@@ -235,4 +235,102 @@ export const apiService = {
     }
     return res.json();
   },
+
+  async getDoctorDiagnosis(id: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/${id}/doctor`);
+    if (!res.ok) throw new Error('Failed to fetch Tech Debt Doctor diagnosis');
+    return res.json();
+  },
+
+  async generateDoctorRefactor(id: string, entityName: string, apiKey?: string): Promise<{ diff: string }> {
+    const res = await fetch(`${API_BASE}/${id}/doctor/refactor`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ entityName, apiKey }),
+    });
+    if (!res.ok) throw new Error('Failed to generate AI refactoring diff');
+    return res.json();
+  },
+
+  async getTelemetry(id: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/${id}/telemetry`);
+    if (!res.ok) throw new Error('Failed to fetch OpenTelemetry metrics');
+    return res.json();
+  },
+
+  async getModernization(id: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/${id}/modernize`);
+    if (!res.ok) throw new Error('Failed to fetch Modernization report');
+    return res.json();
+  },
+
+  async getCiWorkflow(id: string): Promise<{ yamlFileName: string; content: string }> {
+    const res = await fetch(`${API_BASE}/${id}/ci-workflow`);
+    if (!res.ok) throw new Error('Failed to fetch CI/CD workflow template');
+    return res.json();
+  },
+
+  async understandSystem(id: string, query: string): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/systemexplorer/understand`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ repositoryId: id, query }),
+    });
+    if (!res.ok) throw new Error('Failed to query Universal System Explorer');
+    return res.json();
+  },
+
+  async createAgentTask(id: string, prompt: string, type = 0): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/agent/tasks`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ repositoryId: id, prompt, type }),
+    });
+    if (!res.ok) throw new Error('Failed to launch Autonomous Agent Task');
+    return res.json();
+  },
+
+  async getAgentTasks(id: string): Promise<any[]> {
+    const res = await fetch(`${BASE_URL}/api/agent/tasks?repositoryId=${encodeURIComponent(id)}`);
+    if (!res.ok) throw new Error('Failed to fetch Agent Tasks');
+    return res.json();
+  },
+
+  async getAgentTask(taskId: string): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/agent/tasks/${taskId}`);
+    if (!res.ok) throw new Error('Failed to fetch Agent Task details');
+    return res.json();
+  },
+
+  async approveAgentTask(taskId: string, approved: boolean, userFeedback?: string): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/agent/tasks/${taskId}/approve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ approved, userFeedback: userFeedback || '' }),
+    });
+    if (!res.ok) throw new Error('Failed to process approval gate');
+    return res.json();
+  },
+
+  async analyzeRca(id: string, stackTrace: string): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/investigate/rca`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ repositoryId: id, stackTrace }),
+    });
+    if (!res.ok) throw new Error('Failed to analyze Root Cause (RCA)');
+    return res.json();
+  },
+
+  async getHealthRadar(id: string): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/health/radar/${id}`);
+    if (!res.ok) throw new Error('Failed to fetch Engineering Health Radar');
+    return res.json();
+  },
+
+  async getCrossRepoTopology(): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/health/cross-repo`);
+    if (!res.ok) throw new Error('Failed to fetch Cross-Repository Topology');
+    return res.json();
+  },
 };

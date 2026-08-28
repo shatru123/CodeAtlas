@@ -12,6 +12,8 @@ interface HeaderProps {
   activeTabLabel: string;
   isSidebarCollapsed: boolean;
   onToggleSidebar: () => void;
+  onOpenCommandPalette: () => void;
+  onOpenTour: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -24,6 +26,8 @@ export const Header: React.FC<HeaderProps> = ({
   activeTabLabel,
   isSidebarCollapsed,
   onToggleSidebar,
+  onOpenCommandPalette,
+  onOpenTour,
 }) => {
   return (
     <header
@@ -73,8 +77,40 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Right: Actions & Repository Switcher */}
+      {/* Right: Search (⌘K), Tour, Actions & Repository Switcher */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+        {/* Command Palette Trigger Button */}
+        <button
+          onClick={onOpenCommandPalette}
+          className="glass-panel"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.65rem',
+            padding: '0.4rem 0.85rem',
+            border: '1px solid var(--accent-indigo)',
+            background: 'rgba(99, 102, 241, 0.12)',
+            color: 'white',
+            borderRadius: '8px',
+            fontSize: '0.825rem',
+            cursor: 'pointer',
+          }}
+        >
+          <span style={{ fontWeight: '700' }}>🔍 Quick Search</span>
+          <span style={{ background: 'rgba(255,255,255,0.15)', padding: '0.1rem 0.4rem', borderRadius: '4px', fontSize: '0.7rem', fontFamily: 'var(--font-code)' }}>
+            ⌘K
+          </span>
+        </button>
+
+        <button
+          onClick={onOpenTour}
+          className="btn-secondary"
+          style={{ fontSize: '0.825rem', padding: '0.4rem 0.75rem' }}
+          title="Product Guided Tour"
+        >
+          <span>💡 Guided Tour</span>
+        </button>
+
         {repositories.length > 0 && (
           <div
             style={{
