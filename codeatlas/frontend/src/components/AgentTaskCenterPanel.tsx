@@ -15,6 +15,10 @@ export const AgentTaskCenterPanel: React.FC<AgentTaskCenterPanelProps> = ({ repo
 
   useEffect(() => {
     fetchTasks();
+    const interval = setInterval(() => {
+      fetchTasks();
+    }, 2500);
+    return () => clearInterval(interval);
   }, [repoId]);
 
   const fetchTasks = async () => {
