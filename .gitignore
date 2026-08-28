@@ -19,3 +19,4 @@ workspaces/
 *.userprefs
 .vs/
 .history/
+visitors.json
