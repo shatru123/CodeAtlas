@@ -77,6 +77,7 @@ builder.Services.AddTransient<RcaEngineService>();
 builder.Services.AddTransient<EngineeringHealthService>();
 builder.Services.AddTransient<McpServerService>();
 builder.Services.AddTransient<CrossRepoExplorerService>();
+builder.Services.AddTransient<UiPreviewGeneratorService>();
 
 var app = builder.Build();
 

@@ -24,6 +24,7 @@ export const TopPillarNav: React.FC<TopPillarNavProps> = ({
       description: 'Universal System Explorer, Knowledge Graph, Call Graphs & Traces',
       subTabs: [
         { id: 'system_explorer', label: 'Universal System Explorer' },
+        { id: 'ui_preview', label: 'Live UI Sandbox & Mock Data' },
         { id: 'graph', label: 'Knowledge Graph' },
         { id: 'apis', label: 'REST APIs Catalog' },
         { id: 'databases', label: 'Database & ORM' },

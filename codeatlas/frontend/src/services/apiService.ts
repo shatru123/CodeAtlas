@@ -333,4 +333,20 @@ export const apiService = {
     if (!res.ok) throw new Error('Failed to fetch Cross-Repository Topology');
     return res.json();
   },
+
+  async getUiPreviewComponents(id: string): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/uipreview/${id}/components`);
+    if (!res.ok) throw new Error('Failed to fetch UI Preview components');
+    return res.json();
+  },
+
+  async generateMockDataOnTheFly(id: string, componentName: string): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/uipreview/${id}/generate-mock-data`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ componentName }),
+    });
+    if (!res.ok) throw new Error('Failed to generate synthetic mock data on the fly');
+    return res.json();
+  },
 };

@@ -24,6 +24,7 @@ import { AgentTaskCenterPanel } from './components/AgentTaskCenterPanel';
 import { RcaEnginePanel } from './components/RcaEnginePanel';
 import { EngineeringHealthRadarPanel } from './components/EngineeringHealthRadarPanel';
 import { MultiRepoWorkspacePanel } from './components/MultiRepoWorkspacePanel';
+import { UiPreviewSandboxPanel } from './components/UiPreviewSandboxPanel';
 import { OnboardingTourModal } from './components/OnboardingTourModal';
 import { CommandPaletteModal } from './components/CommandPaletteModal';
 import { TechDebtDoctorPanel } from './components/TechDebtDoctorPanel';
@@ -248,6 +249,7 @@ export const App: React.FC = () => {
 
             {/* Active View Renderer */}
             {activeSubTab === 'system_explorer' && <SystemExplorerPanel repoId={analysis.repository.id} />}
+            {activeSubTab === 'ui_preview' && <UiPreviewSandboxPanel repoId={analysis.repository.id} />}
             {activeSubTab === 'agent_tasks' && <AgentTaskCenterPanel repoId={analysis.repository.id} />}
             {activeSubTab === 'graph' && <GraphExplorer analysis={analysis} onSelectEntity={setSelectedEntity} />}
             {activeSubTab === 'apis' && <ApiExplorer apis={analysis.apis} />}
