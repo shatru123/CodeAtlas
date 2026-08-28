@@ -24,6 +24,8 @@ import { AgentTaskCenterPanel } from './components/AgentTaskCenterPanel';
 import { RcaEnginePanel } from './components/RcaEnginePanel';
 import { EngineeringHealthRadarPanel } from './components/EngineeringHealthRadarPanel';
 import { MultiRepoWorkspacePanel } from './components/MultiRepoWorkspacePanel';
+import { OnboardingTourModal } from './components/OnboardingTourModal';
+import { CommandPaletteModal } from './components/CommandPaletteModal';
 import { TechDebtDoctorPanel } from './components/TechDebtDoctorPanel';
 import { ModernizationPanel } from './components/ModernizationPanel';
 import { CiCdExporterModal } from './components/CiCdExporterModal';
@@ -81,6 +83,8 @@ export const App: React.FC = () => {
   const [isScanModalOpen, setIsScanModalOpen] = useState<boolean>(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState<boolean>(false);
   const [isCiCdModalOpen, setIsCiCdModalOpen] = useState<boolean>(false);
+  const [isTourOpen, setIsTourOpen] = useState<boolean>(false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState<boolean>(false);
 
   const [selectedEntity, setSelectedEntity] = useState<CodeEntity | null>(null);
   const [activePillar, setActivePillar] = useState<PillarId>('understand');
@@ -92,13 +96,31 @@ export const App: React.FC = () => {
     apiService.recordVisit();
   }, []);
 
-  // Keyboard shortcut listener for Admin Analytics Modal (Ctrl+Shift+A)
+  // Global Keyboard shortcuts listener (⌘K, /, Ctrl+Shift+A, G G, G A, G T)
   useEffect(() => {
+    let lastKey = '';
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
+      // ⌘K or Ctrl+K or / -> Open Command Palette
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsCommandPaletteOpen((prev) => !prev);
+      } else if (e.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        setIsCommandPaletteOpen(true);
+      } else if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
         e.preventDefault();
         setIsAdminModalOpen(true);
+      } else if (e.key.toLowerCase() === 'g' && lastKey === 'g') {
+        setActivePillar('understand');
+        setActiveSubTab('graph');
+      } else if (e.key.toLowerCase() === 'a' && lastKey === 'g') {
+        setActivePillar('architecture');
+        setActiveSubTab('architecture');
+      } else if (e.key.toLowerCase() === 't' && lastKey === 'g') {
+        setActivePillar('build');
+        setActiveSubTab('agent_tasks');
       }
+      lastKey = e.key.toLowerCase();
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -183,6 +205,8 @@ export const App: React.FC = () => {
         activeTabLabel="CodeAtlas Workspace"
         isSidebarCollapsed={false}
         onToggleSidebar={() => {}}
+        onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+        onOpenTour={() => setIsTourOpen(true)}
       />
 
       <div style={{ flex: 1, marginTop: '1.5rem' }}>
@@ -267,6 +291,26 @@ export const App: React.FC = () => {
       <AdminAnalyticsModal
         isOpen={isAdminModalOpen}
         onClose={() => setIsAdminModalOpen(false)}
+      />
+
+      {/* Product Guided Onboarding Tour Modal */}
+      <OnboardingTourModal
+        isOpen={isTourOpen}
+        onClose={() => setIsTourOpen(false)}
+        onSelectTab={(pillar, subTab) => {
+          setActivePillar(pillar as any);
+          setActiveSubTab(subTab);
+        }}
+      />
+
+      {/* Global Command Palette Modal (⌘K) */}
+      <CommandPaletteModal
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+        onSelectAction={(pillar, subTab) => {
+          setActivePillar(pillar as any);
+          setActiveSubTab(subTab);
+        }}
       />
 
       {/* CI/CD GitHub Action Workflow Exporter Modal */}

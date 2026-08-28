@@ -11,10 +11,10 @@
     "Isp": "Local Host Loopback",
     "UserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
     "DeviceType": "Desktop",
-    "Referrer": "",
+    "Referrer": "http://localhost:5173/",
     "Email": "",
-    "Timestamp": "2026-08-28T15:14:51.078478Z",
-    "VisitCount": 7,
+    "Timestamp": "2026-08-28T15:20:36.423267Z",
+    "VisitCount": 26,
     "IsUnique": true
   }
 ]
