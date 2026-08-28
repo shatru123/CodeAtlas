@@ -1,0 +1,1 @@
+{"ssh.net":[{"url":"https://github.com/advisories/GHSA-q939-rpr3-3284","severity":2,"versions":"(, 2025.1.0]"}],"sipsorcery":[{"url":"https://github.com/advisories/GHSA-jwjp-4649-v8jp","severity":2,"versions":"(, 10.0.13]"},{"url":"https://github.com/advisories/GHSA-pfvm-w89x-94jw","severity":2,"versions":"[10.0.5, 10.0.13]"}]}

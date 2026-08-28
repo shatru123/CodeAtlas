@@ -55,6 +55,9 @@ builder.Services.AddTransient<IGitMetadataExtractor, GitMetadataExtractor>();
 builder.Services.AddTransient<IRepositoryScanner, RepositoryScannerService>();
 builder.Services.AddTransient<GeminiAiService>();
 builder.Services.AddSingleton<VisitorTrackerService>();
+builder.Services.AddTransient<TechDebtDoctorService>();
+builder.Services.AddTransient<TelemetryMetricsService>();
+builder.Services.AddTransient<CodeModernizationService>();
 
 var app = builder.Build();
 

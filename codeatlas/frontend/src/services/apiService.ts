@@ -235,4 +235,38 @@ export const apiService = {
     }
     return res.json();
   },
+
+  async getDoctorDiagnosis(id: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/${id}/doctor`);
+    if (!res.ok) throw new Error('Failed to fetch Tech Debt Doctor diagnosis');
+    return res.json();
+  },
+
+  async generateDoctorRefactor(id: string, entityName: string, apiKey?: string): Promise<{ diff: string }> {
+    const res = await fetch(`${API_BASE}/${id}/doctor/refactor`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ entityName, apiKey }),
+    });
+    if (!res.ok) throw new Error('Failed to generate AI refactoring diff');
+    return res.json();
+  },
+
+  async getTelemetry(id: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/${id}/telemetry`);
+    if (!res.ok) throw new Error('Failed to fetch OpenTelemetry metrics');
+    return res.json();
+  },
+
+  async getModernization(id: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/${id}/modernize`);
+    if (!res.ok) throw new Error('Failed to fetch Modernization report');
+    return res.json();
+  },
+
+  async getCiWorkflow(id: string): Promise<{ yamlFileName: string; content: string }> {
+    const res = await fetch(`${API_BASE}/${id}/ci-workflow`);
+    if (!res.ok) throw new Error('Failed to fetch CI/CD workflow template');
+    return res.json();
+  },
 };
