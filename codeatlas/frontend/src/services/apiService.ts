@@ -349,4 +349,49 @@ export const apiService = {
     if (!res.ok) throw new Error('Failed to generate synthetic mock data on the fly');
     return res.json();
   },
+
+  async getTestLabSuites(id: string): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/testlab/${id}`);
+    if (!res.ok) throw new Error('Failed to fetch Test Lab suites');
+    return res.json();
+  },
+
+  async generateTestSuite(id: string, className: string): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/testlab/${id}/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ className }),
+    });
+    if (!res.ok) throw new Error('Failed to generate test suite');
+    return res.json();
+  },
+
+  async getArchitectureRulesReport(id: string): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/architecturerules/${id}`);
+    if (!res.ok) throw new Error('Failed to fetch Architecture Rules report');
+    return res.json();
+  },
+
+  async getSupplyChainSecurityAudit(id: string): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/supplychain/${id}`);
+    if (!res.ok) throw new Error('Failed to fetch Supply Chain Security audit');
+    return res.json();
+  },
+
+  async parseTelemetryLog(id: string, rawLog: string): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/telemetry/${id}/parse-log`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rawLog }),
+    });
+    if (!res.ok) throw new Error('Failed to parse telemetry log');
+    return res.json();
+  },
+
+  async exportCiCdPipeline(id: string, platform?: string): Promise<any> {
+    const url = platform ? `${BASE_URL}/api/cicd/${id}/export?platform=${encodeURIComponent(platform)}` : `${BASE_URL}/api/cicd/${id}/export`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to export CI/CD pipeline');
+    return res.json();
+  },
 };

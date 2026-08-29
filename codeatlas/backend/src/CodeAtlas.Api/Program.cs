@@ -78,6 +78,11 @@ builder.Services.AddTransient<EngineeringHealthService>();
 builder.Services.AddTransient<McpServerService>();
 builder.Services.AddTransient<CrossRepoExplorerService>();
 builder.Services.AddTransient<UiPreviewGeneratorService>();
+builder.Services.AddTransient<TestGeneratorService>();
+builder.Services.AddTransient<ArchitectureRuleEngineService>();
+builder.Services.AddTransient<SupplyChainSecurityService>();
+builder.Services.AddTransient<TelemetryLogParserService>();
+builder.Services.AddTransient<CiCdPipelineGeneratorService>();
 
 var app = builder.Build();
 

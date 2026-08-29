@@ -3,12 +3,14 @@ import { HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface ContextualHelpBoxProps {
   title: string;
-  summary: string;
+  summary?: string;
+  description?: string;
   details?: string;
 }
 
-export const ContextualHelpBox: React.FC<ContextualHelpBoxProps> = ({ title, summary, details }) => {
+export const ContextualHelpBox: React.FC<ContextualHelpBoxProps> = ({ title, summary, description, details }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const text = summary || description || '';
 
   return (
     <div style={{ background: 'rgba(99, 102, 241, 0.08)', border: '1px solid rgba(99, 102, 241, 0.25)', borderRadius: '10px', padding: '0.85rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
@@ -25,7 +27,7 @@ export const ContextualHelpBox: React.FC<ContextualHelpBoxProps> = ({ title, sum
         )}
       </div>
 
-      <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: 0, lineHeight: '1.5' }}>{summary}</p>
+      <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: 0, lineHeight: '1.5' }}>{text}</p>
 
       {isExpanded && details && (
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '0.5rem', marginTop: '0.25rem', fontSize: '0.8rem', color: 'var(--accent-cyan)', lineHeight: '1.5' }}>
