@@ -83,6 +83,11 @@ builder.Services.AddTransient<ArchitectureRuleEngineService>();
 builder.Services.AddTransient<SupplyChainSecurityService>();
 builder.Services.AddTransient<TelemetryLogParserService>();
 builder.Services.AddTransient<CiCdPipelineGeneratorService>();
+builder.Services.AddTransient<AiCodeReviewerService>();
+builder.Services.AddTransient<ApiBreakingChangeDetectorService>();
+builder.Services.AddTransient<CloudFinOpsEstimatorService>();
+builder.Services.AddTransient<ApiPlaygroundService>();
+builder.Services.AddTransient<VisualArchBuilderService>();
 
 var app = builder.Build();
 

@@ -29,6 +29,11 @@ import { TestLabPanel } from './components/TestLabPanel';
 import { ArchitectureCompliancePanel } from './components/ArchitectureCompliancePanel';
 import { SupplyChainSecurityPanel } from './components/SupplyChainSecurityPanel';
 import { TelemetryIncidentStudioPanel } from './components/TelemetryIncidentStudioPanel';
+import { AiCodeReviewerPanel } from './components/AiCodeReviewerPanel';
+import { ApiGuardPanel } from './components/ApiGuardPanel';
+import { CloudFinOpsPanel } from './components/CloudFinOpsPanel';
+import { ApiPlaygroundPanel } from './components/ApiPlaygroundPanel';
+import { VisualArchBuilderPanel } from './components/VisualArchBuilderPanel';
 import { OnboardingTourModal } from './components/OnboardingTourModal';
 import { CommandPaletteModal } from './components/CommandPaletteModal';
 import { TechDebtDoctorPanel } from './components/TechDebtDoctorPanel';
@@ -254,6 +259,8 @@ export const App: React.FC = () => {
             {/* Active View Renderer */}
             {activeSubTab === 'system_explorer' && <SystemExplorerPanel repoId={analysis.repository.id} />}
             {activeSubTab === 'ui_preview' && <UiPreviewSandboxPanel repoId={analysis.repository.id} />}
+            {activeSubTab === 'api_playground' && <ApiPlaygroundPanel repoId={analysis.repository.id} />}
+            {activeSubTab === 'api_guard' && <ApiGuardPanel repoId={analysis.repository.id} />}
             {activeSubTab === 'agent_tasks' && <AgentTaskCenterPanel repoId={analysis.repository.id} />}
             {activeSubTab === 'test_lab' && <TestLabPanel repoId={analysis.repository.id} />}
             {activeSubTab === 'graph' && <GraphExplorer analysis={analysis} onSelectEntity={setSelectedEntity} />}
@@ -266,16 +273,19 @@ export const App: React.FC = () => {
             {activeSubTab === 'runner' && <CodeRunnerPanel repoId={analysis.repository.id} />}
             {activeSubTab === 'modernize' && <ModernizationPanel repoId={analysis.repository.id} />}
             {activeSubTab === 'rca' && <RcaEnginePanel repoId={analysis.repository.id} />}
+            {activeSubTab === 'code_review' && <AiCodeReviewerPanel repoId={analysis.repository.id} />}
             {activeSubTab === 'telemetry_incident' && <TelemetryIncidentStudioPanel repoId={analysis.repository.id} />}
             {activeSubTab === 'telemetry' && <ApiExplorer apis={analysis.apis} />}
             {activeSubTab === 'impact' && <ImpactExplorer repoId={analysis.repository.id} />}
             {activeSubTab === 'diff' && <DiffExplorer repoId={analysis.repository.id} />}
             {activeSubTab === 'architecture' && <ArchitecturePanel architecture={architecture} />}
+            {activeSubTab === 'visual_arch' && <VisualArchBuilderPanel repoId={analysis.repository.id} />}
             {activeSubTab === 'arch_compliance' && <ArchitectureCompliancePanel repoId={analysis.repository.id} />}
             {activeSubTab === 'mesh' && <MultiRepoWorkspacePanel repoId={analysis.repository.id} />}
             {activeSubTab === 'erd' && <ErdExplorer repoId={analysis.repository.id} />}
             {activeSubTab === 'handbook' && <HandbookExporterView repoId={analysis.repository.id} />}
             {activeSubTab === 'doctor' && <EngineeringHealthRadarPanel repoId={analysis.repository.id} />}
+            {activeSubTab === 'finops' && <CloudFinOpsPanel repoId={analysis.repository.id} />}
             {activeSubTab === 'supply_chain' && <SupplyChainSecurityPanel repoId={analysis.repository.id} />}
             {activeSubTab === 'security' && <SecurityExplorer audit={analysis.securityAudit} />}
             {activeSubTab === 'packages' && <PackageExplorer packages={analysis.packages} />}

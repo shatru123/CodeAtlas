@@ -394,4 +394,38 @@ export const apiService = {
     if (!res.ok) throw new Error('Failed to export CI/CD pipeline');
     return res.json();
   },
+
+  async getAiCodeReviewReport(id: string): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/codereview/${id}`);
+    if (!res.ok) throw new Error('Failed to fetch AI Code Review report');
+    return res.json();
+  },
+
+  async getApiBreakingChangesReport(id: string): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/apiguard/${id}`);
+    if (!res.ok) throw new Error('Failed to fetch API Breaking Changes report');
+    return res.json();
+  },
+
+  async getCloudFinOpsReport(id: string): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/finops/${id}`);
+    if (!res.ok) throw new Error('Failed to fetch Cloud FinOps report');
+    return res.json();
+  },
+
+  async executeApiPlayground(req: any): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/playground/execute`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    });
+    if (!res.ok) throw new Error('Failed to execute API request');
+    return res.json();
+  },
+
+  async getVisualArchCanvas(id: string): Promise<any> {
+    const res = await fetch(`${BASE_URL}/api/visualarch/${id}`);
+    if (!res.ok) throw new Error('Failed to fetch Visual Architecture Canvas');
+    return res.json();
+  },
 };

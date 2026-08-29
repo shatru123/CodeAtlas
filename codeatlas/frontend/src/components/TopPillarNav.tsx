@@ -25,6 +25,8 @@ export const TopPillarNav: React.FC<TopPillarNavProps> = ({
       subTabs: [
         { id: 'system_explorer', label: 'Universal System Explorer' },
         { id: 'ui_preview', label: 'Live UI Sandbox & Mock Data' },
+        { id: 'api_playground', label: 'Live API Playground' },
+        { id: 'api_guard', label: 'API Guard & Schema Diff' },
         { id: 'graph', label: 'Knowledge Graph' },
         { id: 'apis', label: 'REST APIs Catalog' },
         { id: 'databases', label: 'Database & ORM' },
@@ -53,6 +55,7 @@ export const TopPillarNav: React.FC<TopPillarNavProps> = ({
       description: 'Root Cause Analysis, OpenTelemetry APM Metrics, Traces & Logs',
       subTabs: [
         { id: 'rca', label: 'Root Cause Analysis (RCA)' },
+        { id: 'code_review', label: 'AI Staff Engineer Code Review' },
         { id: 'telemetry_incident', label: 'Telemetry Incident Studio' },
         { id: 'telemetry', label: 'OpenTelemetry APM Overlay' },
         { id: 'impact', label: 'Blast Radius Impact' },
@@ -66,6 +69,7 @@ export const TopPillarNav: React.FC<TopPillarNavProps> = ({
       description: 'Architecture Graph, Clean Rules, Violation Alerts & Guard',
       subTabs: [
         { id: 'architecture', label: 'Architecture & Rules' },
+        { id: 'visual_arch', label: 'Visual Architecture Canvas' },
         { id: 'arch_compliance', label: 'Architecture Rules Compliance' },
         { id: 'mesh', label: 'Workspace Mesh' },
         { id: 'erd', label: 'Database ERD' },
@@ -79,6 +83,7 @@ export const TopPillarNav: React.FC<TopPillarNavProps> = ({
       description: 'Engineering Health Score Radar, Technical Debt & CVE Audit',
       subTabs: [
         { id: 'doctor', label: 'AI Tech Debt Doctor' },
+        { id: 'finops', label: 'Cloud FinOps & Cost Estimator' },
         { id: 'supply_chain', label: 'Supply Chain & Licenses' },
         { id: 'security', label: 'Security & CVE Audit' },
         { id: 'packages', label: 'Packages & Vulnerabilities' },
