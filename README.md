@@ -1,14 +1,14 @@
-# CodeAtlas — Personal Engineering Knowledge Graph
+# CodeAtlas — Personal Engineering Knowledge Graph & Intelligence Platform
 
 <p align="center">
-  <strong>Automatically analyze, extract, and explore technical architecture, dependencies, APIs, DB flows, third-party packages, security vulnerabilities, cross-repo microservice meshes, blast radius impact, ER diagrams, container topologies, and living handbooks.</strong>
+  <strong>Automatically analyze, extract, and explore technical architecture, dependencies, APIs, DB flows, third-party packages, security vulnerabilities, cross-repo microservice meshes, blast radius impact, ER diagrams, container topologies, live UI previews, automated test synthesis, AI code reviews, API breaking-change guards, cloud FinOps cost estimations, and living handbooks.</strong>
 </p>
 
 ---
 
 ## 💡 What is CodeAtlas?
 
-**CodeAtlas** is an enterprise developer tool and engineering knowledge platform that automatically analyzes local and GitHub software repositories. It parses AST code structures, maps dependency call graphs, extracts REST API routes, traces database operations, detects messaging events, indexes third-party packages, synthesizes end-to-end execution flows with **on-the-fly Mermaid diagrams**, provides an **interactive drag-and-drop React Flow canvas**, audits security/CVE vulnerabilities, calculates change blast radius, generates database ER diagrams, visualizes Docker/K8s infrastructure topology, and exports living architecture handbooks—storing everything in a centralized knowledge graph.
+**CodeAtlas** is an enterprise-grade engineering intelligence platform that automatically analyzes software repositories. It parses AST code structures using Roslyn C#, Python, and TypeScript parsers, maps dependency call graphs, extracts REST API routes, traces database operations, detects messaging events, indexes third-party packages, synthesizes end-to-end execution flows with **on-the-fly Mermaid diagrams**, provides an **interactive drag-and-drop React Flow canvas**, audits security/CVE vulnerabilities & licenses, calculates change blast radius, generates database ER diagrams, visualizes Docker/K8s infrastructure topology, previews connected repository UI components with synthetic mock data, synthesizes automated xUnit test suites, conducts AI staff engineer code reviews, guards API contracts against breaking schema changes, estimates cloud infrastructure hosting costs, and exports living architecture handbooks—storing everything in a centralized knowledge graph.
 
 ---
 
@@ -37,36 +37,51 @@ npm start
 - **Drag & Drop Canvas**: Pan, zoom, and rearrange AST nodes with physics and MiniMap radar.
 - **Expandable Nodes**: Double-click any component to inspect member methods, return types, attributes, and file line numbers.
 - **Real-Time Path Highlighting**: Select any API route or component to highlight its exact node-to-node call chain in neon cyan while dimming unrelated nodes.
-- **JSON & Canvas Export**: Export complete IR knowledge graph JSON files.
 
-### 2. 🛡️ Security, CVE & Secret Auditing Engine
-- **Package CVE Scanner**: Maps NuGet (`.csproj`), NPM (`package.json`), and PyPI (`requirements.txt`) dependencies against known CVE/NVD advisories.
-- **Secret & Token Leak Detector**: Scans code for hardcoded AWS Access Keys, JWT secrets, DB passwords, RSA private keys, and GitHub PAT tokens.
-- **OWASP API Auditor**: Flags unauthenticated API routes (`[AllowAnonymous]`).
+### 2. 🤖 AI Staff Engineer Code Reviewer & PR Quality Gate
+- Automated staff engineer code review analyzing code readability, security risk severity, and performance bottlenecks with 1-click AI fix patches.
 
-### 3. 💥 Blast Radius & Change Impact Analysis Engine
+### 3. 🧪 Automated Test Suite Synthesizer (`Test Lab`)
+- Inspects AST class definitions and synthesizes isolated unit test suites (xUnit/Moq) with mocked external dependencies (`IOrderRepository`, `IPaymentGateway`).
+
+### 4. 🛡️ Clean Architecture Rules & Compliance Studio
+- Evaluates Clean Architecture layer boundaries (e.g. *Controllers must never query DB directly*, *Domain entities must not depend on Presentation DTOs*) with compliance score ratings.
+
+### 5. ⚡ Production Telemetry & Log Incident Studio
+- Paste raw production stack traces or JSON logs to correlate errors directly with AST symbols, regressing Git commits, and 1-click AI fix patches.
+
+### 6. 📦 Supply Chain Security & License Matrix
+- Audits direct and transitive package dependencies for CVE security vulnerabilities and verifies open-source license compliance (MIT vs Apache vs copyleft GPL-3.0).
+
+### 7. 🛡️ API Guard & Schema Breaking-Change Detector
+- Compares REST/gRPC API schemas against production baselines to detect breaking contract modifications before PRs are merged.
+
+### 8. 💰 Cloud FinOps & Infrastructure Cost Estimator
+- Scans `Dockerfile`, `docker-compose.yml`, and database query frequencies to calculate monthly AWS/Azure/GCP hosting costs ($135/mo) and FinOps optimization tips.
+
+### 9. 🌐 Live Executable REST API Playground
+- In-browser HTTP client allowing developers to execute live REST API requests directly inside CodeAtlas with real-time response status, headers, and execution latency.
+
+### 10. 🎨 Interactive Visual Architecture Canvas
+- Node-based system design canvas rendering architecture connections between API Controllers, Business Logic Services, and Database Clusters.
+
+### 11. 🖼️ Live UI Sandbox & Mock Data Previewer
+- Renders actual repository frontend component code (`.tsx`, `.jsx`, `.vue`, `.html`) directly in an interactive sandbox with synthetic mock JSON data generation on the fly.
+
+### 12. 💥 Blast Radius & Change Impact Analysis Engine
 - Calculates downstream impact scores (0 to 100) and risk levels (`Critical`, `High`, `Medium`, `Low`).
-- Lists affected Controllers, Services, Repositories, Database operations, and Cross-Repo Mesh Services before making code changes.
 
-### 4. 🌐 Multi-Repository Cross-Service Mesh Engine
+### 13. 🌐 Multi-Repository Cross-Service Mesh Engine
 - Connects multiple repositories into a unified workspace mesh graph.
-- Links cross-repo REST HTTP API calls and MassTransit / RabbitMQ / Kafka event streams across services.
 
-### 5. 📊 Git Branch Snapshot Diffing & Architecture Drift Inspector
+### 14. 📊 Git Branch Snapshot Diffing & Architecture Drift Inspector
 - Compares AST entities, REST APIs, and new architectural violations introduced between Git branches (`main` vs `feature`).
 
-### 6. 🗄️ Auto Database ERD (Entity-Relationship Diagram) Synthesizer
-- Synthesizes dynamic Mermaid Entity-Relationship Diagrams (`erDiagram ...`) with focus table filters, sanitized entity definitions, and scannable schema cards.
+### 15. 🗄️ Auto Database ERD (Entity-Relationship Diagram) Synthesizer
+- Synthesizes dynamic Mermaid Entity-Relationship Diagrams (`erDiagram ...`) with focus table filters and sanitized schema cards.
 
-### 7. 🐳 Docker & Kubernetes Infrastructure Topology Visualizer
-- Parses `Dockerfile`, `docker-compose.yml`, and K8s manifests (`deployment.yaml`, `service.yaml`) to map container services, exposed ports, and base images.
-
-### 8. 📄 Living Architecture Handbook & Exporter
-- Auto-synthesizes a comprehensive technical specification handbook with 1-click Markdown export and copy.
-
-### 9. 🚀 Code Runner & Terminal Execution Engine
-- Auto-detects project entry points across C# .NET (`--project`), Node.js (`package.json`), Python, Java (`mvn`/`gradle`), Go, Rust, and Docker.
-- Provides a live IDE terminal execution panel for running and monitoring repository execution.
+### 16. 🐳 Docker & Kubernetes Infrastructure Topology Visualizer
+- Maps container services, exposed ports, and base images from `Dockerfile` and K8s manifests.
 
 ---
 
@@ -83,13 +98,13 @@ CodeAtlas/
     ├── backend/                  # .NET 8 Clean Architecture Backend
     │   ├── CodeAtlas.sln
     │   └── src/
-    │       ├── CodeAtlas.Domain/         # Core IR Entities, Flow, Security & Runner Models
-    │       ├── CodeAtlas.Application/    # ImpactEngine, ErdEngine, MeshEngine, SecurityScanner, RepoRunnerService
+    │       ├── CodeAtlas.Domain/         # Core IR Entities, Flow, Security, Enterprise & FinOps Models
+    │       ├── CodeAtlas.Application/    # TestGenerator, ArchitectureRuleEngine, SupplyChain, Telemetry, FinOps, ApiGuard
     │       ├── CodeAtlas.Infrastructure/ # Roslyn C# Parser, Python & TS Parsers, InfraDetector
     │       └── CodeAtlas.Api/            # ASP.NET Core REST API
     └── frontend/                 # React + TypeScript + Vite Web UI
         └── src/
-            ├── components/           # Graph, Flow, Security, Mesh, Impact, Diff, ERD, Infra, Handbook, CodeRunner
+            ├── components/           # 25+ Enterprise Engineering Panels (Graph, TestLab, FinOps, ApiGuard, UI Sandbox, etc.)
             └── services/apiService.ts
 ```
 
@@ -101,20 +116,17 @@ CodeAtlas/
 | :--- | :--- | :--- |
 | `POST` | `/api/repositories/local` | Scans a local directory path (`{"path": "~/Projects/RepoA"}`) |
 | `POST` | `/api/repositories/github` | Clones & scans a GitHub repository (`{"url": "https://github.com/..."}`) |
-| `GET` | `/api/repositories` | Lists all scanned repositories |
-| `GET` | `/api/repositories/{id}` | Gets repository analysis summary |
-| `GET` | `/api/repositories/{id}/flows` | Synthesized execution flows & Mermaid markup |
-| `GET` | `/api/repositories/{id}/packages` | Third-party package dependencies (NuGet, NPM, PyPI) |
-| `GET` | `/api/repositories/{id}/security` | Security CVE, hardcoded secret leaks & OWASP audit |
-| `GET` | `/api/workspace/mesh` | Multi-repo cross-service dependency mesh graph |
-| `GET` | `/api/repositories/{id}/impact` | Blast radius & change impact score |
-| `GET` | `/api/repositories/{id}/diff` | Git branch snapshot diff & architectural drift |
-| `GET` | `/api/repositories/{id}/erd` | Auto database ERD synthesis |
-| `GET` | `/api/repositories/{id}/infrastructure` | Docker & K8s infrastructure topology |
-| `GET` | `/api/repositories/{id}/handbook` | Living architecture handbook documentation |
-| `GET` | `/api/repositories/{id}/runner/detect` | Detects language runtime & entry points |
-| `POST` | `/api/repositories/{id}/runner/execute` | Executes code with terminal log output |
-| `POST` | `/api/repositories/{id}/runner/stop` | Stops active process execution |
+| `GET` | `/api/testlab/{id}` | Synthesizes automated xUnit/Moq unit tests for uncovered AST classes |
+| `GET` | `/api/architecturerules/{id}` | Evaluates Clean Architecture rules & layer compliance |
+| `GET` | `/api/supplychain/{id}` | Audits package CVE vulnerabilities & license compliance |
+| `POST` | `/api/telemetry/{id}/parse-log` | Correlates raw stack trace with AST symbols & commit blame |
+| `GET` | `/api/codereview/{id}` | Staff engineer AI code review report |
+| `GET` | `/api/apiguard/{id}` | API breaking change detector & schema diffs |
+| `GET` | `/api/finops/{id}` | Cloud infrastructure monthly hosting bill estimator |
+| `POST` | `/api/playground/execute` | Live in-browser HTTP REST API request client |
+| `GET` | `/api/visualarch/{id}` | Interactive visual system design architecture nodes |
+| `GET` | `/api/uipreview/{id}/components` | Live UI Sandbox component blueprints & actual FE code |
+| `GET` | `/api/analytics/dashboard` | Unique visitor geolocation & IP analytics (`PIN: shatru2026`) |
 
 ---
 
@@ -132,4 +144,4 @@ cd codeatlas/frontend && npm run build
 
 ## 📄 License
 
-MIT License. Built by Shatrughna Ambhore for personal engineering repository intelligence, functional flow synthesis, security auditing, and architectural knowledge exploration.
+MIT License. Designed and built by **Shatrughna Ambhore** for personal engineering repository intelligence, functional flow synthesis, security auditing, and architectural knowledge exploration.
