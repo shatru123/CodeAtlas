@@ -8,10 +8,23 @@ interface TestLabPanelProps {
   repoId: string;
 }
 
+const DISCOVERED_CLASSES = [
+  { label: '📦 OrderService (Application Service)', value: 'OrderService' },
+  { label: '💳 PaymentService (Payment Integration)', value: 'PaymentService' },
+  { label: '🌐 RepositoriesController (REST Controller)', value: 'RepositoriesController' },
+  { label: '🤖 AgentOrchestratorService (AI Task Agent)', value: 'AgentOrchestratorService' },
+  { label: '🗺️ VisitorTrackerService (Geolocation Analytics)', value: 'VisitorTrackerService' },
+  { label: '🖼️ UiPreviewGeneratorService (UI Component Engine)', value: 'UiPreviewGeneratorService' },
+  { label: '🩺 TechDebtDoctorService (AI Debt Analyzer)', value: 'TechDebtDoctorService' },
+  { label: '🐳 InfrastructureDetector (Docker & K8s Topology)', value: 'InfrastructureDetector' },
+  { label: '✏️ Enter class name manually...', value: 'CUSTOM' }
+];
+
 export const TestLabPanel: React.FC<TestLabPanelProps> = ({ repoId }) => {
   const [suites, setSuites] = useState<any[]>([]);
   const [selectedSuite, setSelectedSuite] = useState<any>(null);
-  const [targetClass, setTargetClass] = useState('OrderService');
+  const [selectedClassOption, setSelectedClassOption] = useState('OrderService');
+  const [manualClassName, setManualClassName] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -34,14 +47,15 @@ export const TestLabPanel: React.FC<TestLabPanelProps> = ({ repoId }) => {
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!targetClass.trim()) return;
+    const finalClassName = selectedClassOption === 'CUSTOM' ? manualClassName : selectedClassOption;
+    if (!finalClassName.trim()) return;
 
     setIsGenerating(true);
     try {
-      const newSuite = await apiService.generateTestSuite(repoId, targetClass);
+      const newSuite = await apiService.generateTestSuite(repoId, finalClassName.trim());
       setSuites((prev) => [newSuite, ...prev]);
       setSelectedSuite(newSuite);
-      setTargetClass('');
+      if (selectedClassOption === 'CUSTOM') setManualClassName('');
     } catch {
       // Fallback
     } finally {
@@ -78,19 +92,36 @@ export const TestLabPanel: React.FC<TestLabPanelProps> = ({ repoId }) => {
                 Automated Test Suite Synthesizer (<MetricTooltip term="Test Lab" explanation="AI-powered test suite generator that inspects AST class definitions and produces isolated xUnit/Moq unit tests with mocked side-effects." />)
               </h2>
               <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-                Synthesize unit & integration tests for uncovered classes with dependency mocking and 1-click execution.
+                Select a class from the dropdown or enter manually to synthesize unit & integration tests with dependency mocking.
               </p>
             </div>
           </div>
 
-          <form onSubmit={handleGenerate} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <input
-              type="text"
-              placeholder="Class name (e.g. OrderService)"
-              value={targetClass}
-              onChange={(e) => setTargetClass(e.target.value)}
-              style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid var(--border-card)', padding: '0.45rem 0.75rem', borderRadius: '6px', color: 'white', fontSize: '0.82rem', outline: 'none' }}
-            />
+          <form onSubmit={handleGenerate} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            {/* Dropdown Selector */}
+            <select
+              value={selectedClassOption}
+              onChange={(e) => setSelectedClassOption(e.target.value)}
+              style={{ background: 'rgba(15,23,42,0.9)', color: 'var(--accent-purple)', border: '1px solid var(--accent-purple)', padding: '0.45rem 0.75rem', borderRadius: '8px', fontWeight: '800', fontSize: '0.82rem', outline: 'none', cursor: 'pointer' }}
+            >
+              {DISCOVERED_CLASSES.map((cls, idx) => (
+                <option key={idx} value={cls.value}>
+                  {cls.label}
+                </option>
+              ))}
+            </select>
+
+            {/* Manual Entry Input (Visible when CUSTOM is selected) */}
+            {selectedClassOption === 'CUSTOM' && (
+              <input
+                type="text"
+                placeholder="Enter custom ClassName (e.g. AuthService)"
+                value={manualClassName}
+                onChange={(e) => setManualClassName(e.target.value)}
+                style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid var(--border-card)', padding: '0.45rem 0.75rem', borderRadius: '6px', color: 'white', fontSize: '0.82rem', outline: 'none' }}
+              />
+            )}
+
             <button type="submit" disabled={isGenerating} className="btn-primary" style={{ padding: '0.45rem 0.95rem', fontSize: '0.82rem' }}>
               {isGenerating ? <RefreshCw size={15} className="spin" /> : <Sparkles size={15} />}
               <span>Synthesize Tests</span>
