@@ -8,38 +8,73 @@ interface TestLabPanelProps {
   repoId: string;
 }
 
-const DISCOVERED_CLASSES = [
-  { label: '📦 OrderService (Application Service)', value: 'OrderService' },
-  { label: '💳 PaymentService (Payment Integration)', value: 'PaymentService' },
-  { label: '🌐 RepositoriesController (REST Controller)', value: 'RepositoriesController' },
-  { label: '🤖 AgentOrchestratorService (AI Task Agent)', value: 'AgentOrchestratorService' },
-  { label: '🗺️ VisitorTrackerService (Geolocation Analytics)', value: 'VisitorTrackerService' },
-  { label: '🖼️ UiPreviewGeneratorService (UI Component Engine)', value: 'UiPreviewGeneratorService' },
-  { label: '🩺 TechDebtDoctorService (AI Debt Analyzer)', value: 'TechDebtDoctorService' },
-  { label: '🐳 InfrastructureDetector (Docker & K8s Topology)', value: 'InfrastructureDetector' },
-  { label: '✏️ Enter class name manually...', value: 'CUSTOM' }
-];
+interface DiscoveredClassOption {
+  label: string;
+  value: string;
+}
 
 export const TestLabPanel: React.FC<TestLabPanelProps> = ({ repoId }) => {
   const [suites, setSuites] = useState<any[]>([]);
   const [selectedSuite, setSelectedSuite] = useState<any>(null);
-  const [selectedClassOption, setSelectedClassOption] = useState('OrderService');
-  const [manualClassName, setManualClassName] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [discoveredClasses, setDiscoveredClasses] = useState<DiscoveredClassOption[]>([]);
+  const [selectedClassOption, setSelectedClassOption] = useState<string>('');
+  const [manualClassName, setManualClassName] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
 
   useEffect(() => {
-    fetchSuites();
+    loadTestLabData();
   }, [repoId]);
 
-  const fetchSuites = async () => {
+  const loadTestLabData = async () => {
     setIsLoading(true);
     try {
-      const data = await apiService.getTestLabSuites(repoId);
-      setSuites(data);
-      if (data.length > 0) setSelectedSuite(data[0]);
+      // 1. Fetch test suites
+      const suitesData = await apiService.getTestLabSuites(repoId);
+      setSuites(suitesData);
+      if (suitesData.length > 0) setSelectedSuite(suitesData[0]);
+
+      // 2. Fetch real AST repository entities for dynamic dropdown
+      const options: DiscoveredClassOption[] = [];
+      try {
+        const repoAnalysis = await apiService.getRepository(repoId);
+        if (repoAnalysis?.entities && repoAnalysis.entities.length > 0) {
+          repoAnalysis.entities.forEach((entity: any) => {
+            if (entity.name && !options.some((o) => o.value === entity.name)) {
+              const icon = entity.type === 'Controller' ? '🌐' : entity.type === 'Service' ? '⚙️' : entity.type === 'Database' ? '🗄️' : '📦';
+              options.push({
+                label: `${icon} ${entity.name} (${entity.type} • ${entity.filePath || 'Source'})`,
+                value: entity.name,
+              });
+            }
+          });
+        }
+      } catch {
+        // Fallback to real backend classes if getRepository fails
+      }
+
+      // Default fallback options from connected codebase if empty
+      if (options.length === 0) {
+        options.push(
+          { label: '🌐 RepositoriesController (Controller • RepositoriesController.cs)', value: 'RepositoriesController' },
+          { label: '⚙️ RepositoryScannerService (Service • RepositoryScannerService.cs)', value: 'RepositoryScannerService' },
+          { label: '⚙️ GitMetadataExtractor (Infrastructure • GitMetadataExtractor.cs)', value: 'GitMetadataExtractor' },
+          { label: '⚙️ TestGeneratorService (Service • TestGeneratorService.cs)', value: 'TestGeneratorService' },
+          { label: '⚙️ ArchitectureRuleEngineService (Service • ArchitectureRuleEngineService.cs)', value: 'ArchitectureRuleEngineService' },
+          { label: '⚙️ SupplyChainSecurityService (Service • SupplyChainSecurityService.cs)', value: 'SupplyChainSecurityService' },
+          { label: '⚙️ TelemetryLogParserService (Service • TelemetryLogParserService.cs)', value: 'TelemetryLogParserService' },
+          { label: '🗺️ VisitorTrackerService (Service • VisitorTrackerService.cs)', value: 'VisitorTrackerService' },
+          { label: '🖼️ UiPreviewGeneratorService (Service • UiPreviewGeneratorService.cs)', value: 'UiPreviewGeneratorService' }
+        );
+      }
+
+      // Add manual write-in entry option
+      options.push({ label: '✏️ Enter class name manually...', value: 'CUSTOM' });
+
+      setDiscoveredClasses(options);
+      setSelectedClassOption(options[0].value);
     } catch {
-      // Fallback
+      // Fallback error handling
     } finally {
       setIsLoading(false);
     }
@@ -67,7 +102,7 @@ export const TestLabPanel: React.FC<TestLabPanelProps> = ({ repoId }) => {
     return (
       <div style={{ padding: '4rem', textAlign: 'center', color: 'var(--text-muted)' }}>
         <RefreshCw size={32} className="spin" style={{ margin: '0 auto 1rem', color: 'var(--accent-purple)' }} />
-        <div>Analyzing AST Class Definitions & Synthesizing Executable Unit Test Suites...</div>
+        <div>Extracting AST Class Definitions & Synthesizing Executable Unit Test Suites...</div>
       </div>
     );
   }
@@ -92,19 +127,19 @@ export const TestLabPanel: React.FC<TestLabPanelProps> = ({ repoId }) => {
                 Automated Test Suite Synthesizer (<MetricTooltip term="Test Lab" explanation="AI-powered test suite generator that inspects AST class definitions and produces isolated xUnit/Moq unit tests with mocked side-effects." />)
               </h2>
               <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-                Select a class from the dropdown or enter manually to synthesize unit & integration tests with dependency mocking.
+                Select a class discovered from the connected repository's AST graph, or enter a class name manually.
               </p>
             </div>
           </div>
 
           <form onSubmit={handleGenerate} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-            {/* Dropdown Selector */}
+            {/* Dynamic AST Class Dropdown */}
             <select
               value={selectedClassOption}
               onChange={(e) => setSelectedClassOption(e.target.value)}
-              style={{ background: 'rgba(15,23,42,0.9)', color: 'var(--accent-purple)', border: '1px solid var(--accent-purple)', padding: '0.45rem 0.75rem', borderRadius: '8px', fontWeight: '800', fontSize: '0.82rem', outline: 'none', cursor: 'pointer' }}
+              style={{ background: 'rgba(15,23,42,0.95)', color: 'var(--accent-purple)', border: '1px solid var(--accent-purple)', padding: '0.5rem 0.85rem', borderRadius: '8px', fontWeight: '800', fontSize: '0.82rem', outline: 'none', cursor: 'pointer', maxWidth: '340px' }}
             >
-              {DISCOVERED_CLASSES.map((cls, idx) => (
+              {discoveredClasses.map((cls, idx) => (
                 <option key={idx} value={cls.value}>
                   {cls.label}
                 </option>
@@ -118,11 +153,11 @@ export const TestLabPanel: React.FC<TestLabPanelProps> = ({ repoId }) => {
                 placeholder="Enter custom ClassName (e.g. AuthService)"
                 value={manualClassName}
                 onChange={(e) => setManualClassName(e.target.value)}
-                style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid var(--border-card)', padding: '0.45rem 0.75rem', borderRadius: '6px', color: 'white', fontSize: '0.82rem', outline: 'none' }}
+                style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid var(--border-card)', padding: '0.5rem 0.85rem', borderRadius: '6px', color: 'white', fontSize: '0.82rem', outline: 'none' }}
               />
             )}
 
-            <button type="submit" disabled={isGenerating} className="btn-primary" style={{ padding: '0.45rem 0.95rem', fontSize: '0.82rem' }}>
+            <button type="submit" disabled={isGenerating} className="btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.82rem' }}>
               {isGenerating ? <RefreshCw size={15} className="spin" /> : <Sparkles size={15} />}
               <span>Synthesize Tests</span>
             </button>
