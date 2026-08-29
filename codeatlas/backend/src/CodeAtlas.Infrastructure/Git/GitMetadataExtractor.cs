@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using CodeAtlas.Application.Abstractions;
@@ -71,16 +72,32 @@ public class GitMetadataExtractor : IGitMetadataExtractor
         Directory.CreateDirectory(targetDirectory);
         var targetBranch = string.IsNullOrWhiteSpace(branch) ? "main" : branch;
 
+        // Clean and normalize input URL (handles both .git and non-.git URLs)
+        var cleanUrl = gitUrl.Trim();
+        while (cleanUrl.EndsWith("/")) cleanUrl = cleanUrl.Substring(0, cleanUrl.Length - 1);
+        if (cleanUrl.EndsWith(".git", StringComparison.OrdinalIgnoreCase))
+        {
+            cleanUrl = cleanUrl.Substring(0, cleanUrl.Length - 4);
+        }
+        while (cleanUrl.EndsWith("/")) cleanUrl = cleanUrl.Substring(0, cleanUrl.Length - 1);
+
+        if (!cleanUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase) && cleanUrl.Contains('/'))
+        {
+            cleanUrl = $"https://github.com/{cleanUrl}";
+        }
+
+        var gitCloneUrl = cleanUrl + ".git";
+
         // Try Git CLI Clone first if git CLI is available
         var gitDir = Path.Combine(targetDirectory, ".git");
         if (!Directory.Exists(gitDir))
         {
             try
             {
-                var authenticatedUrl = gitUrl;
-                if (!string.IsNullOrWhiteSpace(accessToken) && gitUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+                var authenticatedUrl = gitCloneUrl;
+                if (!string.IsNullOrWhiteSpace(accessToken) && gitCloneUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
                 {
-                    authenticatedUrl = gitUrl.Replace("https://", $"https://x-access-token:{accessToken}@");
+                    authenticatedUrl = gitCloneUrl.Replace("https://", $"https://x-access-token:{accessToken}@");
                 }
 
                 var cloneCmd = $"clone -b \"{targetBranch}\" \"{authenticatedUrl}\" \".\"";
@@ -95,7 +112,7 @@ public class GitMetadataExtractor : IGitMetadataExtractor
         // If Git clone did not produce files, fallback to HTTP ZIP Download from GitHub
         if (Directory.GetFiles(targetDirectory).Length == 0 && Directory.GetDirectories(targetDirectory).Length == 0)
         {
-            await DownloadGitHubZipFallbackAsync(gitUrl, targetDirectory, targetBranch);
+            await DownloadGitHubZipFallbackAsync(cleanUrl, targetDirectory, targetBranch);
         }
 
         // Ensure target directory has at least 1 file to prevent scanner failure
@@ -108,18 +125,11 @@ public class GitMetadataExtractor : IGitMetadataExtractor
         return targetDirectory;
     }
 
-    private async Task DownloadGitHubZipFallbackAsync(string gitUrl, string targetDirectory, string branch)
+    private async Task DownloadGitHubZipFallbackAsync(string cleanUrl, string targetDirectory, string branch)
     {
         try
         {
-            // Extract owner and repo from URL (e.g. https://github.com/shatru123/CodeAtlas or owner/repo)
-            var cleanUrl = gitUrl.TrimEnd('.').TrimEnd('/');
-            if (cleanUrl.EndsWith(".git", StringComparison.OrdinalIgnoreCase))
-            {
-                cleanUrl = cleanUrl.Substring(0, cleanUrl.Length - 4);
-            }
-
-            var parts = cleanUrl.Split('/');
+            var parts = cleanUrl.Split('/', StringSplitOptions.RemoveEmptyEntries);
             if (parts.Length >= 2)
             {
                 var repoName = parts[^1];
@@ -153,27 +163,24 @@ public class GitMetadataExtractor : IGitMetadataExtractor
                     {
                         File.Copy(file, file.Replace(sourceDir, targetDirectory), true);
                     }
-
-                    File.Delete(zipPath);
-                    Directory.Delete(extractTemp, true);
                 }
             }
         }
         catch
         {
-            // Fail gracefully if ZIP download fails
+            // Graceful fallback
         }
     }
 
-    private string? RunGitCommand(string workingDir, string arguments, int timeoutMs = 15000)
+    private string? RunGitCommand(string workingDirectory, string gitArguments, int timeoutMs = 15000)
     {
         try
         {
             var psi = new ProcessStartInfo
             {
                 FileName = "git",
-                Arguments = arguments,
-                WorkingDirectory = workingDir,
+                Arguments = gitArguments,
+                WorkingDirectory = workingDirectory,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
@@ -183,11 +190,14 @@ public class GitMetadataExtractor : IGitMetadataExtractor
             using var process = Process.Start(psi);
             if (process == null) return null;
 
-            var stdout = process.StandardOutput.ReadToEnd();
-            var stderr = process.StandardError.ReadToEnd();
-            process.WaitForExit(timeoutMs);
+            if (!process.WaitForExit(timeoutMs))
+            {
+                try { process.Kill(); } catch { }
+                return null;
+            }
 
-            return process.ExitCode == 0 ? (stdout + "\n" + stderr).Trim() : null;
+            var output = process.StandardOutput.ReadToEnd().Trim();
+            return string.IsNullOrEmpty(output) ? null : output;
         }
         catch
         {

@@ -12,7 +12,7 @@ interface ScanModalProps {
 export const ScanModal: React.FC<ScanModalProps> = ({ isOpen, onClose, onScanComplete }) => {
   const [activeTab, setActiveTab] = useState<'local' | 'github'>('local');
   const [localPath, setLocalPath] = useState('~/Shatru/Learning/Projects/CodeAtlas');
-  const [githubUrl, setGithubUrl] = useState('https://github.com/shatru123/CodeAtlas.git');
+  const [githubUrl, setGithubUrl] = useState('https://github.com/shatru123/CodeAtlas');
   const [branch, setBranch] = useState('main');
   const [accessToken, setAccessToken] = useState('');
   const [isScanning, setIsScanning] = useState(false);
@@ -31,7 +31,7 @@ export const ScanModal: React.FC<ScanModalProps> = ({ isOpen, onClose, onScanCom
         result = await apiService.scanLocalRepository({ path: localPath });
       } else {
         result = await apiService.scanGitHubRepository({
-          url: githubUrl,
+          url: githubUrl.trim(),
           branch: branch || undefined,
           accessToken: accessToken || undefined,
         });
@@ -140,7 +140,7 @@ export const ScanModal: React.FC<ScanModalProps> = ({ isOpen, onClose, onScanCom
                   type="text"
                   value={githubUrl}
                   onChange={(e) => setGithubUrl(e.target.value)}
-                  placeholder="https://github.com/owner/repository.git"
+                  placeholder="https://github.com/owner/repository"
                   style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid var(--border-card)', padding: '0.65rem 0.85rem', borderRadius: '8px', color: 'white', fontSize: '0.85rem', outline: 'none' }}
                   required
                 />
@@ -184,7 +184,7 @@ export const ScanModal: React.FC<ScanModalProps> = ({ isOpen, onClose, onScanCom
               </button>
               <button
                 type="button"
-                onClick={() => { setActiveTab('github'); setGithubUrl('https://github.com/shatru123/CodeAtlas.git'); setBranch('main'); }}
+                onClick={() => { setActiveTab('github'); setGithubUrl('https://github.com/shatru123/CodeAtlas'); setBranch('main'); }}
                 style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-card)', color: 'var(--accent-purple)', padding: '0.25rem 0.5rem', borderRadius: '6px', fontSize: '0.75rem', cursor: 'pointer' }}
               >
                 GitHub: CodeAtlas
